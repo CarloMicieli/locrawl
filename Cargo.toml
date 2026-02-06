@@ -1,0 +1,13 @@
+[package]
+name = "locrawl"
+version = "0.1.0"
+edition = "2024"
+description = "A CLI tool for retrieving railway model data from manufacturer websites and webshops"
+authors = ["Your Name <your.email@example.com>"]
+
+[dependencies]
+clap = { version = "4.5.57", features = ["derive"] }
+colored = "3.1.1"
+
+[dev-dependencies]
+assert_cmd = "2.1.2"
