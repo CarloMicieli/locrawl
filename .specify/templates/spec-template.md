@@ -95,6 +95,13 @@
 - **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
 - **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
+### Non-Functional Requirements
+
+- **NFR-001**: Performance budgets MUST be defined for critical paths (e.g., p95 latency,
+  throughput, memory, or frame rate) and met by the implementation.
+- **NFR-002**: UX consistency MUST follow shared patterns for layout, states, and messaging.
+- **NFR-003**: Accessibility expectations MUST be specified for user-facing features.
+
 ### Key Entities *(include if feature involves data)*
 
 - **[Entity 1]**: [What it represents, key attributes without implementation]

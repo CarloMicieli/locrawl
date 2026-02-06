@@ -1,50 +1,77 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+- Version change: template → 1.0.0
+- Modified principles: N/A (initial constitution)
+- Added sections: Engineering Standards, Development Workflow
+- Removed sections: None
+- Templates requiring updates:
+  - ✅ updated: .specify/templates/plan-template.md
+  - ✅ updated: .specify/templates/spec-template.md
+  - ✅ updated: .specify/templates/tasks-template.md
+  - ⚠️ pending: .specify/templates/commands/*.md (directory not found)
+- Follow-up TODOs: TODO(RATIFICATION_DATE) pending historical adoption date
+-->
+# locrawl Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Code Quality & Maintainability
+All production code MUST be readable, consistent, and easy to change.
+Code MUST follow repository lint/format rules, use clear naming, and avoid
+unnecessary complexity. Functions and modules MUST be kept small and focused;
+introduce abstraction only when it reduces duplication or improves clarity.
+Public interfaces MUST be documented where usage is non-obvious.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Testing Standards (NON-NEGOTIABLE)
+All new or changed behavior MUST be covered by automated tests. Bug fixes MUST
+include a regression test. Unit tests are required for core logic; integration
+tests are required for cross-component behavior and critical user journeys.
+Tests MUST be deterministic, run in CI, and not be skipped without a tracked
+issue and explicit approval.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. UX Consistency
+User experience MUST be consistent across screens, flows, and states.
+UI components MUST use shared patterns, tokens, and behaviors to avoid drift.
+Error, loading, and empty states MUST follow the same interaction and copy
+guidelines. Any UX change MUST be validated against the feature spec's
+acceptance scenarios.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Performance Requirements
+Performance budgets MUST be defined in the feature spec or plan before
+implementation. Changes MUST meet those budgets and MUST NOT regress key
+metrics (latency, throughput, memory, or frame rate where applicable). If a
+budget cannot be met, the change MUST include a documented mitigation plan and
+explicit approval.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Quality Gates & Review Discipline
+No change may merge without passing quality gates. At minimum this includes
+lint/format checks, required automated tests, and any defined UX or performance
+checks. Every change MUST be reviewed for compliance with these principles; a
+review that does not address them is incomplete.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Engineering Standards
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+- CI MUST run linting, formatting, and all required tests on every change.
+- Accessibility checks MUST be executed for UI features when applicable.
+- Performance checks/profiling MUST be executed when budgets are defined.
+- Any waiver of a gate MUST be documented with scope, risk, and follow-up work.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+- Feature work MUST include an updated spec and plan when scope changes.
+- Pull requests MUST link to the relevant spec/plan and state which budgets
+	and tests were executed.
+- Releases MUST include notes for user-facing changes and performance impacts.
 
 ## Governance
 <!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Amendments require a documented proposal, rationale, and impact analysis in a
+pull request. Approval requires consensus from maintainers or the designated
+project owner. Versioning follows semantic versioning: MAJOR for removals or
+backward-incompatible governance changes, MINOR for new or expanded principles,
+PATCH for clarifications or wording-only updates. Every review MUST explicitly
+verify compliance with Core Principles, Engineering Standards, and Development
+Workflow. The constitution supersedes all other guidance.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE): historical adoption date unknown | **Last Amended**: 2026-02-06

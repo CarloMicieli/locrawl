@@ -31,7 +31,10 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- Code quality gates defined (lint/format rules, complexity limits where needed)
+- Testing strategy defined (unit + integration coverage for critical paths)
+- UX consistency plan defined (shared patterns, states, and acceptance checks)
+- Performance budgets defined (metrics, targets, and validation approach)
 
 ## Project Structure
 
