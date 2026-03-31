@@ -86,6 +86,11 @@
           "type": "array",
           "items": { "$ref": "#/$defs/TrainFormation" },
           "default": []
+        },
+        "wishlists": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Wishlist" },
+          "default": []
         }
       },
       "additionalProperties": false
@@ -1073,6 +1078,85 @@
           "type": "integer",
           "enum": [-1, 0, 1],
           "description": "Per-slot traction override where -1, 0, and 1 adjust traction behavior"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Wishlist": {
+      "type": "object",
+      "required": ["id", "name", "isDefault"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the wishlist"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable name of the wishlist"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional free-form notes about the wishlist"
+        },
+        "isDefault": {
+          "type": "boolean",
+          "description": "Whether this was the user's default wishlist at export time; always restored as false on import"
+        },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/WishlistItem" },
+          "default": [],
+          "description": "Items tracked in this wishlist"
+        }
+      },
+      "additionalProperties": false
+    },
+    "WishlistItem": {
+      "type": "object",
+      "required": ["id", "railwayModelId", "priority", "status", "addedDate"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the wishlist item"
+        },
+        "railwayModelId": {
+          "$ref": "#/$defs/RailwayModelId",
+          "description": "References railwayModels[].id"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["LOW", "NORMAL", "HIGH"],
+          "description": "Desired acquisition priority"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["WANTED", "ON_ORDER", "PURCHASED", "IGNORED"],
+          "description": "Current acquisition status of the item"
+        },
+        "addedDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Date the item was added to the wishlist (YYYY-MM-DD)"
+        },
+        "removedDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Date the item was removed from the wishlist"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional free-form notes about the item"
+        },
+        "desiredPrice": {
+          "$ref": "#/$defs/Money",
+          "description": "Target or maximum price the user is willing to pay"
+        },
+        "purchasedPrice": {
+          "$ref": "#/$defs/Money",
+          "description": "Actual price paid when the item was purchased"
         }
       },
       "additionalProperties": false

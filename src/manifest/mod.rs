@@ -53,6 +53,8 @@ pub struct DataContainer {
     pub formation_categories: Vec<FormationCategory>,
     #[serde(default)]
     pub train_formations: Vec<TrainFormation>,
+    #[serde(default)]
+    pub wishlists: Vec<Wishlist>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -654,4 +656,46 @@ pub enum TractionOverride {
     Zero,
     #[serde(rename = "1")]
     One,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Wishlist {
+    pub id: String,
+    pub name: String,
+    pub notes: Option<String>,
+    pub is_default: bool,
+    #[serde(default)]
+    pub items: Vec<WishlistItem>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct WishlistItem {
+    pub id: String,
+    pub railway_model_id: RailwayModelId,
+    pub priority: WishlistPriority,
+    pub status: WishlistStatus,
+    pub added_date: NaiveDate,
+    pub removed_date: Option<NaiveDate>,
+    pub notes: Option<String>,
+    pub desired_price: Option<Money>,
+    pub purchased_price: Option<Money>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum WishlistPriority {
+    Low,
+    Normal,
+    High,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum WishlistStatus {
+    Wanted,
+    OnOrder,
+    Purchased,
+    Ignored,
 }

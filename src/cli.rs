@@ -1,6 +1,7 @@
 use clap::{Parser, Subcommand};
 
-use crate::commands::import::ImportArgs;
+use crate::commands::import_collection::ImportCollectionArgs;
+use crate::commands::import_wishlist::ImportWishlistArgs;
 
 #[derive(Parser)]
 #[command(name = "locrawl")]
@@ -17,6 +18,8 @@ pub struct Cli {
 pub enum Commands {
     /// Display basic tool information
     Info,
-    /// Import collection data and generate a manifest file
-    Import(ImportArgs),
+    /// Import collection data into a manifest file
+    ImportCollection(ImportCollectionArgs),
+    /// Import wishlist data into a manifest file
+    ImportWishlist(ImportWishlistArgs),
 }

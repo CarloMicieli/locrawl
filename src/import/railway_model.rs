@@ -23,6 +23,23 @@ pub struct PurchaseInfo {
     pub seller: String,
 }
 
+/// Wishlist metadata attached to a railway model.
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WishlistInfo {
+    pub wanted_price: Option<Price>,
+    pub notes: Option<String>,
+    pub priority: Option<WishlistPriority>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum WishlistPriority {
+    High,
+    Normal,
+    Low,
+}
+
 /// Top-level category of a railway model product.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -75,4 +92,5 @@ pub struct RailwayModel {
     pub rolling_stocks: Vec<RollingStock>,
     pub delivery_date: Option<String>,
     pub purchase_info: Option<PurchaseInfo>,
+    pub wishlist_info: Option<WishlistInfo>,
 }

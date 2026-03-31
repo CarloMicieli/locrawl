@@ -12,7 +12,8 @@ fn main() {
 
     let result: anyhow::Result<()> = match cli.command {
         Commands::Info => commands::info::run(),
-        Commands::Import(args) => commands::import::run(args),
+        Commands::ImportCollection(args) => commands::import_collection::run(args),
+        Commands::ImportWishlist(args) => commands::import_wishlist::run(args),
     };
 
     if let Err(e) = result {
