@@ -1,0 +1,273 @@
+{
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "integer",
+      "description": "The version number of the collection data."
+    },
+    "description": {
+      "type": "string",
+      "description": "A description of the collection."
+    },
+    "modifiedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of the last modification."
+    },
+    "railwayModels": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/RailwayModel"
+      }
+    }
+  },
+  "required": [
+    "version",
+    "modifiedAt",
+    "railwayModels"
+  ],
+  "definitions": {
+    "PurchaseInfo": {
+      "type": "object",
+      "properties": {
+        "purchaseDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "price": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "number",
+              "description": "The monetary value of the purchase.",
+              "minimum": 0
+            },
+            "currency": {
+              "type": "string",
+              "description": "The currency code (ISO 4217) of the monetary value.",
+              "example": "USD",
+              "default": "USD"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ]
+        },
+        "seller": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "purchaseDate",
+        "price",
+        "seller"
+      ]
+    },
+    "RollingStock": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "roadNumber": {
+          "type": "string"
+        },
+        "typeName": {
+          "type": "string"
+        },
+        "railway": {
+          "type": "string"
+        },
+        "category": {
+          "$ref": "#/definitions/Category"
+        },
+        "subCategory": {
+          "$ref": "#/definitions/SubCategory"
+        },
+        "depot": {
+          "type": "string"
+        },
+        "length": {
+          "type": "integer",
+          "description": "Length of the rolling stock in millimeters.",
+          "minimum": 0
+        },
+        "livery": {
+          "type": "string"
+        },
+        "serviceLevel": {
+          "$ref": "#/definitions/ServiceLevel"
+        },
+        "series": {
+          "type": "string"
+        },
+        "isDummy": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "category",
+        "railway"
+      ]
+    },
+    "ServiceLevel": {
+      "type": "string",
+      "enum": [
+        "1cl",
+        "2cl",
+        "3cl",
+        "1cl/2cl",
+        "1cl/2cl/3cl",
+        "2cl/3cl"
+      ]
+    },
+    "Epoch": {
+      "type": "string",
+      "pattern": "^(?:I|II|III|IV|V|VI)(?:[abm])?(?:/(?:I|II|III|IV|V|VI)(?:[abm])?)?$",
+      "description": "Allowed: Roman I..VI, optionally with suffix 'a'|'b'|'m' (e.g. 'Ia'), or two epochs separated by '/' (e.g. 'I/II').",
+      "examples": ["I", "Ia", "II", "III/IV", "Vb"]
+    },
+    "RailwayModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "manufacturer": {
+          "type": "string"
+        },
+        "productCode": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "LOCOMOTIVES",
+            "TRAIN_SETS",
+            "STARTER_SETS",
+            "FREIGHT_CARS",
+            "PASSENGER_CARS",
+            "ELECTRIC_MULTIPLE_UNITS",
+            "RAILCARS"
+          ]
+        },
+        "epoch": {
+          "$ref": "#/definitions/Epoch"
+        },
+        "description": {
+          "type": "string"
+        },
+        "powerMethod": {
+          "type": "string",
+          "enum": [
+            "AC",
+            "DC",
+            "TRIX_EXPRESS"
+          ]
+        },
+        "scale": {
+          "type": "string",
+          "enum": [
+            "Z",
+            "N",
+            "TT",
+            "H0",
+            "0",
+            "1",
+            "G"
+          ]
+        },
+        "deliveryDate": {
+          "type": "string",
+          "pattern": "^(?:\\d{4}|\\d{4}/Q[1-4]|\\d{4}/(?:0[1-9]|1[0-2]))$",
+          "description": "Either a year `YYYY`, a year+quarter `YYYY/Q1`..`YYYY/Q4`, or a year+month `YYYY/MM` with month `01`..`12`.",
+          "examples": [
+            "2020",
+            "2020/Q1",
+            "2020/04"
+          ]
+        },
+        "rollingStocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RollingStock"
+          }
+        },
+        "purchaseInfo": {
+          "$ref": "#/definitions/PurchaseInfo"
+        }
+      },
+      "required": [
+        "id",
+        "manufacturer",
+        "productCode",
+        "description",
+        "powerMethod",
+        "scale",
+        "epoch",
+        "category",
+        "rollingStocks"
+      ]
+    },
+    "Category": {
+      "type": "string",
+      "enum": [
+        "ELECTRIC_MULTIPLE_UNIT",
+        "FREIGHT_CAR",
+        "LOCOMOTIVE",
+        "PASSENGER_CAR",
+        "RAILCAR"
+      ]
+    },
+    "SubCategory": {
+      "type": "string",
+      "enum": [
+        "AUTO_TRANSPORT_CARS",
+        "BAGGAGE_CAR",
+        "BRAKE_WAGON",
+        "BUFFET_CAR",
+        "CLOSED_CARGO_VEHICLE",
+        "COMBINE_CAR",
+        "COMPARTMENT_COACH",
+        "CONTAINER_CARS",
+        "COVERED_FREIGHT_CARS",
+        "DEEP_WELL_FLAT_CARS",
+        "DIESEL_LOCOMOTIVE",
+        "DINING_CAR",
+        "DOME_CAR",
+        "DOUBLE_DECKER",
+        "DRIVING_CAR",
+        "DRIVING_TRAILER",
+        "DUMP_CARS",
+        "ELECTRIC_LOCOMOTIVE",
+        "GONDOLA",
+        "HEAVY_GOODS_WAGONS",
+        "HIGH_SPEED_TRAIN",
+        "HINGED_COVER_WAGONS",
+        "HOPPER_WAGON",
+        "LOUNGE",
+        "MOTOR_CAR",
+        "OBSERVATION",
+        "OPEN_COACH",
+        "POWER_CAR",
+        "RAILWAY_POST_OFFICE",
+        "REFRIGERATOR_CARS",
+        "SILO_CONTAINER_CARS",
+        "SLEEPERETTE",
+        "SLEEPING_CAR",
+        "SLIDE_TARPAULIN_WAGON",
+        "SLIDING_WALL_BOXCARS",
+        "SPECIAL_TRANSPORT",
+        "STAKE_WAGONS",
+        "STEAM_LOCOMOTIVE",
+        "SWING_ROOF_WAGON",
+        "TANK_CARS",
+        "TELESCOPE_HOOD_WAGONS",
+        "TRAILER_CAR",
+        "TRAIN_SET"
+      ]
+    }
+  }
+}

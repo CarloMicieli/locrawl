@@ -1,0 +1,1081 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rusty-shed.app/schemas/manifest/v1.json",
+  "title": "Rusty Shed Import Manifest",
+  "description": "Schema for the manifest.json file within Rusty Shed import packages",
+  "type": "object",
+  "required": ["version", "data"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to this schema"
+    },
+    "version": {
+      "type": "string",
+      "enum": ["1.0"],
+      "description": "Schema version"
+    },
+    "exportedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when the export was created"
+    },
+    "source": {
+      "type": "string",
+      "description": "Name and version of the application that created this export"
+    },
+    "data": {
+      "$ref": "#/$defs/DataContainer"
+    }
+  },
+  "$defs": {
+    "DataContainer": {
+      "type": "object",
+      "properties": {
+        "manufacturers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Manufacturer" },
+          "default": []
+        },
+        "railwayCompanies": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RailwayCompany" },
+          "default": []
+        },
+        "railwayModels": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RailwayModel" },
+          "default": []
+        },
+        "collectionItems": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CollectionItem" },
+          "default": []
+        },
+        "sellers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Seller" },
+          "default": []
+        },
+        "maintenanceCards": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/MaintenanceCard" },
+          "default": []
+        },
+        "trackProducts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TrackProduct" },
+          "default": []
+        },
+        "trackInventories": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TrackInventory" },
+          "default": []
+        },
+        "prototypes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Prototype" },
+          "default": []
+        },
+        "formationCategories": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FormationCategory" },
+          "default": []
+        },
+        "trainFormations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TrainFormation" },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "Manufacturer": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/ManufacturerId",
+          "description": "Unique identifier within this manifest"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Manufacturer name, e.g., 'Märklin'"
+        },
+        "registeredCompanyName": {
+          "type": "string",
+          "description": "Legal company name"
+        },
+        "countryCode": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "description": "ISO 3166-1 alpha-2 country code"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["ACTIVE", "MERGED", "OUT_OF_BUSINESS"],
+          "default": "ACTIVE"
+        },
+        "websiteUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "streetAddress": {
+          "type": "string"
+        },
+        "extendedAddress": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "stateRegion": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RailwayCompany": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/RailwayCompanyId",
+          "description": "Unique railway company identifier"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Railway company name, e.g., 'Deutsche Bahn'"
+        },
+        "countryCode": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "description": "ISO 3166-1 alpha-2 country code"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["ACTIVE", "INACTIVE"],
+          "default": "ACTIVE",
+          "description": "Operational status of the railway company"
+        },
+        "operatingSince": {
+          "type": "string",
+          "format": "date",
+          "description": "Date when the railway company began operations"
+        },
+        "operatingUntil": {
+          "type": "string",
+          "format": "date",
+          "description": "Date when the railway company ceased operations"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RailwayModel": {
+      "type": "object",
+      "required": [
+        "id",
+        "manufacturerId",
+        "productCode",
+        "description",
+        "scale",
+        "epoch",
+        "category",
+        "powerMethod"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/RailwayModelId",
+          "description": "Unique railway model identifier"
+        },
+        "manufacturerId": {
+          "$ref": "#/$defs/ManufacturerId",
+          "description": "References manufacturers[].id"
+        },
+        "productCode": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Manufacturer's product code, e.g., '39010'"
+        },
+        "description": {
+          "$ref": "#/$defs/LocalizedText",
+          "description": "Localized model description"
+        },
+        "details": {
+          "$ref": "#/$defs/LocalizedText",
+          "description": "Localized supplementary details about the model"
+        },
+        "scale": {
+          "type": "string",
+          "enum": ["H0", "H0m", "H0e", "N", "TT", "Z", "G", "1", "0", "00"],
+          "description": "Model scale token"
+        },
+        "epoch": {
+          "type": "string",
+          "pattern": "^(?:I{1,3}|IV|V|VI)(?:[aAbB])?$|^(?:I/II|II/III|III/IV|IV/V|V/VI)$|^Vm$",
+          "description": "Historical epoch token"
+        },
+        "category": {
+          "$ref": "#/$defs/Category",
+          "description": "High-level category of rolling stock represented by this model"
+        },
+        "powerMethod": {
+          "type": "string",
+          "enum": ["AC", "DC", "TRIX_EXPRESS"],
+          "description": "Electrical power pickup system used by the model"
+        },
+        "deliveryDate": {
+          "type": "string",
+          "description": "Release date in ISO format or 'Q1 2024' style"
+        },
+        "availabilityStatus": {
+          "type": "string",
+          "enum": ["AVAILABLE", "ANNOUNCED", "CANCELLED", "DISCONTINUED"],
+          "description": "Product lifecycle state of the model"
+        },
+        "image": {
+          "type": "string",
+          "description": "Filename in /images/ folder"
+        },
+        "rollingStocks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RollingStock" },
+          "default": [],
+          "description": "Individual rolling stock variants included under this model"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Category": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "LOCOMOTIVES",
+            "PASSENGER_CARS",
+            "FREIGHT_CARS",
+            "ELECTRIC_MULTIPLE_UNITS",
+            "RAILCARS",
+            "TRAIN_SETS",
+            "STARTER_SETS"
+          ],
+          "description": "Primary category of railway model"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LocalizedText": {
+      "type": "object",
+      "description": "Localized text values keyed by language code",
+      "properties": {
+        "en": { "type": "string", "minLength": 1, "description": "English text" },
+        "it": { "type": "string", "minLength": 1, "description": "Italian text" }
+      },
+      "additionalProperties": false,
+      "minProperties": 1
+    },
+    "FeatureFlag": {
+      "type": "string",
+      "enum": ["YES", "NO", "NOT_APPLICABLE"],
+      "description": "Tri-state feature marker indicating presence, absence, or non-applicability"
+    },
+    "ManufacturerId": {
+      "type": "string",
+      "pattern": "^trn:manufacturer:[^\\s]+$",
+      "description": "Manufacturer TRN in the form trn:manufacturer:{slug}"
+    },
+    "RailwayCompanyId": {
+      "type": "string",
+      "pattern": "^trn:railway-company:[^\\s]+$",
+      "description": "Railway company TRN in the form trn:railway-company:{slug}"
+    },
+    "RailwayModelId": {
+      "type": "string",
+      "pattern": "^trn:railway-model:[^:\\s]+:[^:\\s]+$",
+      "description": "Railway model TRN in the form trn:railway-model:{manufacturer}:{product-code}"
+    },
+    "CollectionItemId": {
+      "type": "string",
+      "pattern": "^trn:collection-item:[^\\s]+$",
+      "description": "Collection item TRN in the form trn:collection-item:{uuid}"
+    },
+    "SellerId": {
+      "type": "string",
+      "pattern": "^trn:seller:[^\\s]+$",
+      "description": "Seller TRN in the form trn:seller:{slug}"
+    },
+    "MaintenanceCardId": {
+      "type": "string",
+      "pattern": "^trn:maintenance-card:[^\\s]+$",
+      "description": "Maintenance card TRN in the form trn:maintenance-card:{uuid}"
+    },
+    "MaintenanceEventId": {
+      "type": "string",
+      "pattern": "^trn:maintenance-event:[^\\s]+$",
+      "description": "Maintenance event TRN in the form trn:maintenance-event:{uuid}"
+    },
+    "TrackId": {
+      "type": "string",
+      "pattern": "^trn:track:[^\\s]+$",
+      "description": "Track product TRN in the form trn:track:{manufacturer}:{product-code}"
+    },
+    "TrackInventoryId": {
+      "type": "string",
+      "pattern": "^trn:track-inventory:[^\\s]+$",
+      "description": "Track inventory TRN in the form trn:track-inventory:{slug-or-uuid}"
+    },
+    "TrackPurchaseId": {
+      "type": "string",
+      "pattern": "^trn:track-purchase:[^\\s]+$",
+      "description": "Track purchase TRN in the form trn:track-purchase:{uuid}"
+    },
+    "RollingStock": {
+      "type": "object",
+      "required": ["railwayCompanyId", "seriesCode"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable rolling stock identifier"
+        },
+        "railwayCompanyId": {
+          "$ref": "#/$defs/RailwayCompanyId",
+          "description": "References railwayCompanies[].id"
+        },
+        "seriesCode": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Series identifier, e.g., 'BR 01'"
+        },
+        "roadNumber": {
+          "type": "string",
+          "description": "Vehicle number, e.g., '01 118'"
+        },
+        "livery": {
+          "type": "string",
+          "description": "Paint scheme or decorative finish carried by this vehicle"
+        },
+        "friendlyName": {
+          "type": "string",
+          "description": "User-facing label or nickname for this rolling stock entry"
+        },
+        "series": {
+          "type": "string",
+          "description": "Human-readable class or series designation"
+        },
+        "depot": {
+          "type": "string",
+          "description": "Assigned home depot or operating base"
+        },
+        "electricMultipleUnitType": {
+          "type": "string",
+          "enum": [
+            "DRIVING_CAR",
+            "HIGH_SPEED_TRAIN",
+            "MOTOR_CAR",
+            "POWER_CAR",
+            "TRAILER_CAR",
+            "TRAIN_SET"
+          ],
+          "description": "Subtype used when the rolling stock is an electric multiple unit"
+        },
+        "freightCarType": {
+          "type": "string",
+          "enum": [
+            "AUTO_TRANSPORT_CARS",
+            "BRAKE_WAGON",
+            "CLOSED_CARGO_VEHICLE",
+            "CONTAINER_CARS",
+            "COVERED_FREIGHT_CARS",
+            "DEEP_WELL_FLAT_CARS",
+            "DUMP_CARS",
+            "GONDOLA",
+            "HEAVY_GOODS_WAGONS",
+            "HINGED_COVER_WAGONS",
+            "HOPPER_WAGON",
+            "REFRIGERATOR_CARS",
+            "SILO_CONTAINER_CARS",
+            "SLIDE_TARPAULIN_WAGON",
+            "SLIDING_WALL_BOXCARS",
+            "SPECIAL_TRANSPORT",
+            "STAKE_WAGONS",
+            "SWING_ROOF_WAGON",
+            "TANK_CARS",
+            "TELESCOPE_HOOD_WAGONS"
+          ],
+          "description": "Subtype used when the rolling stock is a freight car"
+        },
+        "locomotiveType": {
+          "type": "string",
+          "enum": ["STEAM_LOCOMOTIVE", "DIESEL_LOCOMOTIVE", "ELECTRIC_LOCOMOTIVE"],
+          "description": "Traction type of the locomotive"
+        },
+        "passengerCarType": {
+          "type": "string",
+          "enum": [
+            "BAGGAGE_CAR",
+            "BUFFET_CAR",
+            "COMBINE_CAR",
+            "COMPARTMENT_COACH",
+            "DINING_CAR",
+            "DOUBLE_DECKER",
+            "DOME_CAR",
+            "DRIVING_TRAILER",
+            "LOUNGE",
+            "OBSERVATION",
+            "OPEN_COACH",
+            "RAILWAY_POST_OFFICE",
+            "SLEEPING_CAR",
+            "SLEEPERETTE"
+          ],
+          "description": "Subtype used when the rolling stock is a passenger car"
+        },
+        "railcarType": {
+          "type": "string",
+          "enum": ["POWER_CAR", "TRAILER_CAR"],
+          "description": "Subtype used when the rolling stock is a railcar"
+        },
+        "serviceLevel": {
+          "type": "string",
+          "enum": [
+            "FIRST",
+            "SECOND",
+            "THIRD",
+            "FIRST_SECOND",
+            "SECOND_THIRD",
+            "FIRST_SECOND_THIRD"
+          ],
+          "description": "Passenger class configuration carried by the vehicle"
+        },
+        "isDummy": {
+          "type": "boolean",
+          "default": false,
+          "description": "True for non-powered units in sets"
+        },
+        "lengthInches": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Length in inches"
+        },
+        "lengthMillimeters": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Length in mm"
+        },
+        "technicalMinimumRadiusMm": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Minimum track radius in millimeters recommended for operation"
+        },
+        "technicalCouplingSocket": {
+          "type": "string",
+          "enum": [
+            "NONE",
+            "NEM_355",
+            "NEM_356",
+            "NEM_357",
+            "NEM_359",
+            "NEM_360",
+            "NEM_362",
+            "NEM_365"
+          ],
+          "description": "Standard coupling pocket or mounting interface fitted to the vehicle"
+        },
+        "technicalCouplingCloseCouplers": {
+          "$ref": "#/$defs/FeatureFlag"
+        },
+        "technicalCouplingDigitalShunting": {
+          "$ref": "#/$defs/FeatureFlag"
+        },
+        "technicalFlywheelFitted": {
+          "$ref": "#/$defs/FeatureFlag"
+        },
+        "technicalBodyShell": {
+          "type": "string",
+          "enum": ["PLASTIC", "METAL_DIE_CAST"],
+          "description": "Construction material or manufacturing type of the body shell"
+        },
+        "technicalChassis": {
+          "type": "string",
+          "enum": ["PLASTIC", "METAL_DIE_CAST"],
+          "description": "Construction material or manufacturing type of the chassis"
+        },
+        "technicalInteriorLights": {
+          "$ref": "#/$defs/FeatureFlag"
+        },
+        "technicalLights": {
+          "$ref": "#/$defs/FeatureFlag"
+        },
+        "technicalSprungBuffers": {
+          "$ref": "#/$defs/FeatureFlag"
+        },
+        "dccInterface": {
+          "type": "string",
+          "enum": [
+            "NEM_651",
+            "NEM_652",
+            "NEM_654",
+            "PLUX_8",
+            "PLUX_12",
+            "PLUX_16",
+            "PLUX_22",
+            "NEXT_18",
+            "NEXT_18_S",
+            "MTC_21"
+          ],
+          "description": "Digital decoder socket or connector interface fitted to the model"
+        },
+        "control": {
+          "type": "string",
+          "enum": ["DCC_READY", "DCC_FITTED", "DCC_SOUND", "NO_DCC"],
+          "description": "Digital control readiness or decoder installation state"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CollectionItem": {
+      "type": "object",
+      "required": ["id", "railwayModelId", "addedDate"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/CollectionItemId",
+          "description": "Unique identifier for this collection entry"
+        },
+        "railwayModelId": {
+          "$ref": "#/$defs/RailwayModelId",
+          "description": "References railwayModels[].id"
+        },
+        "addedDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Date added to collection (YYYY-MM-DD)"
+        },
+        "removedDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Date when the item left the collection"
+        },
+        "purchaseCondition": {
+          "type": "string",
+          "enum": ["NEW", "PRE_OWNED"],
+          "description": "Condition of the item at the time it was purchased"
+        },
+        "modelCondition": {
+          "type": "string",
+          "enum": [
+            "MINT",
+            "NEAR_MINT",
+            "EXCELLENT",
+            "VERY_GOOD",
+            "GOOD",
+            "FAIR",
+            "POOR",
+            "FOR_PARTS"
+          ],
+          "description": "Current physical and mechanical condition of the model"
+        },
+        "boxCondition": {
+          "type": "string",
+          "enum": ["ORIGINAL_MINT", "ORIGINAL_GOOD", "ORIGINAL_WORN", "REPLACEMENT_BOX", "NO_BOX"],
+          "description": "Condition of the original packaging box"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Free-form owner notes about this collection item"
+        },
+        "image": {
+          "type": "string",
+          "description": "Filename of the image associated with this collection item"
+        },
+        "purchase": {
+          "$ref": "#/$defs/Purchase",
+          "description": "Purchase or sale information associated with the item"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Purchase": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["purchased", "sold", "preOrdered"],
+          "description": "Business event represented by this purchase record"
+        },
+        "purchaseDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Date when the item was purchased"
+        },
+        "price": {
+          "$ref": "#/$defs/Money",
+          "description": "Purchase price paid for the item"
+        },
+        "sellerId": {
+          "$ref": "#/$defs/SellerId",
+          "description": "References sellers[].id"
+        },
+        "saleDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Date when the item was sold"
+        },
+        "salePrice": {
+          "$ref": "#/$defs/Money",
+          "description": "Sale price received for the item"
+        },
+        "depositAmount": {
+          "$ref": "#/$defs/Money",
+          "description": "Deposit paid for a pre-order"
+        },
+        "expectedDelivery": {
+          "type": "string",
+          "format": "date",
+          "description": "Expected delivery date for a pre-order"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "type": { "const": "purchased" } }
+          },
+          "then": {
+            "required": ["purchaseDate"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "sold" } }
+          },
+          "then": {
+            "required": ["purchaseDate", "saleDate"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "preOrdered" } }
+          },
+          "then": {
+            "required": ["sellerId"]
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "Money": {
+      "type": "object",
+      "required": ["amount", "currency"],
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Amount in smallest currency unit (e.g., cents)"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "ISO 4217 currency code"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Seller": {
+      "type": "object",
+      "required": ["id", "name", "sellerType"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/SellerId",
+          "description": "Unique seller identifier"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable seller name"
+        },
+        "sellerType": {
+          "type": "string",
+          "enum": ["SHOP", "PRIVATE", "MARKETPLACE", "DISTRIBUTOR"],
+          "description": "Category of seller"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Contact email address"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact phone number"
+        },
+        "websiteUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Website URL for the seller"
+        },
+        "address": {
+          "$ref": "#/$defs/Address",
+          "description": "Postal address of the seller"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Address": {
+      "type": "object",
+      "description": "Structured postal address",
+      "properties": {
+        "street": { "type": "string", "description": "Street address line" },
+        "city": { "type": "string", "description": "City or locality" },
+        "region": { "type": "string", "description": "State, province, or region" },
+        "postalCode": { "type": "string", "description": "Postal or ZIP code" },
+        "countryCode": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "description": "ISO 3166-1 alpha-2 country code"
+        }
+      },
+      "additionalProperties": false
+    },
+    "MaintenanceCard": {
+      "type": "object",
+      "required": ["id", "collectionItemId"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/MaintenanceCardId",
+          "description": "Unique identifier for the maintenance card"
+        },
+        "collectionItemId": {
+          "$ref": "#/$defs/CollectionItemId",
+          "description": "References collectionItems[].id"
+        },
+        "lastMaintenanceDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Date when the most recent maintenance was performed"
+        },
+        "nextMaintenanceDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Scheduled date for the next maintenance"
+        },
+        "events": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/MaintenanceEvent" },
+          "default": [],
+          "description": "Chronological maintenance history for this card"
+        }
+      },
+      "additionalProperties": false
+    },
+    "MaintenanceEvent": {
+      "type": "object",
+      "required": ["id", "date", "type"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/MaintenanceEventId",
+          "description": "Unique identifier for the maintenance event"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date when the maintenance activity was performed"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["cleaning", "lubrication", "repair", "modification", "inspection"],
+          "description": "Type of maintenance activity recorded"
+        },
+        "description": {
+          "type": "string",
+          "description": "Notes describing the maintenance work performed"
+        },
+        "cost": {
+          "$ref": "#/$defs/Money",
+          "description": "Cost associated with the maintenance event"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TrackProduct": {
+      "type": "object",
+      "required": [
+        "trackId",
+        "manufacturerId",
+        "productCode",
+        "description",
+        "trackType",
+        "trackCode",
+        "withRoadbed"
+      ],
+      "properties": {
+        "trackId": {
+          "$ref": "#/$defs/TrackId",
+          "description": "Canonical TRN identifier, e.g. 'trn:track:marklin:24188'"
+        },
+        "manufacturerId": {
+          "$ref": "#/$defs/ManufacturerId",
+          "description": "References manufacturers[].id"
+        },
+        "productCode": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Manufacturer product code for the track piece"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable description of the track product"
+        },
+        "trackType": {
+          "type": "string",
+          "enum": ["STRAIGHT", "CURVE", "TURNOUT", "FLEX_TRACK"],
+          "description": "Geometric class of track piece"
+        },
+        "trackCode": {
+          "type": "string",
+          "enum": ["CODE_70", "CODE_75", "CODE_83", "CODE_100"],
+          "description": "Rail profile code describing rail height"
+        },
+        "withRoadbed": {
+          "type": "boolean",
+          "description": "Whether the track piece includes integrated roadbed"
+        },
+        "length": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Length in mm (for straight track)"
+        },
+        "radius": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Radius in mm (for curved track)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TrackInventory": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/TrackInventoryId",
+          "description": "Unique identifier for the track inventory"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable name of the inventory"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional detailed description of the inventory"
+        },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TrackInventoryItem" },
+          "default": [],
+          "description": "Current quantities of track products in this inventory"
+        },
+        "purchases": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TrackPurchase" },
+          "default": [],
+          "description": "Purchase history contributing to this inventory"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TrackInventoryItem": {
+      "type": "object",
+      "required": ["trackId", "quantity"],
+      "properties": {
+        "trackId": {
+          "$ref": "#/$defs/TrackId",
+          "description": "References trackProducts[].trackId"
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "required": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Planned/required quantity"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TrackPurchase": {
+      "type": "object",
+      "required": ["id", "trackId", "quantity", "price", "purchaseDate"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/TrackPurchaseId",
+          "description": "Unique identifier for the track purchase"
+        },
+        "trackId": {
+          "$ref": "#/$defs/TrackId",
+          "description": "References trackProducts[].trackId"
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Quantity of track items acquired in this purchase"
+        },
+        "price": {
+          "$ref": "#/$defs/Money",
+          "description": "Total price paid for the purchased items"
+        },
+        "sellerId": {
+          "$ref": "#/$defs/SellerId",
+          "description": "References sellers[].id"
+        },
+        "purchaseDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Date when the track purchase occurred"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Prototype": {
+      "type": "object",
+      "required": [
+        "id",
+        "railwayCompanyId",
+        "seriesCode",
+        "carType",
+        "category",
+        "isMotorized",
+        "isCustom"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the prototype"
+        },
+        "railwayCompanyId": {
+          "$ref": "#/$defs/RailwayCompanyId",
+          "description": "References railwayCompanies[].id"
+        },
+        "seriesCode": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable class or series designation"
+        },
+        "carType": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Rolling stock type of the prototype"
+        },
+        "serviceLevel": {
+          "type": "string",
+          "description": "Optional passenger service class designation"
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "description": "High-level category of the prototype"
+        },
+        "isMotorized": {
+          "type": "boolean",
+          "description": "Whether the prototype includes built-in traction power"
+        },
+        "isCustom": {
+          "type": "boolean",
+          "description": "Whether the prototype is user-defined rather than catalog-provided"
+        }
+      },
+      "additionalProperties": false
+    },
+    "FormationCategory": {
+      "type": "object",
+      "required": ["id", "name", "isCustom"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the formation category"
+        },
+        "name": { "type": "string", "minLength": 1, "description": "Human-readable category name" },
+        "isCustom": {
+          "type": "boolean",
+          "description": "Whether the category was created by the user"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TrainFormation": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the train formation"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable name of the formation"
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Optional reference to a formation category"
+        },
+        "startYear": { "type": "integer", "description": "Year the formation entered service" },
+        "endYear": { "type": "integer", "description": "Year the formation left service" },
+        "epoch": {
+          "type": "string",
+          "description": "Roman-numeral modelling epoch for the formation"
+        },
+        "notes": { "type": "string", "description": "Optional notes about the formation" },
+        "elements": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FormationElement" },
+          "default": [],
+          "description": "Ordered composition slots that make up the formation"
+        }
+      },
+      "additionalProperties": false
+    },
+    "FormationElement": {
+      "type": "object",
+      "required": ["id", "prototypeId", "positionOrder", "tractionOverride"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the formation element"
+        },
+        "prototypeId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "References prototypes[].id"
+        },
+        "ownedRollingStockId": {
+          "type": "string",
+          "description": "Informational only; not restored on import"
+        },
+        "positionOrder": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Zero-based order of the element within the formation"
+        },
+        "tractionOverride": {
+          "type": "integer",
+          "enum": [-1, 0, 1],
+          "description": "Per-slot traction override where -1, 0, and 1 adjust traction behavior"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
