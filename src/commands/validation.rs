@@ -125,4 +125,88 @@ mod tests {
         let _ = fs::remove_file(&schema_path);
         let _ = fs::remove_file(&source_path);
     }
+
+    // ------- schema_path_for_type -------
+
+    #[test]
+    fn schema_path_for_collection_ends_with_collection_schema_json() {
+        let path = schema_path_for_type(crate::commands::SchemaType::Collection);
+        assert!(path.to_string_lossy().ends_with("collection_schema.json"));
+    }
+
+    #[test]
+    fn schema_path_for_wishlist_ends_with_wishlist_schema_json() {
+        let path = schema_path_for_type(crate::commands::SchemaType::Wishlist);
+        assert!(path.to_string_lossy().ends_with("wishlist_schema.json"));
+    }
+
+    #[test]
+    fn schema_path_for_digital_roster_ends_with_digital_roster_schema_json() {
+        let path = schema_path_for_type(crate::commands::SchemaType::DigitalRoster);
+        assert!(
+            path.to_string_lossy()
+                .ends_with("digital_roster_schema.json")
+        );
+    }
+
+    #[test]
+    fn schema_path_for_track_ends_with_track_import_schema_json() {
+        let path = schema_path_for_type(crate::commands::SchemaType::Track);
+        assert!(path.to_string_lossy().ends_with("track_import_schema.json"));
+    }
+
+    #[test]
+    fn schema_path_for_manifest_ends_with_manifest_schema_json() {
+        let path = schema_path_for_type(crate::commands::SchemaType::Manifest);
+        assert!(path.to_string_lossy().ends_with("manifest_schema.json"));
+    }
+
+    // ------- load_schema -------
+
+    #[test]
+    fn load_schema_successfully_reads_collection_schema() {
+        let path = schema_path_for_type(crate::commands::SchemaType::Collection);
+        let result = load_schema(&path);
+        assert!(
+            result.is_ok(),
+            "should be able to load collection_schema.json"
+        );
+    }
+
+    #[test]
+    fn load_schema_returns_error_for_missing_file() {
+        let path = std::path::Path::new("/nonexistent/path/schema.json");
+        let result = load_schema(path);
+        assert!(result.is_err());
+    }
+
+    // ------- validate_value_with_schema -------
+
+    #[test]
+    fn validate_value_with_schema_passes_for_valid_payload() {
+        let schema_path = temp_path("valid-schema.json");
+        let schema =
+            r#"{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}}"#;
+        fs::write(&schema_path, schema).expect("write schema");
+
+        let payload = serde_json::json!({ "name": "Märklin" });
+        let result = validate_value_with_schema(&payload, &schema_path, "test");
+
+        assert!(result.is_ok());
+        let _ = fs::remove_file(&schema_path);
+    }
+
+    #[test]
+    fn validate_value_with_schema_fails_for_wrong_type() {
+        let schema_path = temp_path("type-schema.json");
+        let schema =
+            r#"{"type":"object","required":["count"],"properties":{"count":{"type":"integer"}}}"#;
+        fs::write(&schema_path, schema).expect("write schema");
+
+        let payload = serde_json::json!({ "count": "not-a-number" });
+        let result = validate_value_with_schema(&payload, &schema_path, "test");
+
+        assert!(result.is_err());
+        let _ = fs::remove_file(&schema_path);
+    }
 }

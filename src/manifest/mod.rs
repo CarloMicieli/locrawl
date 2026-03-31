@@ -755,3 +755,199 @@ pub struct DigitalRollingStock {
     pub dcc_address: i64,
     pub decoder_id: Option<String>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    // ------- Manifest round-trip -------
+
+    #[test]
+    fn manifest_from_json_and_to_pretty_json_round_trips() {
+        let original = Manifest {
+            schema: Some("https://rusty-shed.app/schemas/manifest/v1.json".to_string()),
+            version: ManifestVersion::V1_0,
+            exported_at: None,
+            source: Some("locrawl-test".to_string()),
+            data: DataContainer {
+                manufacturers: vec![],
+                railway_companies: vec![],
+                railway_models: vec![],
+                collection_items: vec![],
+                sellers: vec![],
+                maintenance_cards: vec![],
+                track_products: vec![],
+                track_inventories: vec![],
+                prototypes: vec![],
+                formation_categories: vec![],
+                train_formations: vec![],
+                wishlists: vec![],
+                decoders: vec![],
+                digital_rolling_stocks: vec![],
+            },
+        };
+
+        let json = original
+            .to_pretty_json()
+            .expect("serialization should succeed");
+        let restored = Manifest::from_json(&json).expect("deserialization should succeed");
+
+        assert_eq!(
+            restored.schema.as_deref(),
+            Some("https://rusty-shed.app/schemas/manifest/v1.json")
+        );
+        assert!(matches!(restored.version, ManifestVersion::V1_0));
+        assert_eq!(restored.source.as_deref(), Some("locrawl-test"));
+    }
+
+    #[test]
+    fn manifest_from_json_fails_on_invalid_json() {
+        let result = Manifest::from_json("{ not valid json }");
+        assert!(result.is_err());
+    }
+
+    // ------- ManifestVersion serialization -------
+
+    #[test]
+    fn manifest_version_serializes_as_1_dot_0() {
+        let v = serde_json::to_value(ManifestVersion::V1_0).unwrap();
+        assert_eq!(v, json!("1.0"));
+    }
+
+    // ------- Scale serialization -------
+
+    #[test]
+    fn scale_serializes_special_variants_correctly() {
+        assert_eq!(serde_json::to_value(Scale::H0).unwrap(), json!("H0"));
+        assert_eq!(serde_json::to_value(Scale::N).unwrap(), json!("N"));
+        assert_eq!(serde_json::to_value(Scale::TT).unwrap(), json!("TT"));
+        assert_eq!(serde_json::to_value(Scale::Z).unwrap(), json!("Z"));
+        assert_eq!(serde_json::to_value(Scale::Scale0).unwrap(), json!("0"));
+        assert_eq!(serde_json::to_value(Scale::Scale1).unwrap(), json!("1"));
+        assert_eq!(serde_json::to_value(Scale::Scale00).unwrap(), json!("00"));
+        assert_eq!(serde_json::to_value(Scale::G).unwrap(), json!("G"));
+    }
+
+    #[test]
+    fn scale_deserializes_special_variants_correctly() {
+        assert!(matches!(
+            serde_json::from_value::<Scale>(json!("0")).unwrap(),
+            Scale::Scale0
+        ));
+        assert!(matches!(
+            serde_json::from_value::<Scale>(json!("1")).unwrap(),
+            Scale::Scale1
+        ));
+        assert!(matches!(
+            serde_json::from_value::<Scale>(json!("00")).unwrap(),
+            Scale::Scale00
+        ));
+    }
+
+    // ------- PowerMethod serialization -------
+
+    #[test]
+    fn power_method_serializes_screaming_snake_case() {
+        assert_eq!(serde_json::to_value(PowerMethod::Ac).unwrap(), json!("AC"));
+        assert_eq!(serde_json::to_value(PowerMethod::Dc).unwrap(), json!("DC"));
+        assert_eq!(
+            serde_json::to_value(PowerMethod::TrixExpress).unwrap(),
+            json!("TRIX_EXPRESS")
+        );
+    }
+
+    // ------- DccInterface serialization -------
+
+    #[test]
+    fn dcc_interface_serializes_with_underscore_separators() {
+        assert_eq!(
+            serde_json::to_value(DccInterface::Nem651).unwrap(),
+            json!("NEM_651")
+        );
+        assert_eq!(
+            serde_json::to_value(DccInterface::Nem652).unwrap(),
+            json!("NEM_652")
+        );
+        assert_eq!(
+            serde_json::to_value(DccInterface::Plux8).unwrap(),
+            json!("PLUX_8")
+        );
+        assert_eq!(
+            serde_json::to_value(DccInterface::Next18).unwrap(),
+            json!("NEXT_18")
+        );
+        assert_eq!(
+            serde_json::to_value(DccInterface::Next18S).unwrap(),
+            json!("NEXT_18_S")
+        );
+        assert_eq!(
+            serde_json::to_value(DccInterface::Mtc21).unwrap(),
+            json!("MTC_21")
+        );
+    }
+
+    #[test]
+    fn dcc_interface_deserializes_from_underscore_form() {
+        assert!(matches!(
+            serde_json::from_value::<DccInterface>(json!("NEM_651")).unwrap(),
+            DccInterface::Nem651
+        ));
+        assert!(matches!(
+            serde_json::from_value::<DccInterface>(json!("NEXT_18_S")).unwrap(),
+            DccInterface::Next18S
+        ));
+    }
+
+    // ------- TrackCode serialization -------
+
+    #[test]
+    fn track_code_serializes_with_underscore_separators() {
+        assert_eq!(
+            serde_json::to_value(TrackCode::Code70).unwrap(),
+            json!("CODE_70")
+        );
+        assert_eq!(
+            serde_json::to_value(TrackCode::Code75).unwrap(),
+            json!("CODE_75")
+        );
+        assert_eq!(
+            serde_json::to_value(TrackCode::Code83).unwrap(),
+            json!("CODE_83")
+        );
+        assert_eq!(
+            serde_json::to_value(TrackCode::Code100).unwrap(),
+            json!("CODE_100")
+        );
+    }
+
+    #[test]
+    fn track_code_deserializes_from_underscore_form() {
+        assert!(matches!(
+            serde_json::from_value::<TrackCode>(json!("CODE_83")).unwrap(),
+            TrackCode::Code83
+        ));
+    }
+
+    // ------- Control serialization -------
+
+    #[test]
+    fn control_serializes_screaming_snake_case() {
+        assert_eq!(
+            serde_json::to_value(Control::DccReady).unwrap(),
+            json!("DCC_READY")
+        );
+        assert_eq!(
+            serde_json::to_value(Control::DccFitted).unwrap(),
+            json!("DCC_FITTED")
+        );
+        assert_eq!(
+            serde_json::to_value(Control::DccSound).unwrap(),
+            json!("DCC_SOUND")
+        );
+        assert_eq!(
+            serde_json::to_value(Control::NoDcc).unwrap(),
+            json!("NO_DCC")
+        );
+    }
+}

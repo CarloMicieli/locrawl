@@ -695,8 +695,370 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::import::{
+        Category as ImportCategory, PowerMethod as ImportPowerMethod,
+        RailwayModelCategory as ImportRailwayModelCategory, Scale as ImportScale,
+        ServiceLevel as ImportServiceLevel, SubCategory as ImportSubCategory,
+    };
+    use chrono::Datelike;
     use serde_json::json;
     use std::time::{SystemTime, UNIX_EPOCH};
+
+    // ------- normalize_id_segment -------
+
+    #[test]
+    fn normalize_id_segment_lowercases_and_slugifies() {
+        assert_eq!(normalize_id_segment("ACME Rail"), "acme-rail");
+    }
+
+    #[test]
+    fn normalize_id_segment_strips_special_characters() {
+        assert_eq!(normalize_id_segment("Märklin & Co."), "marklin-co");
+    }
+
+    #[test]
+    fn normalize_id_segment_returns_unknown_for_empty_string() {
+        assert_eq!(normalize_id_segment(""), "unknown");
+    }
+
+    #[test]
+    fn normalize_id_segment_returns_unknown_for_only_special_chars() {
+        assert_eq!(normalize_id_segment("---!!!"), "unknown");
+    }
+
+    // ------- parse_date -------
+
+    #[test]
+    fn parse_date_parses_valid_iso_date() {
+        let date = parse_date("2024-06-15", "testField").unwrap();
+        assert_eq!(date.year(), 2024);
+        assert_eq!(date.month(), 6);
+        assert_eq!(date.day(), 15);
+    }
+
+    #[test]
+    fn parse_date_returns_error_for_invalid_format() {
+        let result = parse_date("15/06/2024", "testField");
+        assert!(result.is_err());
+        let msg = result.unwrap_err().to_string();
+        assert!(msg.contains("testField"));
+    }
+
+    #[test]
+    fn parse_date_returns_error_for_garbage_input() {
+        let result = parse_date("not-a-date", "someField");
+        assert!(result.is_err());
+    }
+
+    // ------- parse_rfc3339_to_utc -------
+
+    #[test]
+    fn parse_rfc3339_to_utc_parses_valid_timestamp() {
+        let dt = parse_rfc3339_to_utc("2026-03-31T12:00:00Z", "modifiedAt").unwrap();
+        assert_eq!(dt.to_rfc3339(), "2026-03-31T12:00:00+00:00");
+    }
+
+    #[test]
+    fn parse_rfc3339_to_utc_converts_offset_to_utc() {
+        let dt = parse_rfc3339_to_utc("2026-01-01T13:00:00+01:00", "modifiedAt").unwrap();
+        assert_eq!(dt.to_rfc3339(), "2026-01-01T12:00:00+00:00");
+    }
+
+    #[test]
+    fn parse_rfc3339_to_utc_returns_error_for_invalid() {
+        let result = parse_rfc3339_to_utc("2026-03-31", "modifiedAt");
+        assert!(result.is_err());
+        let msg = result.unwrap_err().to_string();
+        assert!(msg.contains("modifiedAt"));
+    }
+
+    // ------- map_scale -------
+
+    #[test]
+    fn map_scale_maps_all_variants() {
+        use Scale::*;
+        assert!(matches!(map_scale(&ImportScale::Z), Z));
+        assert!(matches!(map_scale(&ImportScale::N), N));
+        assert!(matches!(map_scale(&ImportScale::Tt), TT));
+        assert!(matches!(map_scale(&ImportScale::H0), H0));
+        assert!(matches!(map_scale(&ImportScale::Zero), Scale0));
+        assert!(matches!(map_scale(&ImportScale::One), Scale1));
+        assert!(matches!(map_scale(&ImportScale::G), G));
+    }
+
+    // ------- map_power_method -------
+
+    #[test]
+    fn map_power_method_maps_all_variants() {
+        use PowerMethod::*;
+        assert!(matches!(map_power_method(&ImportPowerMethod::Ac), Ac));
+        assert!(matches!(map_power_method(&ImportPowerMethod::Dc), Dc));
+        assert!(matches!(
+            map_power_method(&ImportPowerMethod::TrixExpress),
+            TrixExpress
+        ));
+    }
+
+    // ------- map_model_category -------
+
+    #[test]
+    fn map_model_category_maps_all_variants() {
+        use CategoryType::*;
+        assert!(matches!(
+            map_model_category(&ImportRailwayModelCategory::Locomotives),
+            Locomotives
+        ));
+        assert!(matches!(
+            map_model_category(&ImportRailwayModelCategory::FreightCars),
+            FreightCars
+        ));
+        assert!(matches!(
+            map_model_category(&ImportRailwayModelCategory::PassengerCars),
+            PassengerCars
+        ));
+        assert!(matches!(
+            map_model_category(&ImportRailwayModelCategory::ElectricMultipleUnits),
+            ElectricMultipleUnits
+        ));
+        assert!(matches!(
+            map_model_category(&ImportRailwayModelCategory::Railcars),
+            Railcars
+        ));
+        assert!(matches!(
+            map_model_category(&ImportRailwayModelCategory::TrainSets),
+            TrainSets
+        ));
+        assert!(matches!(
+            map_model_category(&ImportRailwayModelCategory::StarterSets),
+            StarterSets
+        ));
+    }
+
+    // ------- map_service_level -------
+
+    #[test]
+    fn map_service_level_maps_all_variants() {
+        use ServiceLevel::*;
+        assert!(matches!(
+            map_service_level(&Some(ImportServiceLevel::OneCl)),
+            Some(First)
+        ));
+        assert!(matches!(
+            map_service_level(&Some(ImportServiceLevel::TwoCl)),
+            Some(Second)
+        ));
+        assert!(matches!(
+            map_service_level(&Some(ImportServiceLevel::ThreeCl)),
+            Some(Third)
+        ));
+        assert!(matches!(
+            map_service_level(&Some(ImportServiceLevel::OneClTwoCl)),
+            Some(FirstSecond)
+        ));
+        assert!(matches!(
+            map_service_level(&Some(ImportServiceLevel::TwoClThreeCl)),
+            Some(SecondThird)
+        ));
+        assert!(matches!(
+            map_service_level(&Some(ImportServiceLevel::OneClTwoClThreeCl)),
+            Some(FirstSecondThird)
+        ));
+        assert!(map_service_level(&None).is_none());
+    }
+
+    // ------- map_locomotive_type -------
+
+    #[test]
+    fn map_locomotive_type_maps_all_sub_categories() {
+        assert!(matches!(
+            map_locomotive_type(
+                &ImportCategory::Locomotive,
+                &Some(ImportSubCategory::SteamLocomotive)
+            ),
+            Some(LocomotiveType::SteamLocomotive)
+        ));
+        assert!(matches!(
+            map_locomotive_type(
+                &ImportCategory::Locomotive,
+                &Some(ImportSubCategory::DieselLocomotive)
+            ),
+            Some(LocomotiveType::DieselLocomotive)
+        ));
+        assert!(matches!(
+            map_locomotive_type(
+                &ImportCategory::Locomotive,
+                &Some(ImportSubCategory::ElectricLocomotive)
+            ),
+            Some(LocomotiveType::ElectricLocomotive)
+        ));
+    }
+
+    #[test]
+    fn map_locomotive_type_returns_none_for_wrong_category() {
+        assert!(
+            map_locomotive_type(
+                &ImportCategory::FreightCar,
+                &Some(ImportSubCategory::SteamLocomotive)
+            )
+            .is_none()
+        );
+    }
+
+    #[test]
+    fn map_locomotive_type_returns_none_for_unknown_sub_category() {
+        assert!(
+            map_locomotive_type(
+                &ImportCategory::Locomotive,
+                &Some(ImportSubCategory::PowerCar)
+            )
+            .is_none()
+        );
+    }
+
+    // ------- map_freight_car_type -------
+
+    #[test]
+    fn map_freight_car_type_returns_none_for_wrong_category() {
+        assert!(
+            map_freight_car_type(
+                &ImportCategory::Locomotive,
+                &Some(ImportSubCategory::TankCars)
+            )
+            .is_none()
+        );
+    }
+
+    #[test]
+    fn map_freight_car_type_maps_tank_cars() {
+        assert!(matches!(
+            map_freight_car_type(
+                &ImportCategory::FreightCar,
+                &Some(ImportSubCategory::TankCars)
+            ),
+            Some(FreightCarType::TankCars)
+        ));
+    }
+
+    // ------- map_passenger_car_type -------
+
+    #[test]
+    fn map_passenger_car_type_returns_none_for_wrong_category() {
+        assert!(
+            map_passenger_car_type(
+                &ImportCategory::Locomotive,
+                &Some(ImportSubCategory::DiningCar)
+            )
+            .is_none()
+        );
+    }
+
+    #[test]
+    fn map_passenger_car_type_maps_dining_car() {
+        assert!(matches!(
+            map_passenger_car_type(
+                &ImportCategory::PassengerCar,
+                &Some(ImportSubCategory::DiningCar)
+            ),
+            Some(PassengerCarType::DiningCar)
+        ));
+    }
+
+    // ------- map_electric_multiple_unit_type -------
+
+    #[test]
+    fn map_electric_multiple_unit_type_returns_none_for_wrong_category() {
+        assert!(
+            map_electric_multiple_unit_type(
+                &ImportCategory::Locomotive,
+                &Some(ImportSubCategory::MotorCar)
+            )
+            .is_none()
+        );
+    }
+
+    #[test]
+    fn map_electric_multiple_unit_type_maps_driving_car() {
+        assert!(matches!(
+            map_electric_multiple_unit_type(
+                &ImportCategory::ElectricMultipleUnit,
+                &Some(ImportSubCategory::DrivingCar)
+            ),
+            Some(ElectricMultipleUnitType::DrivingCar)
+        ));
+    }
+
+    // ------- map_railcar_type -------
+
+    #[test]
+    fn map_railcar_type_returns_none_for_wrong_category() {
+        assert!(
+            map_railcar_type(
+                &ImportCategory::Locomotive,
+                &Some(ImportSubCategory::PowerCar)
+            )
+            .is_none()
+        );
+    }
+
+    #[test]
+    fn map_railcar_type_maps_power_car() {
+        assert!(matches!(
+            map_railcar_type(&ImportCategory::Railcar, &Some(ImportSubCategory::PowerCar)),
+            Some(RailcarType::PowerCar)
+        ));
+    }
+
+    // ------- merge_by_key -------
+
+    #[test]
+    fn merge_by_key_appends_new_items() {
+        let mut existing = vec![(1u32, "a"), (2u32, "b")];
+        let incoming = vec![(3u32, "c")];
+        merge_by_key(&mut existing, incoming, |(k, _)| *k, false);
+        assert_eq!(existing.len(), 3);
+        assert!(existing.iter().any(|(k, _)| *k == 3));
+    }
+
+    #[test]
+    fn merge_by_key_skips_duplicate_when_not_force() {
+        let mut existing = vec![(1u32, "original")];
+        let incoming = vec![(1u32, "replacement")];
+        merge_by_key(&mut existing, incoming, |(k, _)| *k, false);
+        assert_eq!(existing.len(), 1);
+        assert_eq!(existing[0].1, "original");
+    }
+
+    #[test]
+    fn merge_by_key_replaces_duplicate_when_force() {
+        let mut existing = vec![(1u32, "original")];
+        let incoming = vec![(1u32, "replacement")];
+        merge_by_key(&mut existing, incoming, |(k, _)| *k, true);
+        assert_eq!(existing.len(), 1);
+        assert_eq!(existing[0].1, "replacement");
+    }
+
+    // ------- strip_nulls -------
+
+    #[test]
+    fn strip_nulls_removes_null_object_fields() {
+        let mut value = json!({ "a": 1, "b": null, "c": "x" });
+        strip_nulls(&mut value);
+        assert_eq!(value, json!({ "a": 1, "c": "x" }));
+    }
+
+    #[test]
+    fn strip_nulls_removes_null_array_elements() {
+        let mut value = json!([1, null, 3]);
+        strip_nulls(&mut value);
+        assert_eq!(value, json!([1, 3]));
+    }
+
+    #[test]
+    fn strip_nulls_recurses_into_nested_objects() {
+        let mut value = json!({ "outer": { "keep": true, "drop": null } });
+        strip_nulls(&mut value);
+        assert_eq!(value, json!({ "outer": { "keep": true } }));
+    }
 
     fn temp_path(name: &str) -> PathBuf {
         let nanos = SystemTime::now()
