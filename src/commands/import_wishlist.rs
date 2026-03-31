@@ -186,6 +186,8 @@ fn map_wishlist_to_manifest(import: &ImportWishlist) -> Result<Manifest> {
             formation_categories: vec![],
             train_formations: vec![],
             wishlists: vec![wishlist],
+            decoders: vec![],
+            digital_rolling_stocks: vec![],
         },
     })
 }

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Digital Roster Import",
+  "type": "object",
+  "required": ["items"],
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "railwayModelId",
+          "decoderId",
+          "address",
+          "installationDate"
+        ],
+        "properties": {
+          "railwayModelId": {
+            "type": "string",
+            "pattern": "^trn:railway-model:[^:\\s]+:[^:\\s]+$"
+          },
+          "decoderId": {
+            "type": "string",
+            "pattern": "^trn:decoder:[^:\\s]+:[^:\\s]+$"
+          },
+          "address": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10239
+          },
+          "installationDate": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -220,6 +220,8 @@ pub(crate) fn empty_manifest() -> Manifest {
             formation_categories: vec![],
             train_formations: vec![],
             wishlists: vec![],
+            decoders: vec![],
+            digital_rolling_stocks: vec![],
         },
     }
 }
@@ -358,6 +360,8 @@ pub fn map_import_to_manifest(import: &Collection) -> Result<Manifest> {
             formation_categories: vec![],
             train_formations: vec![],
             wishlists: vec![],
+            decoders: vec![],
+            digital_rolling_stocks: vec![],
         },
     })
 }

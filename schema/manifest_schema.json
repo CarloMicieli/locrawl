@@ -91,6 +91,16 @@
           "type": "array",
           "items": { "$ref": "#/$defs/Wishlist" },
           "default": []
+        },
+        "decoders": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Decoder" },
+          "default": []
+        },
+        "digitalRollingStocks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/DigitalRollingStock" },
+          "default": []
         }
       },
       "additionalProperties": false
@@ -1157,6 +1167,69 @@
         "purchasedPrice": {
           "$ref": "#/$defs/Money",
           "description": "Actual price paid when the item was purchased"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Decoder": {
+      "type": "object",
+      "required": ["id", "manufacturerId", "productCode", "decoderType", "protocol", "decoderInterface"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "URN-based unique identifier for the decoder, e.g. trn:decoder:marklin:d100"
+        },
+        "manufacturerId": {
+          "$ref": "#/$defs/ManufacturerId",
+          "description": "References manufacturers[].id"
+        },
+        "productCode": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable product code, e.g. D-100"
+        },
+        "decoderType": {
+          "type": "string",
+          "enum": ["PLAIN", "SOUND", "FUNCTION", "MULTI_PROTOCOL"],
+          "description": "Functional category of the decoder"
+        },
+        "protocol": {
+          "type": "string",
+          "enum": ["DCC", "MFX", "SELECTRIX", "MOTOROLA", "FMZ", "NEXT18"],
+          "description": "Digital command control protocol supported by the decoder"
+        },
+        "decoderInterface": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Physical interface / connector type of the decoder"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DigitalRollingStock": {
+      "type": "object",
+      "required": ["id", "ownedRollingStockId", "dccAddress"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for this roster entry"
+        },
+        "ownedRollingStockId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "References a collection item in the source database; preserved for informational purposes"
+        },
+        "dccAddress": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10239,
+          "description": "DCC address assigned to this roster entry"
+        },
+        "decoderId": {
+          "type": "string",
+          "description": "References decoders[].id if a decoder is installed; omitted when no decoder is present"
         }
       },
       "additionalProperties": false

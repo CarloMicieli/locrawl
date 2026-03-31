@@ -13,6 +13,7 @@ fn main() {
     let result: anyhow::Result<()> = match cli.command {
         Commands::Info => commands::info::run(),
         Commands::ImportCollection(args) => commands::import_collection::run(args),
+        Commands::ImportDigitalRoster(args) => commands::import_digital_roster::run(args),
         Commands::ImportWishlist(args) => commands::import_wishlist::run(args),
     };
 

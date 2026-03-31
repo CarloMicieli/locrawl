@@ -1,9 +1,11 @@
 pub mod collection;
+pub mod digital_roster;
 pub mod railway_model;
 pub mod rolling_stocks;
 pub mod wishlist;
 
 pub use collection::Collection;
+pub use digital_roster::DigitalRosterImport;
 pub use railway_model::{
     Epoch, PowerMethod, Price, PurchaseInfo, RailwayModel, RailwayModelCategory, Scale,
     WishlistInfo, WishlistPriority,

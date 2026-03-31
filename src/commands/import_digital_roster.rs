@@ -1,0 +1,464 @@
+use std::collections::{BTreeMap, BTreeSet};
+use std::fs;
+use std::path::{Path, PathBuf};
+
+use anyhow::{Context, Result, bail};
+use clap::Args;
+use serde_json::Value;
+
+use crate::commands::import_collection::{
+    atomic_write, ensure_parent_dir, load_existing_manifest_or_empty, load_schema,
+    manifest_schema_path, normalize_id_segment, strip_nulls, validate_payload,
+};
+use crate::import::DigitalRosterImport;
+use crate::manifest::{Control, DccInterface, DecoderType, DigitalRollingStock, Manifest};
+
+#[derive(Debug, Args, Clone)]
+pub struct ImportDigitalRosterArgs {
+    /// Path to source digital roster JSON
+    #[arg(short = 's', long = "source")]
+    pub source: PathBuf,
+
+    /// Path to manifest JSON to create or update
+    #[arg(short = 'o', long = "output")]
+    pub output: PathBuf,
+
+    /// Overwrite conflicting existing digital assignments
+    #[arg(short = 'f', long = "force")]
+    pub force: bool,
+}
+
+pub fn run(args: ImportDigitalRosterArgs) -> Result<()> {
+    let import_schema = load_schema(&digital_roster_schema_path())
+        .context("Failed to load schema/digital_roster_schema.json")?;
+    let manifest_schema = load_schema(&manifest_schema_path())
+        .context("Failed to load schema/manifest_schema.json")?;
+
+    let import_validator = jsonschema::validator_for(&import_schema)
+        .context("Failed to compile import schema validator")?;
+    let manifest_validator = jsonschema::validator_for(&manifest_schema)
+        .context("Failed to compile manifest schema validator")?;
+
+    let source_content = fs::read_to_string(&args.source)
+        .with_context(|| format!("Failed to read source file '{}'.", args.source.display()))?;
+    let source_json: Value = serde_json::from_str(&source_content)
+        .with_context(|| format!("Failed to parse JSON from '{}'.", args.source.display()))?;
+
+    validate_payload(
+        &import_validator,
+        &source_json,
+        "digital roster import input",
+    )?;
+
+    let import_roster: DigitalRosterImport =
+        serde_json::from_value(source_json).with_context(|| {
+            format!(
+                "Failed to deserialize source data from '{}'.",
+                args.source.display()
+            )
+        })?;
+
+    let existing_manifest = load_existing_manifest_or_empty(&args.output)?;
+    let merged_manifest = merge_digital_roster(existing_manifest, import_roster, args.force)?;
+
+    let mut manifest_value = serde_json::to_value(&merged_manifest)
+        .context("Failed to serialize manifest to JSON value")?;
+    strip_nulls(&mut manifest_value);
+    validate_payload(&manifest_validator, &manifest_value, "manifest output")?;
+
+    let manifest_json = serde_json::to_string_pretty(&manifest_value)
+        .context("Failed to serialize manifest JSON string")?;
+
+    ensure_parent_dir(&args.output)?;
+    atomic_write(&args.output, &manifest_json)?;
+
+    println!("Manifest successfully written to {}", args.output.display());
+    Ok(())
+}
+
+fn digital_roster_schema_path() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("schema")
+        .join("digital_roster_schema.json")
+}
+
+fn merge_digital_roster(
+    mut manifest: Manifest,
+    import_roster: DigitalRosterImport,
+    force: bool,
+) -> Result<Manifest> {
+    let mut railway_model_index: BTreeMap<String, usize> = BTreeMap::new();
+    for (index, model) in manifest.data.railway_models.iter().enumerate() {
+        railway_model_index.insert(model.id.0.clone(), index);
+    }
+
+    let mut collection_item_to_model: BTreeMap<String, String> = BTreeMap::new();
+    let mut collection_items_by_model: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    for item in &manifest.data.collection_items {
+        collection_item_to_model.insert(item.id.0.clone(), item.railway_model_id.0.clone());
+        collection_items_by_model
+            .entry(item.railway_model_id.0.clone())
+            .or_default()
+            .push(item.id.0.clone());
+    }
+
+    let mut decoder_by_id: BTreeMap<String, (DecoderType, String)> = BTreeMap::new();
+    for decoder in &manifest.data.decoders {
+        decoder_by_id.insert(
+            decoder.id.clone(),
+            (
+                decoder.decoder_type.clone(),
+                decoder.decoder_interface.clone(),
+            ),
+        );
+    }
+
+    let existing_digital_models = existing_digital_model_ids(
+        &manifest,
+        &collection_item_to_model,
+        &collection_items_by_model,
+    );
+
+    let mut errors = Vec::new();
+    for item in &import_roster.items {
+        let Some(model_index) = railway_model_index.get(&item.railway_model_id) else {
+            errors.push(format!(
+                "Digital roster item references unknown railwayModelId '{}'.",
+                item.railway_model_id
+            ));
+            continue;
+        };
+
+        let has_existing_digital_data = {
+            let model = &manifest.data.railway_models[*model_index];
+            let rolling_stock_is_digital = model.rolling_stocks.iter().any(|stock| {
+                stock.dcc_interface.is_some()
+                    || matches!(stock.control, Some(Control::DccFitted | Control::DccSound))
+            });
+            rolling_stock_is_digital || existing_digital_models.contains(&item.railway_model_id)
+        };
+
+        if has_existing_digital_data && !force {
+            errors.push(format!(
+                "Digital data already exists for railwayModelId '{}' (use --force to overwrite).",
+                item.railway_model_id
+            ));
+        }
+    }
+
+    if !errors.is_empty() {
+        bail!(errors.join("\n"));
+    }
+
+    for item in import_roster.items {
+        let Some(model_index) = railway_model_index.get(&item.railway_model_id).copied() else {
+            continue;
+        };
+
+        let model = &mut manifest.data.railway_models[model_index];
+        if model.rolling_stocks.is_empty() {
+            bail!(
+                "railwayModelId '{}' has no rollingStocks to update.",
+                item.railway_model_id
+            );
+        }
+
+        let (control, dcc_interface) = resolve_digital_state(&item.decoder_id, &decoder_by_id)
+            .with_context(|| {
+                format!(
+                    "Failed to map decoder '{}' for railwayModelId '{}'.",
+                    item.decoder_id, item.railway_model_id
+                )
+            })?;
+
+        for stock in &mut model.rolling_stocks {
+            stock.control = Some(control.clone());
+            if let Some(interface) = dcc_interface.clone() {
+                stock.dcc_interface = Some(interface);
+            }
+        }
+
+        let owned_rolling_stock_id = collection_items_by_model
+            .get(&item.railway_model_id)
+            .and_then(|ids| ids.first())
+            .cloned()
+            .unwrap_or_else(|| item.railway_model_id.clone());
+
+        let entry_id = format!(
+            "trn:digital-rolling-stock:{}",
+            normalize_id_segment(&item.railway_model_id)
+        );
+
+        let updated_entry = DigitalRollingStock {
+            id: entry_id,
+            owned_rolling_stock_id,
+            dcc_address: item.address,
+            decoder_id: Some(item.decoder_id),
+        };
+
+        if let Some(existing_index) =
+            manifest
+                .data
+                .digital_rolling_stocks
+                .iter()
+                .position(|entry| {
+                    digital_entry_matches_model(
+                        entry,
+                        &item.railway_model_id,
+                        &collection_item_to_model,
+                        &collection_items_by_model,
+                    )
+                })
+        {
+            manifest.data.digital_rolling_stocks[existing_index] = updated_entry;
+        } else {
+            manifest.data.digital_rolling_stocks.push(updated_entry);
+        }
+    }
+
+    Ok(manifest)
+}
+
+fn existing_digital_model_ids(
+    manifest: &Manifest,
+    collection_item_to_model: &BTreeMap<String, String>,
+    collection_items_by_model: &BTreeMap<String, Vec<String>>,
+) -> BTreeSet<String> {
+    manifest
+        .data
+        .digital_rolling_stocks
+        .iter()
+        .filter_map(|entry| {
+            resolve_model_id_for_digital_entry(
+                &entry.owned_rolling_stock_id,
+                collection_item_to_model,
+                collection_items_by_model,
+            )
+        })
+        .collect()
+}
+
+fn resolve_model_id_for_digital_entry(
+    owned_rolling_stock_id: &str,
+    collection_item_to_model: &BTreeMap<String, String>,
+    collection_items_by_model: &BTreeMap<String, Vec<String>>,
+) -> Option<String> {
+    if let Some(model_id) = collection_item_to_model.get(owned_rolling_stock_id) {
+        return Some(model_id.clone());
+    }
+
+    if owned_rolling_stock_id.starts_with("trn:railway-model:") {
+        return Some(owned_rolling_stock_id.to_string());
+    }
+
+    collection_items_by_model
+        .iter()
+        .find(|(_, item_ids)| {
+            item_ids
+                .iter()
+                .any(|item_id| item_id == owned_rolling_stock_id)
+        })
+        .map(|(model_id, _)| model_id.clone())
+}
+
+fn digital_entry_matches_model(
+    entry: &DigitalRollingStock,
+    railway_model_id: &str,
+    collection_item_to_model: &BTreeMap<String, String>,
+    collection_items_by_model: &BTreeMap<String, Vec<String>>,
+) -> bool {
+    resolve_model_id_for_digital_entry(
+        &entry.owned_rolling_stock_id,
+        collection_item_to_model,
+        collection_items_by_model,
+    )
+    .is_some_and(|id| id == railway_model_id)
+}
+
+fn resolve_digital_state(
+    decoder_id: &str,
+    decoder_by_id: &BTreeMap<String, (DecoderType, String)>,
+) -> Result<(Control, Option<DccInterface>)> {
+    if let Some((decoder_type, decoder_interface)) = decoder_by_id.get(decoder_id) {
+        let control = if matches!(decoder_type, DecoderType::Sound) {
+            Control::DccSound
+        } else {
+            Control::DccFitted
+        };
+
+        return Ok((control, Some(parse_dcc_interface(decoder_interface)?)));
+    }
+
+    if let Some(inferred) = infer_dcc_interface_from_decoder_id(decoder_id) {
+        return Ok((Control::DccFitted, Some(inferred)));
+    }
+
+    Ok((Control::DccFitted, None))
+}
+
+fn infer_dcc_interface_from_decoder_id(decoder_id: &str) -> Option<DccInterface> {
+    let suffix = decoder_id.rsplit(':').next().unwrap_or(decoder_id);
+    parse_dcc_interface_token(suffix)
+}
+
+fn parse_dcc_interface(raw: &str) -> Result<DccInterface> {
+    parse_dcc_interface_token(raw)
+        .with_context(|| format!("Unsupported decoder interface '{}'.", raw))
+}
+
+fn parse_dcc_interface_token(raw: &str) -> Option<DccInterface> {
+    let token = normalize_token(raw);
+    match token.as_str() {
+        "NEM651" | "NEM_651" => Some(DccInterface::Nem651),
+        "NEM652" | "NEM_652" => Some(DccInterface::Nem652),
+        "NEM654" | "NEM_654" => Some(DccInterface::Nem654),
+        "PLUX8" | "PLUX_8" => Some(DccInterface::Plux8),
+        "PLUX12" | "PLUX_12" => Some(DccInterface::Plux12),
+        "PLUX16" | "PLUX_16" => Some(DccInterface::Plux16),
+        "PLUX22" | "PLUX_22" => Some(DccInterface::Plux22),
+        "NEXT18" | "NEXT_18" => Some(DccInterface::Next18),
+        "NEXT18S" | "NEXT_18_S" => Some(DccInterface::Next18S),
+        "MTC21" | "MTC_21" => Some(DccInterface::Mtc21),
+        _ => None,
+    }
+}
+
+fn normalize_token(raw: &str) -> String {
+    let mut normalized = String::with_capacity(raw.len());
+    let mut last_was_separator = false;
+
+    for ch in raw.chars() {
+        if ch.is_ascii_alphanumeric() {
+            normalized.push(ch.to_ascii_uppercase());
+            last_was_separator = false;
+        } else if !last_was_separator {
+            normalized.push('_');
+            last_was_separator = true;
+        }
+    }
+
+    normalized.trim_matches('_').to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::manifest::{Control, DccInterface};
+    use serde_json::json;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    fn temp_path(name: &str) -> PathBuf {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("time should be monotonic")
+            .as_nanos();
+        std::env::temp_dir().join(format!("locrawl-{}-{}", name, nanos))
+    }
+
+    #[test]
+    fn import_digital_roster_sets_fitted_and_dcc_address() {
+        let source = temp_path("digital-roster-source.json");
+        let output = temp_path("digital-roster-manifest.json");
+
+        let source_payload = json!({
+            "items": [
+                {
+                    "railwayModelId": "trn:railway-model:acme:br101",
+                    "decoderId": "trn:decoder:esu:lokpilot5",
+                    "address": 77,
+                    "installationDate": "2026-03-31"
+                }
+            ]
+        });
+
+        let manifest_payload = json!({
+            "$schema": "https://rusty-shed.app/schemas/manifest/v1.json",
+            "version": "1.0",
+            "data": {
+                "manufacturers": [
+                    {"id": "trn:manufacturer:acme", "name": "ACME"},
+                    {"id": "trn:manufacturer:esu", "name": "ESU"}
+                ],
+                "railwayCompanies": [
+                    {"id": "trn:railway-company:db", "name": "Deutsche Bahn"}
+                ],
+                "railwayModels": [
+                    {
+                        "id": "trn:railway-model:acme:br101",
+                        "manufacturerId": "trn:manufacturer:acme",
+                        "productCode": "BR101",
+                        "description": {"en": "Demo locomotive"},
+                        "scale": "H0",
+                        "epoch": "V",
+                        "category": {"type": "LOCOMOTIVES"},
+                        "powerMethod": "DC",
+                        "rollingStocks": [
+                            {
+                                "id": "rs-1",
+                                "railwayCompanyId": "trn:railway-company:db",
+                                "seriesCode": "BR 101",
+                                "control": "DCC_READY"
+                            }
+                        ]
+                    }
+                ],
+                "collectionItems": [
+                    {
+                        "id": "trn:collection-item:acme-br101",
+                        "railwayModelId": "trn:railway-model:acme:br101",
+                        "addedDate": "2026-03-31"
+                    }
+                ],
+                "decoders": [
+                    {
+                        "id": "trn:decoder:esu:lokpilot5",
+                        "manufacturerId": "trn:manufacturer:esu",
+                        "productCode": "LokPilot5",
+                        "decoderType": "PLAIN",
+                        "protocol": "DCC",
+                        "decoderInterface": "NEM_652"
+                    }
+                ],
+                "digitalRollingStocks": []
+            }
+        });
+
+        fs::write(
+            &source,
+            serde_json::to_string(&source_payload).expect("source payload should serialize"),
+        )
+        .expect("source file should be written");
+        fs::write(
+            &output,
+            serde_json::to_string(&manifest_payload).expect("manifest payload should serialize"),
+        )
+        .expect("manifest file should be written");
+
+        run(ImportDigitalRosterArgs {
+            source: source.clone(),
+            output: output.clone(),
+            force: false,
+        })
+        .expect("digital roster import should succeed");
+
+        let merged_raw = fs::read_to_string(&output).expect("manifest should exist");
+        let merged_manifest: Manifest =
+            serde_json::from_str(&merged_raw).expect("manifest should deserialize");
+
+        let rolling_stock = &merged_manifest.data.railway_models[0].rolling_stocks[0];
+        assert!(matches!(rolling_stock.control, Some(Control::DccFitted)));
+        assert!(matches!(
+            rolling_stock.dcc_interface,
+            Some(DccInterface::Nem652)
+        ));
+
+        assert_eq!(merged_manifest.data.digital_rolling_stocks.len(), 1);
+        assert_eq!(
+            merged_manifest.data.digital_rolling_stocks[0].dcc_address,
+            77
+        );
+
+        let _ = fs::remove_file(source);
+        let _ = fs::remove_file(output);
+    }
+}

@@ -55,6 +55,10 @@ pub struct DataContainer {
     pub train_formations: Vec<TrainFormation>,
     #[serde(default)]
     pub wishlists: Vec<Wishlist>,
+    #[serde(default)]
+    pub decoders: Vec<Decoder>,
+    #[serde(default)]
+    pub digital_rolling_stocks: Vec<DigitalRollingStock>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -367,17 +371,26 @@ pub enum TechnicalMaterial {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum DccInterface {
+    #[serde(rename = "NEM_651")]
     Nem651,
+    #[serde(rename = "NEM_652")]
     Nem652,
+    #[serde(rename = "NEM_654")]
     Nem654,
+    #[serde(rename = "PLUX_8")]
     Plux8,
+    #[serde(rename = "PLUX_12")]
     Plux12,
+    #[serde(rename = "PLUX_16")]
     Plux16,
+    #[serde(rename = "PLUX_22")]
     Plux22,
+    #[serde(rename = "NEXT_18")]
     Next18,
+    #[serde(rename = "NEXT_18_S")]
     Next18S,
+    #[serde(rename = "MTC_21")]
     Mtc21,
 }
 
@@ -698,4 +711,44 @@ pub enum WishlistStatus {
     OnOrder,
     Purchased,
     Ignored,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Decoder {
+    pub id: String,
+    pub manufacturer_id: ManufacturerId,
+    pub product_code: String,
+    pub decoder_type: DecoderType,
+    pub protocol: DecoderProtocol,
+    pub decoder_interface: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum DecoderType {
+    Plain,
+    Sound,
+    Function,
+    MultiProtocol,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum DecoderProtocol {
+    Dcc,
+    Mfx,
+    Selectrix,
+    Motorola,
+    Fmz,
+    Next18,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct DigitalRollingStock {
+    pub id: String,
+    pub owned_rolling_stock_id: String,
+    pub dcc_address: i64,
+    pub decoder_id: Option<String>,
 }
