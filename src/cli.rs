@@ -1,5 +1,7 @@
 use clap::{Parser, Subcommand};
 
+use crate::commands::import::ImportArgs;
+
 #[derive(Parser)]
 #[command(name = "locrawl")]
 #[command(version = env!("CARGO_PKG_VERSION"))]
@@ -15,4 +17,6 @@ pub struct Cli {
 pub enum Commands {
     /// Display basic tool information
     Info,
+    /// Import collection data and generate a manifest file
+    Import(ImportArgs),
 }

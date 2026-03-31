@@ -1,6 +1,6 @@
 use colored::Colorize;
 
-pub fn run() -> Result<(), Box<dyn std::error::Error>> {
+pub fn run() -> anyhow::Result<()> {
     let name = "locrawl".cyan();
     let version = env!("CARGO_PKG_VERSION");
     let summary =

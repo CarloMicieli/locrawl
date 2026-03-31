@@ -10,8 +10,9 @@ use std::process;
 fn main() {
     let cli = Cli::parse();
 
-    let result = match cli.command {
+    let result: anyhow::Result<()> = match cli.command {
         Commands::Info => commands::info::run(),
+        Commands::Import(args) => commands::import::run(args),
     };
 
     if let Err(e) = result {
