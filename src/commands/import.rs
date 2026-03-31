@@ -36,8 +36,8 @@ pub struct ImportArgs {
 }
 
 pub fn run(args: ImportArgs) -> Result<()> {
-    let import_schema =
-        load_schema(&import_schema_path()).context("Failed to load schema/import_schema.json")?;
+    let import_schema = load_schema(&collection_schema_path())
+        .context("Failed to load schema/collection_schema.json")?;
     let manifest_schema = load_schema(&manifest_schema_path())
         .context("Failed to load schema/manifest_schema.json")?;
 
@@ -72,7 +72,8 @@ pub fn run(args: ImportArgs) -> Result<()> {
         .context("Failed to serialize manifest JSON string")?;
 
     if let Some(parent) = args.output.parent()
-        && !parent.as_os_str().is_empty() {
+        && !parent.as_os_str().is_empty()
+    {
         fs::create_dir_all(parent).with_context(|| {
             format!("Failed to create output directory '{}'.", parent.display())
         })?;
@@ -503,10 +504,10 @@ fn load_schema(path: &Path) -> Result<Value> {
     Ok(schema)
 }
 
-fn import_schema_path() -> PathBuf {
+fn collection_schema_path() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("schema")
-        .join("import_schema.json")
+        .join("collection_schema.json")
 }
 
 fn manifest_schema_path() -> PathBuf {
