@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result, bail};
 use clap::Args;
+use log::info;
 use serde_json::Value;
 
 use crate::commands::import_collection::{
@@ -72,7 +73,7 @@ pub fn run(args: ImportDigitalRosterArgs) -> Result<()> {
     ensure_parent_dir(&args.output)?;
     atomic_write(&args.output, &manifest_json)?;
 
-    println!("Manifest successfully written to {}", args.output.display());
+    info!("Manifest successfully written to {}", args.output.display());
     Ok(())
 }
 

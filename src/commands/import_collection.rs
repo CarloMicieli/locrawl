@@ -6,6 +6,7 @@ use anyhow::{Context, Result, bail};
 use chrono::{DateTime, NaiveDate, Utc};
 use clap::Args;
 use jsonschema::Validator;
+use log::info;
 use serde_json::Value;
 use slug::slugify;
 
@@ -80,7 +81,7 @@ pub fn run(args: ImportCollectionArgs) -> Result<()> {
     ensure_parent_dir(&args.output)?;
     atomic_write(&args.output, &manifest_json)?;
 
-    println!("Manifest successfully written to {}", args.output.display());
+    info!("Manifest successfully written to {}", args.output.display());
     Ok(())
 }
 
