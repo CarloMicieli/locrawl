@@ -7,7 +7,7 @@ authors = ["Your Name <your.email@example.com>"]
 
 [dependencies]
 anyhow      = "1.0.102"
-chrono      = "0.4.44"
+chrono      = { version = "0.4.44", features = ["serde"] }
 clap        = { version = "4.6.0", features = ["derive"] }
 colored     = "3.1.1"
 env_logger  = "0.11.10"

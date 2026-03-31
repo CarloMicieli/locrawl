@@ -1,5 +1,7 @@
 mod cli;
 mod commands;
+pub mod import;
+pub mod manifest;
 
 use clap::Parser;
 use cli::{Cli, Commands};
