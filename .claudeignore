@@ -1,0 +1,20 @@
+# Exclude build artifacts
+target/
+
+# Exclude internal git files
+.git/
+
+# Exclude OS-specific metadata
+.DS_Store
+
+# Exclude sensitive environment variables
+.env
+.env.local
+
+# Exclude lockfiles (optional, but saves tokens)
+Cargo.lock
+
+# Exclude large binary files if you have any
+*.png
+*.jpg
+*.exe
