@@ -4,6 +4,7 @@ use crate::commands::import_collection::ImportCollectionArgs;
 use crate::commands::import_digital_roster::ImportDigitalRosterArgs;
 use crate::commands::import_track::ImportTrackArgs;
 use crate::commands::import_wishlist::ImportWishlistArgs;
+use crate::commands::validate::ValidateArgs;
 
 #[derive(Parser)]
 #[command(name = "locrawl")]
@@ -53,4 +54,6 @@ pub enum Commands {
     ImportTrack(ImportTrackArgs),
     /// Import wishlist data into a manifest file
     ImportWishlist(ImportWishlistArgs),
+    /// Validate a JSON file against a supported schema type
+    Validate(ValidateArgs),
 }

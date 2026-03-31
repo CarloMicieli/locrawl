@@ -5,10 +5,11 @@ use std::path::{Path, PathBuf};
 use anyhow::{Context, Result, bail};
 use chrono::{DateTime, NaiveDate, Utc};
 use clap::Args;
-use jsonschema::Validator;
 use log::info;
 use serde_json::Value;
 use slug::slugify;
+
+use crate::commands::validation::{manifest_schema_path, validate_value_with_schema};
 
 use crate::import::{
     Category as ImportRollingStockCategory, Collection, PowerMethod as ImportPowerMethod,
@@ -40,15 +41,8 @@ pub struct ImportCollectionArgs {
 }
 
 pub fn run(args: ImportCollectionArgs) -> Result<()> {
-    let import_schema = load_schema(&collection_schema_path())
-        .context("Failed to load schema/collection_schema.json")?;
-    let manifest_schema = load_schema(&manifest_schema_path())
-        .context("Failed to load schema/manifest_schema.json")?;
-
-    let import_validator = jsonschema::validator_for(&import_schema)
-        .context("Failed to compile import schema validator")?;
-    let manifest_validator = jsonschema::validator_for(&manifest_schema)
-        .context("Failed to compile manifest schema validator")?;
+    let collection_schema_path = collection_schema_path();
+    let manifest_schema_path = manifest_schema_path();
 
     let source_content = fs::read_to_string(&args.source)
         .with_context(|| format!("Failed to read source file '{}'.", args.source.display()))?;
@@ -56,7 +50,12 @@ pub fn run(args: ImportCollectionArgs) -> Result<()> {
     let source_json: Value = serde_json::from_str(&source_content)
         .with_context(|| format!("Failed to parse JSON from '{}'.", args.source.display()))?;
 
-    validate_payload(&import_validator, &source_json, "collection import input")?;
+    validate_value_with_schema(
+        &source_json,
+        &collection_schema_path,
+        "collection import input",
+    )
+    .context("Failed to load schema/collection_schema.json")?;
 
     let import_collection: Collection = serde_json::from_value(source_json).with_context(|| {
         format!(
@@ -73,7 +72,8 @@ pub fn run(args: ImportCollectionArgs) -> Result<()> {
     let mut manifest_value = serde_json::to_value(&merged_manifest)
         .context("Failed to serialize manifest to JSON value")?;
     strip_nulls(&mut manifest_value);
-    validate_payload(&manifest_validator, &manifest_value, "manifest output")?;
+    validate_value_with_schema(&manifest_value, &manifest_schema_path, "manifest output")
+        .context("Failed to load schema/manifest_schema.json")?;
 
     let manifest_json = serde_json::to_string_pretty(&manifest_value)
         .context("Failed to serialize manifest JSON string")?;
@@ -89,12 +89,6 @@ fn collection_schema_path() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("schema")
         .join("collection_schema.json")
-}
-
-pub(crate) fn manifest_schema_path() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("schema")
-        .join("manifest_schema.json")
 }
 
 pub(crate) fn strip_nulls(value: &mut Value) {
@@ -113,36 +107,6 @@ pub(crate) fn strip_nulls(value: &mut Value) {
         }
         _ => {}
     }
-}
-
-pub(crate) fn load_schema(path: &Path) -> Result<Value> {
-    let content = fs::read_to_string(path)
-        .with_context(|| format!("Failed to read schema '{}'.", path.display()))?;
-
-    let schema = serde_json::from_str(&content)
-        .with_context(|| format!("Failed to parse schema '{}'.", path.display()))?;
-
-    Ok(schema)
-}
-
-pub(crate) fn validate_payload(validator: &Validator, payload: &Value, label: &str) -> Result<()> {
-    let errors: Vec<String> = validator
-        .iter_errors(payload)
-        .map(|error| {
-            let location = if error.instance_path.to_string().is_empty() {
-                "$".to_string()
-            } else {
-                format!("${}", error.instance_path)
-            };
-            format!("Validation Error ({} at {}): {}", label, location, error)
-        })
-        .collect();
-
-    if errors.is_empty() {
-        return Ok(());
-    }
-
-    bail!(errors.join("\n"));
 }
 
 pub(crate) fn parse_rfc3339_to_utc(raw: &str, field_name: &str) -> Result<DateTime<Utc>> {

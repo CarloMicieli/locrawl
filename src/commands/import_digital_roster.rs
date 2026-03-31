@@ -8,9 +8,10 @@ use log::info;
 use serde_json::Value;
 
 use crate::commands::import_collection::{
-    atomic_write, ensure_parent_dir, load_existing_manifest_or_empty, load_schema,
-    manifest_schema_path, normalize_id_segment, strip_nulls, validate_payload,
+    atomic_write, ensure_parent_dir, load_existing_manifest_or_empty, normalize_id_segment,
+    strip_nulls,
 };
+use crate::commands::validation::{manifest_schema_path, validate_value_with_schema};
 use crate::import::DigitalRosterImport;
 use crate::manifest::{Control, DccInterface, DecoderType, DigitalRollingStock, Manifest};
 
@@ -30,26 +31,20 @@ pub struct ImportDigitalRosterArgs {
 }
 
 pub fn run(args: ImportDigitalRosterArgs) -> Result<()> {
-    let import_schema = load_schema(&digital_roster_schema_path())
-        .context("Failed to load schema/digital_roster_schema.json")?;
-    let manifest_schema = load_schema(&manifest_schema_path())
-        .context("Failed to load schema/manifest_schema.json")?;
-
-    let import_validator = jsonschema::validator_for(&import_schema)
-        .context("Failed to compile import schema validator")?;
-    let manifest_validator = jsonschema::validator_for(&manifest_schema)
-        .context("Failed to compile manifest schema validator")?;
+    let digital_schema_path = digital_roster_schema_path();
+    let manifest_schema_path = manifest_schema_path();
 
     let source_content = fs::read_to_string(&args.source)
         .with_context(|| format!("Failed to read source file '{}'.", args.source.display()))?;
     let source_json: Value = serde_json::from_str(&source_content)
         .with_context(|| format!("Failed to parse JSON from '{}'.", args.source.display()))?;
 
-    validate_payload(
-        &import_validator,
+    validate_value_with_schema(
         &source_json,
+        &digital_schema_path,
         "digital roster import input",
-    )?;
+    )
+    .context("Failed to load schema/digital_roster_schema.json")?;
 
     let import_roster: DigitalRosterImport =
         serde_json::from_value(source_json).with_context(|| {
@@ -65,7 +60,8 @@ pub fn run(args: ImportDigitalRosterArgs) -> Result<()> {
     let mut manifest_value = serde_json::to_value(&merged_manifest)
         .context("Failed to serialize manifest to JSON value")?;
     strip_nulls(&mut manifest_value);
-    validate_payload(&manifest_validator, &manifest_value, "manifest output")?;
+    validate_value_with_schema(&manifest_value, &manifest_schema_path, "manifest output")
+        .context("Failed to load schema/manifest_schema.json")?;
 
     let manifest_json = serde_json::to_string_pretty(&manifest_value)
         .context("Failed to serialize manifest JSON string")?;

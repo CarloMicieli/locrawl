@@ -8,10 +8,10 @@ use log::info;
 use serde_json::Value;
 
 use crate::commands::import_collection::{
-    atomic_write, ensure_parent_dir, load_existing_manifest_or_empty, load_schema, make_model_id,
-    manifest_schema_path, map_railway_model, normalize_id_segment, parse_rfc3339_to_utc,
-    strip_nulls, validate_payload,
+    atomic_write, ensure_parent_dir, load_existing_manifest_or_empty, make_model_id,
+    map_railway_model, normalize_id_segment, parse_rfc3339_to_utc, strip_nulls,
 };
+use crate::commands::validation::{manifest_schema_path, validate_value_with_schema};
 use crate::import::{Wishlist as ImportWishlist, WishlistPriority as ImportWishlistPriority};
 use crate::manifest::{
     self, DataContainer, Manifest, Manufacturer, ManufacturerId, RailwayCompany, RailwayModel,
@@ -34,22 +34,16 @@ pub struct ImportWishlistArgs {
 }
 
 pub fn run(args: ImportWishlistArgs) -> Result<()> {
-    let import_schema = load_schema(&wishlist_schema_path())
-        .context("Failed to load schema/wishlist_schema.json")?;
-    let manifest_schema = load_schema(&manifest_schema_path())
-        .context("Failed to load schema/manifest_schema.json")?;
-
-    let import_validator = jsonschema::validator_for(&import_schema)
-        .context("Failed to compile import schema validator")?;
-    let manifest_validator = jsonschema::validator_for(&manifest_schema)
-        .context("Failed to compile manifest schema validator")?;
+    let wishlist_schema_path = wishlist_schema_path();
+    let manifest_schema_path = manifest_schema_path();
 
     let source_content = std::fs::read_to_string(&args.source)
         .with_context(|| format!("Failed to read source file '{}'.", args.source.display()))?;
     let source_json: Value = serde_json::from_str(&source_content)
         .with_context(|| format!("Failed to parse JSON from '{}'.", args.source.display()))?;
 
-    validate_payload(&import_validator, &source_json, "wishlist import input")?;
+    validate_value_with_schema(&source_json, &wishlist_schema_path, "wishlist import input")
+        .context("Failed to load schema/wishlist_schema.json")?;
 
     let import_wishlist: ImportWishlist =
         serde_json::from_value(source_json).with_context(|| {
@@ -67,7 +61,8 @@ pub fn run(args: ImportWishlistArgs) -> Result<()> {
     let mut manifest_value = serde_json::to_value(&merged_manifest)
         .context("Failed to serialize manifest to JSON value")?;
     strip_nulls(&mut manifest_value);
-    validate_payload(&manifest_validator, &manifest_value, "manifest output")?;
+    validate_value_with_schema(&manifest_value, &manifest_schema_path, "manifest output")
+        .context("Failed to load schema/manifest_schema.json")?;
 
     let manifest_json = serde_json::to_string_pretty(&manifest_value)
         .context("Failed to serialize manifest JSON string")?;
