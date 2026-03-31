@@ -2,6 +2,7 @@ use clap::{Parser, Subcommand};
 
 use crate::commands::import_collection::ImportCollectionArgs;
 use crate::commands::import_digital_roster::ImportDigitalRosterArgs;
+use crate::commands::import_track::ImportTrackArgs;
 use crate::commands::import_wishlist::ImportWishlistArgs;
 
 #[derive(Parser)]
@@ -23,6 +24,8 @@ pub enum Commands {
     ImportCollection(ImportCollectionArgs),
     /// Import digital roster data into a manifest file
     ImportDigitalRoster(ImportDigitalRosterArgs),
+    /// Import track products and inventories into a manifest file
+    ImportTrack(ImportTrackArgs),
     /// Import wishlist data into a manifest file
     ImportWishlist(ImportWishlistArgs),
 }

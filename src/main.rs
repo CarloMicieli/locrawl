@@ -14,6 +14,7 @@ fn main() {
         Commands::Info => commands::info::run(),
         Commands::ImportCollection(args) => commands::import_collection::run(args),
         Commands::ImportDigitalRoster(args) => commands::import_digital_roster::run(args),
+        Commands::ImportTrack(args) => commands::import_track::run(args),
         Commands::ImportWishlist(args) => commands::import_wishlist::run(args),
     };
 

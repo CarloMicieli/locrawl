@@ -571,11 +571,14 @@ pub enum TrackType {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum TrackCode {
+    #[serde(rename = "CODE_70")]
     Code70,
+    #[serde(rename = "CODE_75")]
     Code75,
+    #[serde(rename = "CODE_83")]
     Code83,
+    #[serde(rename = "CODE_100")]
     Code100,
 }
 

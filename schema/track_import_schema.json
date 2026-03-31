@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Track Import",
+  "type": "object",
+  "required": ["products", "inventories"],
+  "properties": {
+    "products": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/TrackProduct" },
+      "default": []
+    },
+    "inventories": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/TrackInventory" },
+      "default": []
+    }
+  },
+  "$defs": {
+    "ManufacturerId": {
+      "type": "string",
+      "pattern": "^trn:manufacturer:[^\\s]+$"
+    },
+    "SellerId": {
+      "type": "string",
+      "pattern": "^trn:seller:[^\\s]+$"
+    },
+    "TrackId": {
+      "type": "string",
+      "pattern": "^trn:track:[^\\s]+$"
+    },
+    "TrackInventoryId": {
+      "type": "string",
+      "pattern": "^trn:track-inventory:[^\\s]+$"
+    },
+    "TrackPurchaseId": {
+      "type": "string",
+      "pattern": "^trn:track-purchase:[^\\s]+$"
+    },
+    "Money": {
+      "type": "object",
+      "required": ["amount", "currency"],
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TrackProduct": {
+      "type": "object",
+      "required": [
+        "trackId",
+        "manufacturerId",
+        "productCode",
+        "description",
+        "trackType",
+        "trackCode",
+        "withRoadbed"
+      ],
+      "properties": {
+        "trackId": {
+          "$ref": "#/$defs/TrackId"
+        },
+        "manufacturerId": {
+          "$ref": "#/$defs/ManufacturerId"
+        },
+        "productCode": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "trackType": {
+          "type": "string",
+          "enum": ["STRAIGHT", "CURVE", "TURNOUT", "FLEX_TRACK"]
+        },
+        "trackCode": {
+          "type": "string",
+          "enum": ["CODE_70", "CODE_75", "CODE_83", "CODE_100"]
+        },
+        "withRoadbed": {
+          "type": "boolean"
+        },
+        "length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "radius": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "TrackInventory": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/TrackInventoryId"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TrackInventoryItem" },
+          "default": []
+        },
+        "purchases": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TrackPurchase" },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "TrackInventoryItem": {
+      "type": "object",
+      "required": ["trackId", "quantity"],
+      "properties": {
+        "trackId": {
+          "$ref": "#/$defs/TrackId"
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "required": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "TrackPurchase": {
+      "type": "object",
+      "required": ["id", "trackId", "quantity", "price", "purchaseDate"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/TrackPurchaseId"
+        },
+        "trackId": {
+          "$ref": "#/$defs/TrackId"
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "price": {
+          "$ref": "#/$defs/Money"
+        },
+        "sellerId": {
+          "$ref": "#/$defs/SellerId"
+        },
+        "purchaseDate": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
