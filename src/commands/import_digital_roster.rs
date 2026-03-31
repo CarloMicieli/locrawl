@@ -8,8 +8,8 @@ use log::info;
 use serde_json::Value;
 
 use crate::commands::import_collection::{
-    atomic_write, ensure_parent_dir, load_existing_manifest_or_empty, normalize_id_segment,
-    strip_nulls,
+    ensure_parent_dir, load_existing_manifest_or_empty, normalize_id_segment, strip_nulls,
+    write_zip,
 };
 use crate::commands::validation::{manifest_schema_path, validate_value_with_schema};
 use crate::import::DigitalRosterImport;
@@ -21,7 +21,7 @@ pub struct ImportDigitalRosterArgs {
     #[arg(short = 's', long = "source")]
     pub source: PathBuf,
 
-    /// Path to manifest JSON to create or update
+    /// Path to zip archive to create or update
     #[arg(short = 'o', long = "output")]
     pub output: PathBuf,
 
@@ -67,7 +67,7 @@ pub fn run(args: ImportDigitalRosterArgs) -> Result<()> {
         .context("Failed to serialize manifest JSON string")?;
 
     ensure_parent_dir(&args.output)?;
-    atomic_write(&args.output, &manifest_json)?;
+    write_zip(&args.output, &manifest_json)?;
 
     info!("Manifest successfully written to {}", args.output.display());
     Ok(())
@@ -340,6 +340,7 @@ fn normalize_token(raw: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::commands::import_collection::{load_existing_manifest_or_empty, write_zip};
     use crate::manifest::{Control, DccInterface};
     use serde_json::json;
     use std::time::{SystemTime, UNIX_EPOCH};
@@ -425,11 +426,9 @@ mod tests {
             serde_json::to_string(&source_payload).expect("source payload should serialize"),
         )
         .expect("source file should be written");
-        fs::write(
-            &output,
-            serde_json::to_string(&manifest_payload).expect("manifest payload should serialize"),
-        )
-        .expect("manifest file should be written");
+        let manifest_seed =
+            serde_json::to_string(&manifest_payload).expect("manifest payload should serialize");
+        write_zip(&output, &manifest_seed).expect("manifest file should be written");
 
         run(ImportDigitalRosterArgs {
             source: source.clone(),
@@ -438,9 +437,8 @@ mod tests {
         })
         .expect("digital roster import should succeed");
 
-        let merged_raw = fs::read_to_string(&output).expect("manifest should exist");
-        let merged_manifest: Manifest =
-            serde_json::from_str(&merged_raw).expect("manifest should deserialize");
+        let merged_manifest =
+            load_existing_manifest_or_empty(&output).expect("manifest should exist");
 
         let rolling_stock = &merged_manifest.data.railway_models[0].rolling_stocks[0];
         assert!(matches!(rolling_stock.control, Some(Control::DccFitted)));

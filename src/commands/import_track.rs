@@ -8,7 +8,7 @@ use log::info;
 use serde_json::Value;
 
 use crate::commands::import_collection::{
-    atomic_write, ensure_parent_dir, load_existing_manifest_or_empty, strip_nulls,
+    ensure_parent_dir, load_existing_manifest_or_empty, strip_nulls, write_zip,
 };
 use crate::commands::validation::{manifest_schema_path, validate_value_with_schema};
 use crate::import::TrackImport;
@@ -20,7 +20,7 @@ pub struct ImportTrackArgs {
     #[arg(short = 's', long = "source")]
     pub source: PathBuf,
 
-    /// Path to manifest JSON to create or update
+    /// Path to zip archive to create or update
     #[arg(short = 'o', long = "output")]
     pub output: PathBuf,
 
@@ -63,7 +63,7 @@ pub fn run(args: ImportTrackArgs) -> Result<()> {
         .context("Failed to serialize manifest JSON string")?;
 
     ensure_parent_dir(&args.output)?;
-    atomic_write(&args.output, &manifest_json)?;
+    write_zip(&args.output, &manifest_json)?;
 
     info!("Manifest successfully written to {}", args.output.display());
     Ok(())
@@ -191,7 +191,9 @@ fn validate_inventory_track_references(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::commands::import_collection::empty_manifest;
+    use crate::commands::import_collection::{
+        empty_manifest, load_existing_manifest_or_empty, write_zip,
+    };
     use crate::manifest::{
         ManufacturerId, TrackCode, TrackId, TrackInventoryId, TrackProduct, TrackType,
     };
@@ -230,11 +232,9 @@ mod tests {
             .track_products
             .push(sample_product("trn:track:marklin:24188", "24188"));
 
-        fs::write(
-            &output_path,
-            serde_json::to_string_pretty(&manifest).expect("manifest JSON should serialize"),
-        )
-        .expect("seed manifest should be written");
+        let seed_json =
+            serde_json::to_string_pretty(&manifest).expect("manifest JSON should serialize");
+        write_zip(&output_path, &seed_json).expect("seed manifest should be written");
 
         let source_payload = serde_json::json!({
             "products": [
@@ -276,8 +276,8 @@ mod tests {
         let result = run(args);
         assert!(result.is_ok(), "track import should succeed: {result:?}");
 
-        let output_raw = fs::read_to_string(&output_path).expect("output should be readable");
-        let merged: Manifest = serde_json::from_str(&output_raw).expect("output should parse");
+        let merged =
+            load_existing_manifest_or_empty(&output_path).expect("output should be readable");
 
         assert_eq!(merged.data.track_products.len(), 2);
         assert_eq!(merged.data.track_inventories.len(), 1);
@@ -303,11 +303,9 @@ mod tests {
             .track_products
             .push(sample_product("trn:track:marklin:24188", "24188"));
 
-        fs::write(
-            &output_path,
-            serde_json::to_string_pretty(&manifest).expect("manifest JSON should serialize"),
-        )
-        .expect("seed manifest should be written");
+        let seed_json =
+            serde_json::to_string_pretty(&manifest).expect("manifest JSON should serialize");
+        write_zip(&output_path, &seed_json).expect("seed manifest should be written");
 
         let source_payload = serde_json::json!({
             "products": [

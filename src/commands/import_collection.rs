@@ -1,6 +1,11 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
+use std::fs::File;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
+
+use zip::write::{SimpleFileOptions, ZipWriter};
+use zip::{CompressionMethod, ZipArchive};
 
 use anyhow::{Context, Result, bail};
 use chrono::{DateTime, NaiveDate, Utc};
@@ -31,7 +36,7 @@ pub struct ImportCollectionArgs {
     #[arg(short = 's', long = "source")]
     pub source: PathBuf,
 
-    /// Path to manifest JSON to create or update
+    /// Path to zip archive to create or update
     #[arg(short = 'o', long = "output")]
     pub output: PathBuf,
 
@@ -79,7 +84,7 @@ pub fn run(args: ImportCollectionArgs) -> Result<()> {
         .context("Failed to serialize manifest JSON string")?;
 
     ensure_parent_dir(&args.output)?;
-    atomic_write(&args.output, &manifest_json)?;
+    write_zip(&args.output, &manifest_json)?;
 
     info!("Manifest successfully written to {}", args.output.display());
     Ok(())
@@ -141,20 +146,33 @@ pub(crate) fn ensure_parent_dir(path: &Path) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn atomic_write(path: &Path, content: &str) -> Result<()> {
+pub(crate) fn write_zip(path: &Path, manifest_json: &str) -> Result<()> {
     let file_name = path
         .file_name()
         .and_then(|name| name.to_str())
-        .unwrap_or("manifest.json");
+        .unwrap_or("manifest.zip");
 
     let tmp_name = format!("{}.tmp", file_name);
     let tmp_path = match path.parent() {
-        Some(parent) => parent.join(tmp_name),
-        None => PathBuf::from(tmp_name),
+        Some(parent) if !parent.as_os_str().is_empty() => parent.join(&tmp_name),
+        _ => PathBuf::from(&tmp_name),
     };
 
-    fs::write(&tmp_path, content)
-        .with_context(|| format!("Failed to write temporary file '{}'.", tmp_path.display()))?;
+    let file = File::create(&tmp_path)
+        .with_context(|| format!("Failed to create temporary file '{}'.", tmp_path.display()))?;
+    let mut zip = ZipWriter::new(file);
+    let options = SimpleFileOptions::default().compression_method(CompressionMethod::Stored);
+
+    zip.start_file("manifest.json", options)
+        .context("Failed to start manifest.json in zip")?;
+    zip.write_all(manifest_json.as_bytes())
+        .context("Failed to write manifest.json content to zip")?;
+
+    zip.add_directory("images/", options)
+        .context("Failed to add images/ directory to zip")?;
+
+    zip.finish().context("Failed to finalize zip archive")?;
+
     fs::rename(&tmp_path, path).with_context(|| {
         format!(
             "Failed to atomically replace '{}' using '{}'.",
@@ -202,14 +220,28 @@ pub(crate) fn load_existing_manifest_or_empty(output: &Path) -> Result<Manifest>
         return Ok(empty_manifest());
     }
 
-    let raw = fs::read_to_string(output)
-        .with_context(|| format!("Failed to read output file '{}'.", output.display()))?;
+    let file = File::open(output)
+        .with_context(|| format!("Failed to open zip archive '{}'.", output.display()))?;
+    let mut archive = ZipArchive::new(file)
+        .with_context(|| format!("Failed to read zip archive '{}'.", output.display()))?;
+    let mut zip_file = archive
+        .by_name("manifest.json")
+        .with_context(|| format!("'manifest.json' not found in '{}'.", output.display()))?;
+    let mut raw = String::new();
+    zip_file
+        .read_to_string(&mut raw)
+        .with_context(|| format!("Failed to read manifest.json from '{}'.", output.display()))?;
+
     if raw.trim().is_empty() {
         return Ok(empty_manifest());
     }
 
-    serde_json::from_str(&raw)
-        .with_context(|| format!("Failed to deserialize manifest '{}'.", output.display()))
+    serde_json::from_str(&raw).with_context(|| {
+        format!(
+            "Failed to deserialize manifest from '{}'.",
+            output.display()
+        )
+    })
 }
 
 pub fn map_import_to_manifest(import: &Collection) -> Result<Manifest> {
@@ -1125,9 +1157,7 @@ mod tests {
         })
         .expect("second import should append");
 
-        let merged = fs::read_to_string(&output).expect("manifest should exist");
-        let manifest: Manifest =
-            serde_json::from_str(&merged).expect("manifest should deserialize");
+        let manifest = load_existing_manifest_or_empty(&output).expect("manifest should exist");
         assert_eq!(manifest.data.collection_items.len(), 2);
 
         let _ = fs::remove_file(source_one);
@@ -1167,9 +1197,7 @@ mod tests {
 
         assert!(result.is_err());
 
-        let current = fs::read_to_string(&output).expect("manifest should exist");
-        let manifest: Manifest =
-            serde_json::from_str(&current).expect("manifest should deserialize");
+        let manifest = load_existing_manifest_or_empty(&output).expect("manifest should exist");
         assert_eq!(manifest.data.collection_items.len(), 1);
 
         let _ = fs::remove_file(source_one);

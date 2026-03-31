@@ -8,8 +8,8 @@ use log::info;
 use serde_json::Value;
 
 use crate::commands::import_collection::{
-    atomic_write, ensure_parent_dir, load_existing_manifest_or_empty, make_model_id,
-    map_railway_model, normalize_id_segment, parse_rfc3339_to_utc, strip_nulls,
+    ensure_parent_dir, load_existing_manifest_or_empty, make_model_id, map_railway_model,
+    normalize_id_segment, parse_rfc3339_to_utc, strip_nulls, write_zip,
 };
 use crate::commands::validation::{manifest_schema_path, validate_value_with_schema};
 use crate::import::{Wishlist as ImportWishlist, WishlistPriority as ImportWishlistPriority};
@@ -24,7 +24,7 @@ pub struct ImportWishlistArgs {
     #[arg(short = 's', long = "source")]
     pub source: PathBuf,
 
-    /// Path to manifest JSON to create or update
+    /// Path to zip archive to create or update
     #[arg(short = 'o', long = "output")]
     pub output: PathBuf,
 
@@ -68,7 +68,7 @@ pub fn run(args: ImportWishlistArgs) -> Result<()> {
         .context("Failed to serialize manifest JSON string")?;
 
     ensure_parent_dir(&args.output)?;
-    atomic_write(&args.output, &manifest_json)?;
+    write_zip(&args.output, &manifest_json)?;
 
     info!("Manifest successfully written to {}", args.output.display());
     Ok(())
@@ -293,6 +293,7 @@ impl WishlistMergeId for RailwayModel {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::commands::import_collection::load_existing_manifest_or_empty;
     use std::fs;
     use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -369,9 +370,7 @@ mod tests {
         })
         .expect("second wishlist import should append");
 
-        let merged = fs::read_to_string(&output).expect("manifest should exist");
-        let manifest: Manifest =
-            serde_json::from_str(&merged).expect("manifest should deserialize");
+        let manifest = load_existing_manifest_or_empty(&output).expect("manifest should exist");
         assert_eq!(manifest.data.wishlists.len(), 2);
 
         let _ = fs::remove_file(source_one);
