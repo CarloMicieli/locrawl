@@ -49,6 +49,12 @@ pub fn run(args: ImportCollectionArgs) -> Result<()> {
     let collection_schema_path = collection_schema_path();
     let manifest_schema_path = manifest_schema_path();
 
+    let output = if args.output.extension().is_none() {
+        args.output.with_extension("zip")
+    } else {
+        args.output.clone()
+    };
+
     let source_content = fs::read_to_string(&args.source)
         .with_context(|| format!("Failed to read source file '{}'.", args.source.display()))?;
 
@@ -70,7 +76,7 @@ pub fn run(args: ImportCollectionArgs) -> Result<()> {
     })?;
 
     let incoming_manifest = map_import_to_manifest(&import_collection)?;
-    let existing_manifest = load_existing_manifest_or_empty(&args.output)?;
+    let existing_manifest = load_existing_manifest_or_empty(&output)?;
     let merged_manifest =
         merge_collection_manifests(existing_manifest, incoming_manifest, args.force)?;
 
@@ -83,10 +89,10 @@ pub fn run(args: ImportCollectionArgs) -> Result<()> {
     let manifest_json = serde_json::to_string_pretty(&manifest_value)
         .context("Failed to serialize manifest JSON string")?;
 
-    ensure_parent_dir(&args.output)?;
-    write_zip(&args.output, &manifest_json)?;
+    ensure_parent_dir(&output)?;
+    write_zip(&output, &manifest_json)?;
 
-    info!("Manifest successfully written to {}", args.output.display());
+    info!("Manifest successfully written to {}", output.display());
     Ok(())
 }
 
@@ -1203,5 +1209,57 @@ mod tests {
         let _ = fs::remove_file(source_one);
         let _ = fs::remove_file(source_two);
         let _ = fs::remove_file(output);
+    }
+
+    // ------- output extension defaulting -------
+
+    #[test]
+    fn run_appends_zip_extension_when_output_has_no_extension() {
+        let source = temp_path("ext-source.json");
+        let output_no_ext = temp_path("ext-output"); // no extension
+
+        fs::write(
+            &source,
+            serde_json::to_string(&sample_collection("EXT-001")).expect("json"),
+        )
+        .expect("source write should succeed");
+
+        run(ImportCollectionArgs {
+            source: source.clone(),
+            output: output_no_ext.clone(),
+            force: false,
+        })
+        .expect("import should succeed");
+
+        let expected = output_no_ext.with_extension("zip");
+        assert!(expected.exists(), "expected {expected:?} to exist");
+        assert!(!output_no_ext.exists(), "bare path without extension should not exist");
+
+        let _ = fs::remove_file(source);
+        let _ = fs::remove_file(expected);
+    }
+
+    #[test]
+    fn run_preserves_explicit_extension() {
+        let source = temp_path("ext2-source.json");
+        let output_with_ext = temp_path("ext2-output.zip");
+
+        fs::write(
+            &source,
+            serde_json::to_string(&sample_collection("EXT-002")).expect("json"),
+        )
+        .expect("source write should succeed");
+
+        run(ImportCollectionArgs {
+            source: source.clone(),
+            output: output_with_ext.clone(),
+            force: false,
+        })
+        .expect("import should succeed");
+
+        assert!(output_with_ext.exists(), "explicit .zip path should exist");
+
+        let _ = fs::remove_file(source);
+        let _ = fs::remove_file(output_with_ext);
     }
 }
