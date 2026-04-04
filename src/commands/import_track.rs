@@ -29,7 +29,7 @@ pub struct ImportTrackArgs {
     pub force: bool,
 }
 
-pub fn run(args: ImportTrackArgs) -> Result<()> {
+pub async fn run(args: ImportTrackArgs) -> Result<()> {
     let track_schema_path = track_import_schema_path();
     let manifest_schema_path = manifest_schema_path();
 
@@ -221,8 +221,8 @@ mod tests {
         }
     }
 
-    #[test]
-    fn import_track_appends_product_and_inventory() {
+    #[tokio::test]
+    async fn import_track_appends_product_and_inventory() {
         let source_path = temp_path("track-source");
         let output_path = temp_path("track-output");
 
@@ -273,8 +273,8 @@ mod tests {
             force: false,
         };
 
-        let result = run(args);
-        assert!(result.is_ok(), "track import should succeed: {result:?}");
+        let result = run(args).await;
+        assert!(result.is_ok(), "track import should succeed: {:?}", result);
 
         let merged =
             load_existing_manifest_or_empty(&output_path).expect("output should be readable");
@@ -292,8 +292,8 @@ mod tests {
         let _ = fs::remove_file(output_path);
     }
 
-    #[test]
-    fn duplicate_track_id_fails_without_force() {
+    #[tokio::test]
+    async fn duplicate_track_id_fails_without_force() {
         let source_path = temp_path("track-duplicate-source");
         let output_path = temp_path("track-duplicate-output");
 
@@ -335,7 +335,7 @@ mod tests {
             force: false,
         };
 
-        let result = run(args);
+        let result = run(args).await;
         assert!(
             result.is_err(),
             "import should fail when trackId already exists"
@@ -344,15 +344,16 @@ mod tests {
         let error_message = format!("{}", result.expect_err("result should be error"));
         assert!(
             error_message.contains("already exists"),
-            "error message should mention existing key, got: {error_message}"
+            "error message should mention existing key, got: {}",
+            error_message
         );
 
         let _ = fs::remove_file(source_path);
         let _ = fs::remove_file(output_path);
     }
 
-    #[test]
-    fn duplicate_track_id_in_source_fails() {
+    #[tokio::test]
+    async fn duplicate_track_id_in_source_fails() {
         let source_path = temp_path("track-source-duplicates");
         let output_path = temp_path("track-source-duplicates-output");
 
@@ -394,13 +395,14 @@ mod tests {
             force: false,
         };
 
-        let result = run(args);
+        let result = run(args).await;
         assert!(result.is_err(), "import should fail for source duplicates");
 
         let error_message = format!("{}", result.expect_err("result should be error"));
         assert!(
             error_message.contains("duplicate trackId"),
-            "error message should mention duplicate source trackId, got: {error_message}"
+            "error message should mention duplicate source trackId, got: {}",
+            error_message
         );
 
         let _ = fs::remove_file(source_path);

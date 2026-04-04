@@ -30,7 +30,7 @@ pub struct ImportDigitalRosterArgs {
     pub force: bool,
 }
 
-pub fn run(args: ImportDigitalRosterArgs) -> Result<()> {
+pub async fn run(args: ImportDigitalRosterArgs) -> Result<()> {
     let digital_schema_path = digital_roster_schema_path();
     let manifest_schema_path = manifest_schema_path();
 
@@ -353,8 +353,8 @@ mod tests {
         std::env::temp_dir().join(format!("locrawl-{}-{}", name, nanos))
     }
 
-    #[test]
-    fn import_digital_roster_sets_fitted_and_dcc_address() {
+    #[tokio::test]
+    async fn import_digital_roster_sets_fitted_and_dcc_address() {
         let source = temp_path("digital-roster-source.json");
         let output = temp_path("digital-roster-manifest.json");
 
@@ -435,6 +435,7 @@ mod tests {
             output: output.clone(),
             force: false,
         })
+        .await
         .expect("digital roster import should succeed");
 
         let merged_manifest =

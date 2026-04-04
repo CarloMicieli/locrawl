@@ -33,7 +33,7 @@ pub struct ImportWishlistArgs {
     pub force: bool,
 }
 
-pub fn run(args: ImportWishlistArgs) -> Result<()> {
+pub async fn run(args: ImportWishlistArgs) -> Result<()> {
     let wishlist_schema_path = wishlist_schema_path();
     let manifest_schema_path = manifest_schema_path();
 
@@ -339,8 +339,8 @@ mod tests {
         })
     }
 
-    #[test]
-    fn append_wishlist_adds_second_named_wishlist() {
+    #[tokio::test]
+    async fn append_wishlist_adds_second_named_wishlist() {
         let source_one = temp_path("wishlist-source-one.json");
         let source_two = temp_path("wishlist-source-two.json");
         let output = temp_path("wishlist-manifest.json");
@@ -361,6 +361,7 @@ mod tests {
             output: output.clone(),
             force: false,
         })
+        .await
         .expect("first wishlist import should succeed");
 
         run(ImportWishlistArgs {
@@ -368,6 +369,7 @@ mod tests {
             output: output.clone(),
             force: false,
         })
+        .await
         .expect("second wishlist import should append");
 
         let manifest = load_existing_manifest_or_empty(&output).expect("manifest should exist");

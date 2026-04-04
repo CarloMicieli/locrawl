@@ -11,8 +11,8 @@ fn temp_path(name: &str) -> std::path::PathBuf {
     std::env::temp_dir().join(format!("locrawl-{}-{}", name, nanos))
 }
 
-#[test]
-fn test_validate_collection_rejects_broken_json() {
+#[tokio::test]
+async fn test_validate_collection_rejects_broken_json() {
     let source_path = temp_path("invalid-collection.json");
     let invalid_payload = r#"{
         "name": "Broken collection",
@@ -39,8 +39,8 @@ fn test_validate_collection_rejects_broken_json() {
     let _ = fs::remove_file(&source_path);
 }
 
-#[test]
-fn test_validate_track_accepts_mixed_case_schema_type() {
+#[tokio::test]
+async fn test_validate_track_accepts_mixed_case_schema_type() {
     let source_path = temp_path("valid-track.json");
     let valid_payload = r#"{
         "products": [],

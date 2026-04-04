@@ -1,7 +1,7 @@
 use assert_cmd::Command;
 
-#[test]
-fn test_locrawl_info_command() {
+#[tokio::test]
+async fn test_locrawl_info_command() {
     let mut cmd = Command::new(assert_cmd::cargo::cargo_bin!("locrawl"));
     cmd.arg("info");
 
@@ -10,8 +10,8 @@ fn test_locrawl_info_command() {
     assert.success();
 }
 
-#[test]
-fn test_locrawl_info_output() {
+#[tokio::test]
+async fn test_locrawl_info_output() {
     let mut cmd = Command::new(assert_cmd::cargo::cargo_bin!("locrawl"));
     cmd.arg("info");
 
@@ -23,8 +23,8 @@ fn test_locrawl_info_output() {
     assert!(stdout.contains("CLI tool")); // summary
 }
 
-#[test]
-fn test_locrawl_info_respects_error_log_level() {
+#[tokio::test]
+async fn test_locrawl_info_respects_error_log_level() {
     let mut cmd = Command::new(assert_cmd::cargo::cargo_bin!("locrawl"));
     cmd.args(["--log-level", "error", "info"]);
 

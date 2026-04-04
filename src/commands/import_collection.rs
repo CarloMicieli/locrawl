@@ -45,7 +45,7 @@ pub struct ImportCollectionArgs {
     pub force: bool,
 }
 
-pub fn run(args: ImportCollectionArgs) -> Result<()> {
+pub async fn run(args: ImportCollectionArgs) -> Result<()> {
     let collection_schema_path = collection_schema_path();
     let manifest_schema_path = manifest_schema_path();
 
@@ -1132,8 +1132,8 @@ mod tests {
         })
     }
 
-    #[test]
-    fn append_collection_adds_second_item() {
+    #[tokio::test]
+    async fn append_collection_adds_second_item() {
         let source_one = temp_path("source-one.json");
         let source_two = temp_path("source-two.json");
         let output = temp_path("manifest.json");
@@ -1154,6 +1154,7 @@ mod tests {
             output: output.clone(),
             force: false,
         })
+        .await
         .expect("first import should succeed");
 
         run(ImportCollectionArgs {
@@ -1161,6 +1162,7 @@ mod tests {
             output: output.clone(),
             force: false,
         })
+        .await
         .expect("second import should append");
 
         let manifest = load_existing_manifest_or_empty(&output).expect("manifest should exist");
@@ -1171,8 +1173,8 @@ mod tests {
         let _ = fs::remove_file(output);
     }
 
-    #[test]
-    fn duplicate_collection_id_fails_without_force() {
+    #[tokio::test]
+    async fn duplicate_collection_id_fails_without_force() {
         let source_one = temp_path("dup-source-one.json");
         let source_two = temp_path("dup-source-two.json");
         let output = temp_path("dup-manifest.json");
@@ -1193,13 +1195,15 @@ mod tests {
             output: output.clone(),
             force: false,
         })
+        .await
         .expect("first import should succeed");
 
         let result = run(ImportCollectionArgs {
             source: source_two.clone(),
             output: output.clone(),
             force: false,
-        });
+        })
+        .await;
 
         assert!(result.is_err());
 
@@ -1213,8 +1217,8 @@ mod tests {
 
     // ------- output extension defaulting -------
 
-    #[test]
-    fn run_appends_zip_extension_when_output_has_no_extension() {
+    #[tokio::test]
+    async fn run_appends_zip_extension_when_output_has_no_extension() {
         let source = temp_path("ext-source.json");
         let output_no_ext = temp_path("ext-output"); // no extension
 
@@ -1229,6 +1233,7 @@ mod tests {
             output: output_no_ext.clone(),
             force: false,
         })
+        .await
         .expect("import should succeed");
 
         let expected = output_no_ext.with_extension("zip");
@@ -1242,8 +1247,8 @@ mod tests {
         let _ = fs::remove_file(expected);
     }
 
-    #[test]
-    fn run_preserves_explicit_extension() {
+    #[tokio::test]
+    async fn run_preserves_explicit_extension() {
         let source = temp_path("ext2-source.json");
         let output_with_ext = temp_path("ext2-output.zip");
 
@@ -1258,6 +1263,7 @@ mod tests {
             output: output_with_ext.clone(),
             force: false,
         })
+        .await
         .expect("import should succeed");
 
         assert!(output_with_ext.exists(), "explicit .zip path should exist");

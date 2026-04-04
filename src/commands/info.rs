@@ -1,6 +1,6 @@
 use log::info;
 
-pub fn run() -> anyhow::Result<()> {
+pub async fn run() -> anyhow::Result<()> {
     let name = "locrawl";
     let version = env!("CARGO_PKG_VERSION");
     let summary =

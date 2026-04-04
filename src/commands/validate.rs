@@ -18,7 +18,7 @@ pub struct ValidateArgs {
     pub source: PathBuf,
 }
 
-pub fn run(args: ValidateArgs) -> Result<()> {
+pub async fn run(args: ValidateArgs) -> Result<()> {
     let schema_path = schema_path_for_type(args.schema_type);
 
     match validate_file(&args.source, &schema_path) {
