@@ -1233,7 +1233,10 @@ mod tests {
 
         let expected = output_no_ext.with_extension("zip");
         assert!(expected.exists(), "expected {expected:?} to exist");
-        assert!(!output_no_ext.exists(), "bare path without extension should not exist");
+        assert!(
+            !output_no_ext.exists(),
+            "bare path without extension should not exist"
+        );
 
         let _ = fs::remove_file(source);
         let _ = fs::remove_file(expected);
