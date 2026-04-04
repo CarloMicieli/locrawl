@@ -61,10 +61,10 @@ fn validate_payload(validator: &Validator, payload: &Value, label: &str) -> Resu
     let errors: Vec<String> = validator
         .iter_errors(payload)
         .map(|error| {
-            let location = if error.instance_path.to_string().is_empty() {
+            let location = if error.instance_path().to_string().is_empty() {
                 "$".to_string()
             } else {
-                format!("${}", error.instance_path)
+                format!("${}", error.instance_path())
             };
             format!("{}: {}", location, error)
         })

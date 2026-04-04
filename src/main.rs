@@ -9,7 +9,8 @@ use env_logger::{Builder, Env, Target};
 use log::error;
 use std::process;
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
     init_logger(cli.log_level);
 
@@ -26,6 +27,8 @@ fn main() {
         error!("{:#}", e);
         process::exit(1);
     }
+
+    Ok(())
 }
 
 fn init_logger(log_level: LogLevel) {
