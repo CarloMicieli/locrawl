@@ -33,6 +33,7 @@ Thumbs.db
 *.temp
 *~
 *.swp
+Temp/
 
 # Coverage and profiling
 coverage/
