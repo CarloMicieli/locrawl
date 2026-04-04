@@ -23,7 +23,7 @@ fn main() {
     };
 
     if let Err(e) = result {
-        error!("{}", e);
+        error!("{:#}", e);
         process::exit(1);
     }
 }

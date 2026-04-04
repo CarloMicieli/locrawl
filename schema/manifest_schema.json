@@ -232,7 +232,7 @@
         },
         "epoch": {
           "type": "string",
-          "pattern": "^(?:I{1,3}|IV|V|VI)(?:[aAbB])?$|^(?:I/II|II/III|III/IV|IV/V|V/VI)$|^Vm$",
+          "pattern": "^(?:I{1,3}|IV|V|VI)(?:[aAbB])?$|^(?:I{1,3}|IV|V|VI)(?:[aAbB])?/(?:I{1,3}|IV|V|VI)$|^Vm$",
           "description": "Historical epoch token"
         },
         "category": {
