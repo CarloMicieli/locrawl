@@ -290,6 +290,7 @@ pub enum FreightCarType {
     CoveredFreightCars,
     DeepWellFlatCars,
     DumpCars,
+    FlatWagon,
     Gondola,
     HeavyGoodsWagons,
     HingedCoverWagons,
@@ -336,6 +337,7 @@ pub enum PassengerCarType {
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum RailcarType {
     PowerCar,
+    TrailerBaggageCar,
     TrailerCar,
 }
 
@@ -625,11 +627,29 @@ pub struct Prototype {
     /// Expected format: trn:railway-company:{slug}
     pub railway_company_id: RailwayCompanyId,
     pub series_code: String,
-    pub car_type: String,
+    pub friendly_name: Option<String>,
+    pub specification_type: SpecificationType,
+    pub locomotive_type: Option<String>,
+    pub locomotive_series: Option<String>,
     pub service_level: Option<String>,
-    pub category: String,
+    pub passenger_car_type: Option<String>,
+    pub freight_car_type: Option<String>,
+    pub railcar_type: Option<String>,
+    pub electric_multiple_unit_type: Option<String>,
+    pub elements_count: Option<i64>,
+    pub is_permanently_coupled: Option<bool>,
     pub is_motorized: bool,
     pub is_custom: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum SpecificationType {
+    Locomotive,
+    PassengerCar,
+    FreightCar,
+    Railcar,
+    ElectricMultipleUnit,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -661,17 +681,7 @@ pub struct FormationElement {
     pub prototype_id: String,
     pub owned_rolling_stock_id: Option<String>,
     pub position_order: i64,
-    pub traction_override: TractionOverride,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum TractionOverride {
-    #[serde(rename = "-1")]
-    MinusOne,
-    #[serde(rename = "0")]
-    Zero,
-    #[serde(rename = "1")]
-    One,
+    pub traction_override: i8,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

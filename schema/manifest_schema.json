@@ -411,6 +411,7 @@
             "COVERED_FREIGHT_CARS",
             "DEEP_WELL_FLAT_CARS",
             "DUMP_CARS",
+            "FLAT_WAGON",
             "GONDOLA",
             "HEAVY_GOODS_WAGONS",
             "HINGED_COVER_WAGONS",
@@ -454,7 +455,7 @@
         },
         "railcarType": {
           "type": "string",
-          "enum": ["POWER_CAR", "TRAILER_CAR"],
+          "enum": ["POWER_CAR", "TRAILER_BAGGAGE_CAR", "TRAILER_CAR"],
           "description": "Subtype used when the rolling stock is a railcar"
         },
         "serviceLevel": {
@@ -965,8 +966,7 @@
         "id",
         "railwayCompanyId",
         "seriesCode",
-        "carType",
-        "category",
+        "specificationType",
         "isMotorized",
         "isCustom"
       ],
@@ -985,19 +985,56 @@
           "minLength": 1,
           "description": "Human-readable class or series designation"
         },
-        "carType": {
+        "friendlyName": {
           "type": "string",
-          "minLength": 1,
-          "description": "Rolling stock type of the prototype"
+          "description": "Optional human-readable nickname for the prototype"
+        },
+        "specificationType": {
+          "type": "string",
+          "enum": [
+            "LOCOMOTIVE",
+            "PASSENGER_CAR",
+            "FREIGHT_CAR",
+            "RAILCAR",
+            "ELECTRIC_MULTIPLE_UNIT"
+          ],
+          "description": "Discriminator identifying the rolling stock specification type"
+        },
+        "locomotiveType": {
+          "type": "string",
+          "description": "Locomotive sub-type (present when specificationType is LOCOMOTIVE)"
+        },
+        "locomotiveSeries": {
+          "type": "string",
+          "description": "Optional locomotive series designation"
         },
         "serviceLevel": {
           "type": "string",
-          "description": "Optional passenger service class designation"
+          "description": "Passenger service class designation (present when specificationType is PASSENGER_CAR)"
         },
-        "category": {
+        "passengerCarType": {
           "type": "string",
-          "minLength": 1,
-          "description": "High-level category of the prototype"
+          "description": "Passenger car sub-type (present when specificationType is PASSENGER_CAR)"
+        },
+        "freightCarType": {
+          "type": "string",
+          "description": "Freight car sub-type (present when specificationType is FREIGHT_CAR)"
+        },
+        "railcarType": {
+          "type": "string",
+          "description": "Railcar sub-type (present when specificationType is RAILCAR)"
+        },
+        "electricMultipleUnitType": {
+          "type": "string",
+          "description": "EMU sub-type (present when specificationType is ELECTRIC_MULTIPLE_UNIT)"
+        },
+        "elementsCount": {
+          "type": "integer",
+          "description": "Number of coupled elements in a multi-unit set"
+        },
+        "isPermanentlyCoupled": {
+          "type": "boolean",
+          "description": "Whether the multi-unit set is permanently coupled"
         },
         "isMotorized": {
           "type": "boolean",
