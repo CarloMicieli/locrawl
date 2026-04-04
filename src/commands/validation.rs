@@ -39,8 +39,10 @@ pub(crate) fn validate_value_with_schema(
     label: &str,
 ) -> Result<()> {
     let schema = load_schema(schema_path)?;
-    let validator =
-        jsonschema::validator_for(&schema).context("Failed to compile schema validator")?;
+    let validator = jsonschema::options()
+        .should_validate_formats(true)
+        .build(&schema)
+        .context("Failed to compile schema validator")?;
 
     validate_payload(&validator, payload, label)
 }
