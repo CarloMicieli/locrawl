@@ -26,9 +26,10 @@ use crate::import::{
 use crate::manifest::{
     self, Category, CollectionItem, CollectionItemId, Control, DataContainer,
     ElectricMultipleUnitType, FreightCarType, LocalizedText, LocomotiveType, Manifest,
-    ManifestVersion, Manufacturer, ManufacturerId, PassengerCarType, PowerMethod, Purchase,
-    PurchaseType, RailcarType, RailwayCompany, RailwayCompanyId, RailwayCompanyStatus,
-    RailwayModel, RailwayModelId, RollingStock, Scale, Seller, SellerId, SellerType, ServiceLevel,
+    ManifestVersion, Manufacturer, ManufacturerId, OwnedRollingStock, PassengerCarType,
+    PowerMethod, Purchase, PurchaseType, RailcarType, RailwayCompany, RailwayCompanyId,
+    RailwayCompanyStatus, RailwayModel, RailwayModelId, RollingStock, Scale, Seller, SellerId,
+    SellerType, ServiceLevel,
 };
 
 #[derive(Debug, Args, Clone)]
@@ -443,6 +444,7 @@ pub(crate) fn empty_manifest() -> Manifest {
             railway_companies: vec![],
             railway_models: vec![],
             collection_items: vec![],
+            owned_rolling_stocks: vec![],
             sellers: vec![],
             maintenance_cards: vec![],
             track_products: vec![],
@@ -621,6 +623,11 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &Registry) -> R
 
     let mut railway_models = Vec::with_capacity(import.railway_models.len());
     let mut collection_items = Vec::with_capacity(import.railway_models.len());
+    let mut owned_rolling_stocks: Vec<OwnedRollingStock> = Vec::new();
+    // mappings to translate source collection IDs (if provided) and import model ids
+    // to the generated manifest CollectionItemId values.
+    let mut import_model_to_collection_item: BTreeMap<String, CollectionItemId> = BTreeMap::new();
+    let mut source_collection_id_to_generated: BTreeMap<String, CollectionItemId> = BTreeMap::new();
 
     for model in &import.railway_models {
         let manufacturer_slug = trn_slug(&model.manufacturer, "trn:manufacturer:");
@@ -683,9 +690,15 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &Registry) -> R
             });
         }
 
+        // Create a generated CollectionItem id and record mapping from the
+        // import model id (and optional source collectionItemId) so explicit
+        // ownedRollingStocks can reference the generated id.
+        let generated_collection_item_id =
+            CollectionItemId(format!("trn:collection-item:{}", Uuid::new_v4()));
+
         collection_items.push(CollectionItem {
-            id: CollectionItemId(format!("trn:collection-item:{}", Uuid::new_v4())),
-            railway_model_id,
+            id: generated_collection_item_id.clone(),
+            railway_model_id: railway_model_id.clone(),
             added_date,
             removed_date: None,
             purchase_condition: None,
@@ -695,8 +708,87 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &Registry) -> R
             image: None,
             purchase,
         });
+
+        // Map import model id -> generated collection item id
+        import_model_to_collection_item
+            .insert(model.id.clone(), generated_collection_item_id.clone());
+        // If the import model provided a source collectionItemId, map that too
+        if let Some(source_cid) = model.collection_item_id.clone() {
+            source_collection_id_to_generated
+                .insert(source_cid, generated_collection_item_id.clone());
+        }
     }
 
+    // First, process any explicit ownedRollingStocks provided in the input.
+    // These entries reference source collection item ids which we map to the
+    // generated CollectionItem ids recorded above. We also record which
+    // rolling stock ids have already been handled so we don't duplicate them.
+    let mut handled_rolling_stock_ids: HashSet<String> = HashSet::new();
+
+    for input_owned in &import.owned_rolling_stocks {
+        // Try to resolve the source collectionItemId to the generated value.
+        let mut resolved_collection_item: Option<CollectionItemId> = None;
+
+        if let Some(mapped) = source_collection_id_to_generated.get(&input_owned.collection_item_id)
+        {
+            resolved_collection_item = Some(mapped.clone());
+        }
+
+        // If unresolved, try to resolve using the referenced rollingStockId.
+        // Collapse nested `if` statements to satisfy clippy's `collapsible_if`.
+        if resolved_collection_item.is_none()
+            && let Some(rs_id) = &input_owned.rolling_stock_id
+            && let Some(model) = import
+                .railway_models
+                .iter()
+                .find(|m| m.rolling_stocks.iter().any(|s| s.id == *rs_id))
+            && let Some(mapped) = import_model_to_collection_item.get(&model.id)
+        {
+            resolved_collection_item = Some(mapped.clone());
+        }
+
+        if let Some(collection_item_id) = resolved_collection_item {
+            if let Some(rs) = &input_owned.rolling_stock_id {
+                handled_rolling_stock_ids.insert(rs.clone());
+            }
+
+            owned_rolling_stocks.push(OwnedRollingStock {
+                id: input_owned.id.clone(),
+                collection_item_id: collection_item_id.clone(),
+                rolling_stock_id: input_owned.rolling_stock_id.clone(),
+                notes: input_owned.notes.clone(),
+                dcc_address: input_owned.dcc_address,
+                installed_decoder_id: input_owned.installed_decoder_id.clone(),
+                current_coupler_id: input_owned.current_coupler_id.clone(),
+            });
+        } else {
+            warn!(
+                "Could not resolve collectionItemId '{}' for ownedRollingStock '{}'; skipping.",
+                input_owned.collection_item_id, input_owned.id
+            );
+        }
+    }
+
+    // For any rolling stocks not covered by explicit owned entries, create
+    // derived OwnedRollingStock records (one per physical rolling stock).
+    for model in &import.railway_models {
+        if let Some(gen_cid) = import_model_to_collection_item.get(&model.id) {
+            for stock in &model.rolling_stocks {
+                if handled_rolling_stock_ids.contains(&stock.id) {
+                    continue;
+                }
+                owned_rolling_stocks.push(OwnedRollingStock {
+                    id: format!("trn:owned-rolling-stock:{}", Uuid::new_v4()),
+                    collection_item_id: gen_cid.clone(),
+                    rolling_stock_id: Some(stock.id.clone()),
+                    notes: None,
+                    dcc_address: None,
+                    installed_decoder_id: None,
+                    current_coupler_id: None,
+                });
+            }
+        }
+    }
     Ok(Manifest {
         schema: Some("https://rusty-shed.app/schemas/manifest/v1.json".to_string()),
         version: ManifestVersion::V1_0,
@@ -707,6 +799,7 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &Registry) -> R
             railway_companies: railway_companies.into_values().collect(),
             railway_models,
             collection_items,
+            owned_rolling_stocks,
             sellers: sellers.into_values().collect(),
             maintenance_cards: vec![],
             track_products: vec![],
@@ -1043,6 +1136,12 @@ fn merge_collection_manifests(
         &mut existing.data.collection_items,
         incoming.data.collection_items,
         |i| i.id.0.clone(),
+        true,
+    );
+    merge_by_key(
+        &mut existing.data.owned_rolling_stocks,
+        incoming.data.owned_rolling_stocks,
+        |o| o.id.clone(),
         true,
     );
     merge_by_key(

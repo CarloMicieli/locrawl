@@ -52,6 +52,11 @@
           "items": { "$ref": "#/$defs/CollectionItem" },
           "default": []
         },
+        "ownedRollingStocks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/OwnedRollingStock" },
+          "default": []
+        },
         "sellers": {
           "type": "array",
           "items": { "$ref": "#/$defs/Seller" },
@@ -448,7 +453,7 @@
         },
         "railcarType": {
           "type": "string",
-          "enum": ["POWER_CAR", "TRAILER_BAGGAGE_CAR", "TRAILER_CAR"],
+          "enum": ["POWER_CAR", "TRAILER_CAR", "TRAILER_BAGGAGE_CAR"],
           "description": "Subtype used when the rolling stock is a railcar"
         },
         "serviceLevel": {
@@ -762,6 +767,11 @@
         "collectionItemId": {
           "$ref": "#/$defs/CollectionItemId",
           "description": "References collectionItems[].id"
+        },
+        "ownedRollingStockId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "References ownedRollingStocks[].id; present in archives produced by current version"
         },
         "lastMaintenanceDate": {
           "type": "string",
@@ -1203,7 +1213,14 @@
     },
     "Decoder": {
       "type": "object",
-      "required": ["id", "manufacturerId", "productCode", "decoderType", "protocol", "decoderInterface"],
+      "required": [
+        "id",
+        "manufacturerId",
+        "productCode",
+        "decoderType",
+        "protocol",
+        "decoderInterface"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -1260,6 +1277,45 @@
         "decoderId": {
           "type": "string",
           "description": "References decoders[].id if a decoder is installed; omitted when no decoder is present"
+        }
+      },
+      "additionalProperties": false
+    },
+    "OwnedRollingStock": {
+      "type": "object",
+      "required": ["id", "collectionItemId"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for this owned rolling stock entry"
+        },
+        "collectionItemId": {
+          "$ref": "#/$defs/CollectionItemId",
+          "description": "References collectionItems[].id"
+        },
+        "rollingStockId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "References the catalogue rolling stock entry; omitted when unknown"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Free-form notes about this owned rolling stock"
+        },
+        "dccAddress": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10239,
+          "description": "DCC address programmed on this physical vehicle"
+        },
+        "installedDecoderId": {
+          "type": "string",
+          "description": "References decoders[].id for the installed decoder"
+        },
+        "currentCouplerId": {
+          "type": "string",
+          "description": "References coupler_types; identifies the coupler currently fitted"
         }
       },
       "additionalProperties": false

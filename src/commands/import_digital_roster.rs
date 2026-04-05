@@ -110,10 +110,20 @@ fn merge_digital_roster(
         );
     }
 
+    // Map owned rolling stock ids to their railway model via the collection item
+    let mut owned_to_model: BTreeMap<String, String> = BTreeMap::new();
+    for ors in &manifest.data.owned_rolling_stocks {
+        let cid = &ors.collection_item_id.0;
+        if let Some(model_id) = collection_item_to_model.get(cid) {
+            owned_to_model.insert(ors.id.clone(), model_id.clone());
+        }
+    }
+
     let existing_digital_models = existing_digital_model_ids(
         &manifest,
         &collection_item_to_model,
         &collection_items_by_model,
+        &owned_to_model,
     );
 
     let mut errors = Vec::new();
@@ -204,6 +214,7 @@ fn merge_digital_roster(
                         &item.railway_model_id,
                         &collection_item_to_model,
                         &collection_items_by_model,
+                        &owned_to_model,
                     )
                 })
         {
@@ -220,6 +231,7 @@ fn existing_digital_model_ids(
     manifest: &Manifest,
     collection_item_to_model: &BTreeMap<String, String>,
     collection_items_by_model: &BTreeMap<String, Vec<String>>,
+    owned_to_model: &BTreeMap<String, String>,
 ) -> BTreeSet<String> {
     manifest
         .data
@@ -230,6 +242,7 @@ fn existing_digital_model_ids(
                 &entry.owned_rolling_stock_id,
                 collection_item_to_model,
                 collection_items_by_model,
+                owned_to_model,
             )
         })
         .collect()
@@ -239,11 +252,19 @@ fn resolve_model_id_for_digital_entry(
     owned_rolling_stock_id: &str,
     collection_item_to_model: &BTreeMap<String, String>,
     collection_items_by_model: &BTreeMap<String, Vec<String>>,
+    owned_to_model: &BTreeMap<String, String>,
 ) -> Option<String> {
+    // If the id directly references a collection item id
     if let Some(model_id) = collection_item_to_model.get(owned_rolling_stock_id) {
         return Some(model_id.clone());
     }
 
+    // If the id references an owned rolling stock entry, map it to the model
+    if let Some(model_id) = owned_to_model.get(owned_rolling_stock_id) {
+        return Some(model_id.clone());
+    }
+
+    // If it's already a railway model id, accept it
     if owned_rolling_stock_id.starts_with("trn:railway-model:") {
         return Some(owned_rolling_stock_id.to_string());
     }
@@ -263,11 +284,13 @@ fn digital_entry_matches_model(
     railway_model_id: &str,
     collection_item_to_model: &BTreeMap<String, String>,
     collection_items_by_model: &BTreeMap<String, Vec<String>>,
+    owned_to_model: &BTreeMap<String, String>,
 ) -> bool {
     resolve_model_id_for_digital_entry(
         &entry.owned_rolling_stock_id,
         collection_item_to_model,
         collection_items_by_model,
+        owned_to_model,
     )
     .is_some_and(|id| id == railway_model_id)
 }

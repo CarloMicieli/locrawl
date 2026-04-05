@@ -93,4 +93,6 @@ pub struct RailwayModel {
     pub delivery_date: Option<String>,
     pub purchase_info: Option<PurchaseInfo>,
     pub wishlist_info: Option<WishlistInfo>,
+    #[serde(default)]
+    pub collection_item_id: Option<String>,
 }

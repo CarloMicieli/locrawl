@@ -20,6 +20,11 @@
         "$ref": "#/definitions/RailwayModel"
       }
     }
+    ,
+    "ownedRollingStocks": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/OwnedRollingStock" }
+    }
   },
   "required": [
     "version",
@@ -189,6 +194,10 @@
             "2020/04"
           ]
         },
+        "collectionItemId": {
+          "type": "string",
+          "description": "Optional source collection item id to preserve mapping when importing ownedRollingStocks"
+        },
         "rollingStocks": {
           "type": "array",
           "items": {
@@ -268,6 +277,39 @@
         "TRAILER_CAR",
         "TRAIN_SET"
       ]
+    }
+    ,
+    "OwnedRollingStock": {
+      "type": "object",
+      "required": ["id", "collectionItemId"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for this owned rolling stock entry"
+        },
+        "collectionItemId": {
+          "type": "string",
+          "description": "References collectionItems[].id (collection import mapping)"
+        },
+        "rollingStockId": {
+          "type": "string",
+          "description": "References the catalogue rolling stock entry; omitted when unknown"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "dccAddress": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10239
+        },
+        "installedDecoderId": {
+          "type": "string"
+        },
+        "currentCouplerId": {
+          "type": "string"
+        }
+      }
     }
   }
 }

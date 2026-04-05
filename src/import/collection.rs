@@ -9,4 +9,6 @@ pub struct Collection {
     pub description: Option<String>,
     pub modified_at: String,
     pub railway_models: Vec<RailwayModel>,
+    #[serde(default)]
+    pub owned_rolling_stocks: Vec<super::OwnedRollingStock>,
 }

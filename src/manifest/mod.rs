@@ -40,6 +40,8 @@ pub struct DataContainer {
     #[serde(default)]
     pub collection_items: Vec<CollectionItem>,
     #[serde(default)]
+    pub owned_rolling_stocks: Vec<OwnedRollingStock>,
+    #[serde(default)]
     pub sellers: Vec<Seller>,
     #[serde(default)]
     pub maintenance_cards: Vec<MaintenanceCard>,
@@ -522,6 +524,21 @@ pub struct MaintenanceCard {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct OwnedRollingStock {
+    /// Expected format: trn:owned-rolling-stock:{uuid}
+    pub id: String,
+    /// Expected format: trn:collection-item:{uuid}
+    pub collection_item_id: CollectionItemId,
+    /// References the catalogue rolling stock entry; omitted when unknown
+    pub rolling_stock_id: Option<String>,
+    pub notes: Option<String>,
+    pub dcc_address: Option<i64>,
+    pub installed_decoder_id: Option<String>,
+    pub current_coupler_id: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct MaintenanceEvent {
     /// Expected format: trn:maintenance-event:{uuid}
     pub id: MaintenanceEventId,
@@ -779,6 +796,7 @@ mod tests {
                 railway_companies: vec![],
                 railway_models: vec![],
                 collection_items: vec![],
+                owned_rolling_stocks: vec![],
                 sellers: vec![],
                 maintenance_cards: vec![],
                 track_products: vec![],

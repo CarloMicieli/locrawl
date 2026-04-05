@@ -175,6 +175,7 @@ fn map_wishlist_to_manifest(import: &ImportWishlist, seeds: &Registry) -> Result
             railway_companies: railway_companies.into_values().collect(),
             railway_models,
             collection_items: vec![],
+            owned_rolling_stocks: vec![],
             sellers: vec![],
             maintenance_cards: vec![],
             track_products: vec![],
