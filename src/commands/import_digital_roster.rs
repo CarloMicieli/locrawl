@@ -388,7 +388,7 @@ mod tests {
                         "description": {"en": "Demo locomotive"},
                         "scale": "H0",
                         "epoch": "V",
-                        "category": {"type": "LOCOMOTIVES"},
+                        "category": "LOCOMOTIVES",
                         "powerMethod": "DC",
                         "rollingStocks": [
                             {

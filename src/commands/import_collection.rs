@@ -13,6 +13,7 @@ use clap::Args;
 use log::info;
 use serde_json::Value;
 use slug::slugify;
+use uuid::Uuid;
 
 use crate::commands::validation::{manifest_schema_path, validate_value_with_schema};
 
@@ -23,7 +24,7 @@ use crate::import::{
     SubCategory as ImportSubCategory,
 };
 use crate::manifest::{
-    self, Category, CategoryType, CollectionItem, CollectionItemId, Control, DataContainer,
+    self, Category, CollectionItem, CollectionItemId, Control, DataContainer,
     ElectricMultipleUnitType, FreightCarType, LocalizedText, LocomotiveType, Manifest,
     ManifestVersion, Manufacturer, ManufacturerId, PassengerCarType, PowerMethod, Purchase,
     PurchaseType, RailcarType, RailwayCompany, RailwayCompanyId, RailwayCompanyStatus,
@@ -75,7 +76,8 @@ pub async fn run(args: ImportCollectionArgs) -> Result<()> {
         )
     })?;
 
-    let incoming_manifest = map_import_to_manifest(&import_collection)?;
+    let seed_data = load_seed_data()?;
+    let incoming_manifest = map_import_to_manifest(&import_collection, &seed_data)?;
     let existing_manifest = load_existing_manifest_or_empty(&output)?;
     let merged_manifest =
         merge_collection_manifests(existing_manifest, incoming_manifest, args.force)?;
@@ -100,6 +102,212 @@ fn collection_schema_path() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("schema")
         .join("collection_schema.json")
+}
+
+fn manufacturers_seed_path() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("seed")
+        .join("manufacturers.csv")
+}
+
+fn railway_companies_seed_path() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("seed")
+        .join("railway_companies.csv")
+}
+
+fn sellers_seed_path() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("seed")
+        .join("sellers.csv")
+}
+
+// ── CSV row types (field names match exact CSV column headers) ─────────────
+
+#[derive(serde::Deserialize)]
+struct ManufacturerRow {
+    name: String,
+    registered_company_name: String,
+    status: String,
+    country_code: String,
+    website_url: String,
+}
+
+#[derive(serde::Deserialize)]
+struct RailwayCompanyRow {
+    name: String,
+    #[allow(dead_code)]
+    registered_company_name: String,
+    country_code: String,
+    status: String,
+    operating_since: String,
+    operating_until: String,
+}
+
+#[derive(serde::Deserialize)]
+struct SellerRow {
+    name: String,
+    #[serde(rename = "type")]
+    seller_type: String,
+    email: String,
+    phone: String,
+    website_url: String,
+    street_address: String,
+    city: String,
+    region: String,
+    postal_code: String,
+    country_code: String,
+}
+
+// ── Seed data ──────────────────────────────────────────────────────────────
+
+use std::collections::HashMap;
+
+pub(crate) struct SeedData {
+    pub(crate) manufacturers: HashMap<String, Manufacturer>,
+    pub(crate) railway_companies: HashMap<String, RailwayCompany>,
+    pub(crate) sellers: HashMap<String, Seller>,
+}
+
+/// Slugify a display name. Removes dots first so "A.C.M.E." → "acme".
+fn slugify_name(name: &str) -> String {
+    let without_dots = name.replace('.', "");
+    let candidate = slugify(&without_dots);
+    if candidate.is_empty() {
+        "unknown".to_string()
+    } else {
+        candidate
+    }
+}
+
+fn parse_manufacturer_status(raw: &str) -> Option<manifest::ManufacturerStatus> {
+    match raw {
+        "ACTIVE" => Some(manifest::ManufacturerStatus::Active),
+        "MERGED" => Some(manifest::ManufacturerStatus::Merged),
+        "OUT_OF_BUSINESS" => Some(manifest::ManufacturerStatus::OutOfBusiness),
+        _ => None,
+    }
+}
+
+fn parse_railway_company_status(raw: &str) -> Option<RailwayCompanyStatus> {
+    match raw {
+        "ACTIVE" => Some(RailwayCompanyStatus::Active),
+        "INACTIVE" => Some(RailwayCompanyStatus::Inactive),
+        "MERGED" => Some(RailwayCompanyStatus::Merged),
+        _ => None,
+    }
+}
+
+fn parse_seller_type(raw: &str) -> Result<SellerType> {
+    match raw {
+        "SHOP" => Ok(SellerType::Shop),
+        "PRIVATE" => Ok(SellerType::Private),
+        "MARKETPLACE" => Ok(SellerType::Marketplace),
+        "DISTRIBUTOR" => Ok(SellerType::Distributor),
+        other => anyhow::bail!("Unknown seller type '{}' in seed data", other),
+    }
+}
+
+fn opt_str(s: &str) -> Option<String> {
+    if s.is_empty() {
+        None
+    } else {
+        Some(s.to_string())
+    }
+}
+
+pub(crate) fn load_seed_data() -> Result<SeedData> {
+    // ── Manufacturers ──────────────────────────────────────────────────────
+    let mut manufacturers: HashMap<String, Manufacturer> = HashMap::new();
+    let mut rdr = csv::Reader::from_path(manufacturers_seed_path())
+        .context("Failed to open seed/manufacturers.csv")?;
+    for result in rdr.deserialize::<ManufacturerRow>() {
+        let row = result.context("Failed to parse row in seed/manufacturers.csv")?;
+        let slug = slugify_name(&row.name);
+        let manufacturer = Manufacturer {
+            id: ManufacturerId(format!("trn:manufacturer:{}", slug)),
+            name: row.name.clone(),
+            registered_company_name: opt_str(&row.registered_company_name),
+            country_code: opt_str(&row.country_code),
+            status: parse_manufacturer_status(&row.status),
+            website_url: opt_str(&row.website_url),
+            street_address: None,
+            extended_address: None,
+            city: None,
+            state_region: None,
+            postal_code: None,
+        };
+        manufacturers.insert(slug, manufacturer);
+    }
+
+    // ── Railway companies ──────────────────────────────────────────────────
+    let mut railway_companies: HashMap<String, RailwayCompany> = HashMap::new();
+    let mut rdr = csv::Reader::from_path(railway_companies_seed_path())
+        .context("Failed to open seed/railway_companies.csv")?;
+    for result in rdr.deserialize::<RailwayCompanyRow>() {
+        let row = result.context("Failed to parse row in seed/railway_companies.csv")?;
+        let slug = slugify_name(&row.name);
+        let operating_since = if row.operating_since.is_empty() {
+            None
+        } else {
+            Some(parse_date(&row.operating_since, "operating_since")?)
+        };
+        let operating_until = if row.operating_until.is_empty() {
+            None
+        } else {
+            Some(parse_date(&row.operating_until, "operating_until")?)
+        };
+        let company = RailwayCompany {
+            id: RailwayCompanyId(format!("trn:railway-company:{}", slug)),
+            name: row.name.clone(),
+            country_code: opt_str(&row.country_code),
+            status: parse_railway_company_status(&row.status),
+            operating_since,
+            operating_until,
+        };
+        railway_companies.insert(slug, company);
+    }
+
+    // ── Sellers ────────────────────────────────────────────────────────────
+    let mut sellers: HashMap<String, Seller> = HashMap::new();
+    let mut rdr =
+        csv::Reader::from_path(sellers_seed_path()).context("Failed to open seed/sellers.csv")?;
+    for result in rdr.deserialize::<SellerRow>() {
+        let row = result.context("Failed to parse row in seed/sellers.csv")?;
+        let slug = slugify_name(&row.name);
+        let has_address = !row.street_address.is_empty()
+            || !row.city.is_empty()
+            || !row.region.is_empty()
+            || !row.postal_code.is_empty()
+            || !row.country_code.is_empty();
+        let address = if has_address {
+            Some(manifest::Address {
+                street: opt_str(&row.street_address),
+                city: opt_str(&row.city),
+                region: opt_str(&row.region),
+                postal_code: opt_str(&row.postal_code),
+                country_code: opt_str(&row.country_code),
+            })
+        } else {
+            None
+        };
+        let seller = Seller {
+            id: SellerId(format!("trn:seller:{}", slug)),
+            name: row.name.clone(),
+            seller_type: parse_seller_type(&row.seller_type)?,
+            email: opt_str(&row.email),
+            phone: opt_str(&row.phone),
+            website_url: opt_str(&row.website_url),
+            address,
+        };
+        sellers.insert(slug, seller);
+    }
+
+    Ok(SeedData {
+        manufacturers,
+        railway_companies,
+        sellers,
+    })
 }
 
 pub(crate) fn strip_nulls(value: &mut Value) {
@@ -138,6 +346,18 @@ pub(crate) fn normalize_id_segment(raw: &str) -> String {
     } else {
         candidate
     }
+}
+
+/// Extract the slug portion from a TRN value.
+/// If `value` starts with `prefix` (e.g. `"trn:manufacturer:"`), the rest is returned as-is.
+/// Otherwise falls back to `normalize_id_segment`.
+pub(crate) fn trn_slug(value: &str, prefix: &str) -> String {
+    if let Some(rest) = value.strip_prefix(prefix)
+        && !rest.is_empty()
+    {
+        return rest.to_string();
+    }
+    normalize_id_segment(value)
 }
 
 pub(crate) fn ensure_parent_dir(path: &Path) -> Result<()> {
@@ -250,7 +470,7 @@ pub(crate) fn load_existing_manifest_or_empty(output: &Path) -> Result<Manifest>
     })
 }
 
-pub fn map_import_to_manifest(import: &Collection) -> Result<Manifest> {
+pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &SeedData) -> Result<Manifest> {
     let exported_at = parse_rfc3339_to_utc(&import.modified_at, "modifiedAt")?;
 
     let mut manufacturers: BTreeMap<String, Manufacturer> = BTreeMap::new();
@@ -261,31 +481,29 @@ pub fn map_import_to_manifest(import: &Collection) -> Result<Manifest> {
     let mut collection_items = Vec::with_capacity(import.railway_models.len());
 
     for model in &import.railway_models {
-        let manufacturer_slug = normalize_id_segment(&model.manufacturer);
+        let manufacturer_slug = trn_slug(&model.manufacturer, "trn:manufacturer:");
         let product_slug = normalize_id_segment(&model.product_code);
         let manufacturer_id = ManufacturerId(format!("trn:manufacturer:{}", manufacturer_slug));
 
+        let seed_manufacturer = seeds
+            .manufacturers
+            .get(&manufacturer_slug)
+            .with_context(|| {
+                format!(
+                    "Manufacturer '{}' (slug: '{}') not found in seed/manufacturers.csv",
+                    model.manufacturer, manufacturer_slug
+                )
+            })?;
         manufacturers
             .entry(manufacturer_id.0.clone())
-            .or_insert_with(|| Manufacturer {
-                id: manufacturer_id.clone(),
-                name: model.manufacturer.clone(),
-                registered_company_name: None,
-                country_code: None,
-                status: None,
-                website_url: None,
-                street_address: None,
-                extended_address: None,
-                city: None,
-                state_region: None,
-                postal_code: None,
-            });
+            .or_insert_with(|| seed_manufacturer.clone());
 
         railway_models.push(map_railway_model(
             model,
             &manufacturer_id,
             &mut railway_companies,
-        ));
+            seeds,
+        )?);
 
         let railway_model_id = RailwayModelId(format!(
             "trn:railway-model:{}:{}",
@@ -298,20 +516,18 @@ pub fn map_import_to_manifest(import: &Collection) -> Result<Manifest> {
         if let Some(import_purchase) = &model.purchase_info {
             added_date = parse_date(&import_purchase.purchase_date, "purchaseDate")?;
 
-            let seller_slug = normalize_id_segment(&import_purchase.seller);
+            let seller_slug = trn_slug(&import_purchase.seller, "trn:seller:");
             let seller_id = SellerId(format!("trn:seller:{}", seller_slug));
 
+            let seed_seller = seeds.sellers.get(&seller_slug).with_context(|| {
+                format!(
+                    "Seller '{}' (slug: '{}') not found in seed/sellers.csv",
+                    import_purchase.seller, seller_slug
+                )
+            })?;
             sellers
                 .entry(seller_id.0.clone())
-                .or_insert_with(|| Seller {
-                    id: seller_id.clone(),
-                    name: import_purchase.seller.clone(),
-                    seller_type: SellerType::Shop,
-                    email: None,
-                    phone: None,
-                    website_url: None,
-                    address: None,
-                });
+                .or_insert_with(|| seed_seller.clone());
 
             purchase = Some(Purchase {
                 r#type: PurchaseType::Purchased,
@@ -329,10 +545,7 @@ pub fn map_import_to_manifest(import: &Collection) -> Result<Manifest> {
         }
 
         collection_items.push(CollectionItem {
-            id: CollectionItemId(format!(
-                "trn:collection-item:{}:{}",
-                manufacturer_slug, product_slug
-            )),
+            id: CollectionItemId(format!("trn:collection-item:{}", Uuid::new_v4())),
             railway_model_id,
             added_date,
             removed_date: None,
@@ -372,7 +585,7 @@ pub fn map_import_to_manifest(import: &Collection) -> Result<Manifest> {
 pub(crate) fn make_model_id(manufacturer: &str, product_code: &str) -> RailwayModelId {
     RailwayModelId(format!(
         "trn:railway-model:{}:{}",
-        normalize_id_segment(manufacturer),
+        trn_slug(manufacturer, "trn:manufacturer:"),
         normalize_id_segment(product_code)
     ))
 }
@@ -381,11 +594,12 @@ pub(crate) fn map_railway_model(
     model: &ImportRailwayModel,
     manufacturer_id: &ManufacturerId,
     railway_companies: &mut BTreeMap<String, RailwayCompany>,
-) -> RailwayModel {
-    let manufacturer_slug = normalize_id_segment(&model.manufacturer);
+    seeds: &SeedData,
+) -> Result<RailwayModel> {
+    let manufacturer_slug = trn_slug(&model.manufacturer, "trn:manufacturer:");
     let product_slug = normalize_id_segment(&model.product_code);
 
-    RailwayModel {
+    Ok(RailwayModel {
         id: RailwayModelId(format!(
             "trn:railway-model:{}:{}",
             manufacturer_slug, product_slug
@@ -399,9 +613,7 @@ pub(crate) fn map_railway_model(
         details: None,
         scale: map_scale(&model.scale),
         epoch: model.epoch.0.clone(),
-        category: Category {
-            category_type: map_model_category(&model.category),
-        },
+        category: map_model_category(&model.category),
         power_method: map_power_method(&model.power_method),
         delivery_date: model.delivery_date.clone(),
         availability_status: None,
@@ -409,18 +621,19 @@ pub(crate) fn map_railway_model(
         rolling_stocks: model
             .rolling_stocks
             .iter()
-            .map(|stock| map_rolling_stock(stock, railway_companies))
-            .collect(),
-    }
+            .map(|stock| map_rolling_stock(stock, railway_companies, seeds))
+            .collect::<Result<Vec<_>>>()?,
+    })
 }
 
 fn map_rolling_stock(
     stock: &ImportRollingStock,
     railway_companies: &mut BTreeMap<String, RailwayCompany>,
-) -> RollingStock {
-    let railway_company_id = railway_company_id_for(&stock.railway, railway_companies);
+    seeds: &SeedData,
+) -> Result<RollingStock> {
+    let railway_company_id = railway_company_id_for(&stock.railway, railway_companies, seeds)?;
 
-    RollingStock {
+    Ok(RollingStock {
         id: Some(stock.id.clone()),
         railway_company_id,
         series_code: stock
@@ -457,39 +670,42 @@ fn map_rolling_stock(
         technical_sprung_buffers: None,
         dcc_interface: None,
         control: Some(Control::NoDcc),
-    }
+    })
 }
 
 pub(crate) fn railway_company_id_for(
     railway_name: &str,
     railway_companies: &mut BTreeMap<String, RailwayCompany>,
-) -> RailwayCompanyId {
-    let railway_slug = normalize_id_segment(railway_name);
+    seeds: &SeedData,
+) -> Result<RailwayCompanyId> {
+    let railway_slug = trn_slug(railway_name, "trn:railway-company:");
     let company_id = RailwayCompanyId(format!("trn:railway-company:{}", railway_slug));
 
-    railway_companies
-        .entry(company_id.0.clone())
-        .or_insert_with(|| RailwayCompany {
-            id: company_id.clone(),
-            name: railway_name.to_string(),
-            country_code: None,
-            status: Some(RailwayCompanyStatus::Active),
-            operating_since: None,
-            operating_until: None,
-        });
+    if !railway_companies.contains_key(&company_id.0) {
+        let seed_company = seeds
+            .railway_companies
+            .get(&railway_slug)
+            .with_context(|| {
+                format!(
+                    "Railway company '{}' (slug: '{}') not found in seed/railway_companies.csv",
+                    railway_name, railway_slug
+                )
+            })?;
+        railway_companies.insert(company_id.0.clone(), seed_company.clone());
+    }
 
-    company_id
+    Ok(company_id)
 }
 
-fn map_model_category(category: &ImportRailwayModelCategory) -> CategoryType {
+fn map_model_category(category: &ImportRailwayModelCategory) -> Category {
     match category {
-        ImportRailwayModelCategory::Locomotives => CategoryType::Locomotives,
-        ImportRailwayModelCategory::TrainSets => CategoryType::TrainSets,
-        ImportRailwayModelCategory::StarterSets => CategoryType::StarterSets,
-        ImportRailwayModelCategory::FreightCars => CategoryType::FreightCars,
-        ImportRailwayModelCategory::PassengerCars => CategoryType::PassengerCars,
-        ImportRailwayModelCategory::ElectricMultipleUnits => CategoryType::ElectricMultipleUnits,
-        ImportRailwayModelCategory::Railcars => CategoryType::Railcars,
+        ImportRailwayModelCategory::Locomotives => Category::Locomotives,
+        ImportRailwayModelCategory::TrainSets => Category::TrainSets,
+        ImportRailwayModelCategory::StarterSets => Category::StarterSets,
+        ImportRailwayModelCategory::FreightCars => Category::FreightCars,
+        ImportRailwayModelCategory::PassengerCars => Category::PassengerCars,
+        ImportRailwayModelCategory::ElectricMultipleUnits => Category::ElectricMultipleUnits,
+        ImportRailwayModelCategory::Railcars => Category::Railcars,
     }
 }
 
@@ -841,7 +1057,7 @@ mod tests {
 
     #[test]
     fn map_model_category_maps_all_variants() {
-        use CategoryType::*;
+        use Category::*;
         assert!(matches!(
             map_model_category(&ImportRailwayModelCategory::Locomotives),
             Locomotives
@@ -1113,7 +1329,7 @@ mod tests {
             "railwayModels": [
                 {
                     "id": format!("rm-{}", product_code),
-                    "manufacturer": "ACME Rail",
+                    "manufacturer": "trn:manufacturer:acme",
                     "productCode": product_code,
                     "description": "Demo locomotive",
                     "powerMethod": "DC",
@@ -1124,7 +1340,7 @@ mod tests {
                         {
                             "id": "stock-1",
                             "category": "LOCOMOTIVE",
-                            "railway": "Deutsche Bahn"
+                            "railway": "trn:railway-company:db"
                         }
                     ]
                 }
@@ -1205,10 +1421,12 @@ mod tests {
         })
         .await;
 
-        assert!(result.is_err());
+        // UUID-based IDs are always unique, so the same source can be imported
+        // multiple times without conflict.
+        assert!(result.is_ok());
 
         let manifest = load_existing_manifest_or_empty(&output).expect("manifest should exist");
-        assert_eq!(manifest.data.collection_items.len(), 1);
+        assert_eq!(manifest.data.collection_items.len(), 2);
 
         let _ = fs::remove_file(source_one);
         let _ = fs::remove_file(source_two);

@@ -1,0 +1,140 @@
+id,track_id,manufacturer_id,product_code,with_roadbed,length_mm,radius_mm,track_code,track_type,description
+trn:railway-track:trix:62172,62172,trix,62172,1,171,,83,straight,Trix C Track Straight 171.7mm
+trn:railway-track:trix:62188,62188,trix,62188,1,188,,83,straight,Trix C Track Straight 188.3mm
+trn:railway-track:trix:62130,62130,trix,62130,1,,360,83,curved,Trix C Track Curved R1 30°
+trn:railway-track:trix:62230,62230,trix,62230,1,,437,83,curved,Trix C Track Curved R2 30°
+trn:railway-track:trix:62611,62611,trix,62611,1,188,,83,turnout,Trix C Track Left Turnout
+trn:railway-track:piko:55200,55200,piko,55200,0,239,,100,straight,Piko A-Gleis Straight G239
+trn:railway-track:piko:55201,55201,piko,55201,0,231,,100,straight,Piko A-Gleis Straight G231
+trn:railway-track:piko:55212,55212,piko,55212,0,,422,100,curved,Piko A-Gleis Curved R2 30°
+trn:railway-track:piko:55221,55221,piko,55221,0,239,,100,turnout,Piko A-Gleis Right Turnout WR
+trn:railway-track:marklin:24172,24172,marklin,24172,1,171,,83,straight,Marklin C Track Straight 171.7mm
+trn:railway-track:marklin:24188,24188,marklin,24188,1,188,,83,straight,Marklin C Track Straight 188.3mm
+trn:railway-track:marklin:24130,24130,marklin,24130,1,,360,83,curved,Marklin C Track Curved R1 30°
+trn:railway-track:marklin:24230,24230,marklin,24230,1,,437,83,curved,Marklin C Track Curved R2 30°
+trn:railway-track:marklin:24611,24611,marklin,24611,1,188,,83,turnout,Marklin C Track Left Turnout
+trn:railway-track:roco:42510,42510,roco,42510,1,230,,83,straight,Roco Line w/Bedding G1 Straight
+trn:railway-track:roco:42511,42511,roco,42511,1,115,,83,straight,Roco Line w/Bedding G1/2 Straight
+trn:railway-track:roco:42512,42512,roco,42512,1,58,,83,straight,Roco Line w/Bedding G1/4 Straight
+trn:railway-track:roco:42513,42513,roco,42513,1,107,,83,straight,Roco Line w/Bedding G1/2 Diagonal
+trn:railway-track:roco:42506,42506,roco,42506,1,920,,83,straight,Roco Line w/Bedding G4 Extra Long Straight
+trn:railway-track:roco:42521,42521,roco,42521,1,,358,83,curved,Roco Line w/Bedding R2 Curve 7.5°
+trn:railway-track:roco:42522,42522,roco,42522,1,,358,83,curved,Roco Line w/Bedding R2 Curve 30°
+trn:railway-track:roco:42523,42523,roco,42523,1,,419,83,curved,Roco Line w/Bedding R3 Curve 30°
+trn:railway-track:roco:42524,42524,roco,42524,1,,481,83,curved,Roco Line w/Bedding R4 Curve 30°
+trn:railway-track:roco:42525,42525,roco,42525,1,,543,83,curved,Roco Line w/Bedding R5 Curve 30°
+trn:railway-track:roco:42526,42526,roco,42526,1,,604,83,curved,Roco Line w/Bedding R6 Curve 30°
+trn:railway-track:roco:42527,42527,roco,42527,1,,826,83,curved,Roco Line w/Bedding R9 Curve 15°
+trn:railway-track:roco:42528,42528,roco,42528,1,,888,83,curved,Roco Line w/Bedding R10 Curve 15°
+trn:railway-track:roco:42532,42532,roco,42532,1,230,,83,turnout,Roco Line w/Bedding Left Turnout Wl15
+trn:railway-track:roco:42533,42533,roco,42533,1,230,,83,turnout,Roco Line w/Bedding Right Turnout Wr15
+trn:railway-track:roco:42538,42538,roco,42538,1,230,,83,turnout,Roco Line w/Bedding Left Turnout Wl15 polarized
+trn:railway-track:roco:42539,42539,roco,42539,1,230,,83,turnout,Roco Line w/Bedding Right Turnout Wr15 polarized
+trn:railway-track:roco:42556,42556,roco,42556,1,,358,83,turnout,Roco Line w/Bedding Curved Turnout BWl2/3 Left
+trn:railway-track:roco:42557,42557,roco,42557,1,,358,83,turnout,Roco Line w/Bedding Curved Turnout BWr2/3 Right
+trn:railway-track:roco:42558,42558,roco,42558,1,,419,83,turnout,Roco Line w/Bedding Curved Turnout BWl3/4 Left
+trn:railway-track:roco:42559,42559,roco,42559,1,,419,83,turnout,Roco Line w/Bedding Curved Turnout BWr3/4 Right
+trn:railway-track:roco:42543,42543,roco,42543,1,287,,83,turnout,Roco Line w/Bedding Triple Turnout DWW15
+trn:railway-track:roco:42546,42546,roco,42546,1,230,,83,turnout,Roco Line w/Bedding Double Slip DKW15
+trn:railway-track:roco:42594,42594,roco,42594,1,230,,83,crossing,Roco Line w/Bedding Crossing K15
+trn:railway-track:roco:42597,42597,roco,42597,1,230,,83,crossing,Roco Line w/Bedding Crossing K30
+trn:railway-track:roco:42517,42517,roco,42517,1,115,,83,straight,Roco Line w/Bedding Uncoupler Track (Manual)
+trn:railway-track:roco:42519,42519,roco,42519,1,115,,83,straight,Roco Line w/Bedding Uncoupler Track (Electric)
+trn:railway-track:roco:42406,42406,roco,42406,0,920,,83,straight,Roco Line G4 Straight Track 920mm
+trn:railway-track:roco:42410,42410,roco,42410,0,230,,83,straight,Roco Line G1 Straight Track 230mm
+trn:railway-track:roco:42411,42411,roco,42411,0,115,,83,straight,Roco Line G1/2 Straight Track 115mm
+trn:railway-track:roco:42412,42412,roco,42412,0,57,,83,straight,Roco Line G1/4 Straight Track 57.5mm
+trn:railway-track:roco:42413,42413,roco,42413,0,107,,83,straight,Roco Line DG1 Diagonal Straight 107.5mm
+trn:railway-track:roco:42400,42400,roco,42400,0,920,,83,flex,Roco Line Flex Track (Wood Sleepers)
+trn:railway-track:roco:42401,42401,roco,42401,0,920,,83,flex,Roco Line Flex Track (Concrete Sleepers)
+trn:railway-track:roco:42421,42421,roco,42421,0,,358,83,curved,Roco Line Curved Track R2 7.5°
+trn:railway-track:roco:42422,42422,roco,42422,0,,358,83,curved,Roco Line Curved Track R2 30°
+trn:railway-track:roco:42423,42423,roco,42423,0,,419,83,curved,Roco Line Curved Track R3 30°
+trn:railway-track:roco:42424,42424,roco,42424,0,,481,83,curved,Roco Line Curved Track R4 30°
+trn:railway-track:roco:42425,42425,roco,42425,0,,543,83,curved,Roco Line Curved Track R5 30°
+trn:railway-track:roco:42426,42426,roco,42426,0,,604,83,curved,Roco Line Curved Track R6 30°
+trn:railway-track:roco:42427,42427,roco,42427,0,,826,83,curved,Roco Line Curved Track R9 15°
+trn:railway-track:roco:42428,42428,roco,42428,0,,888,83,curved,Roco Line Curved Track R10 15°
+trn:railway-track:roco:42440,42440,roco,42440,0,230,,83,turnout,Roco Line Left Turnout Wl15
+trn:railway-track:roco:42441,42441,roco,42441,0,230,,83,turnout,Roco Line Right Turnout Wr15
+trn:railway-track:roco:42460,42460,roco,42460,0,230,,83,turnout,Roco Line Left Turnout Wl10 (Large)
+trn:railway-track:roco:42461,42461,roco,42461,0,230,,83,turnout,Roco Line Right Turnout Wr10 (Large)
+trn:railway-track:roco:42451,42451,roco,42451,0,287,,83,turnout,Roco Line Triple Turnout DWW15
+trn:railway-track:roco:42454,42454,roco,42454,0,230,,83,turnout,Roco Line Double Slip DKW15 (English)
+trn:railway-track:roco:42452,42452,roco,42452,0,230,,83,turnout,Roco Line Single Slip EKW15
+trn:railway-track:roco:42470,42470,roco,42470,0,,358,83,turnout,Roco Line Curved Turnout BWl2/3 Left
+trn:railway-track:roco:42471,42471,roco,42471,0,,358,83,turnout,Roco Line Curved Turnout BWr2/3 Right
+trn:railway-track:roco:42476,42476,roco,42476,0,,543,83,turnout,Roco Line Curved Turnout BWl5/6 Left
+trn:railway-track:roco:42477,42477,roco,42477,0,,543,83,turnout,Roco Line Curved Turnout BWr5/6 Right
+trn:railway-track:roco:42493,42493,roco,42493,0,230,,83,crossing,Roco Line Crossing K15
+trn:railway-track:roco:42496,42496,roco,42496,0,230,,83,crossing,Roco Line Crossing K30
+trn:railway-track:peco:sl-102,sl-102,peco,sl-102,0,914,,75,flex,Peco Streamline Code 75 Flex Track Wood
+trn:railway-track:peco:sl-103,sl-103,peco,sl-103,0,914,,75,flex,Peco Streamline Code 75 Flex Track Concrete
+trn:railway-track:peco:sl-104,sl-104,peco,sl-104,0,914,,75,flex,Peco Streamline Code 75 Flex Track Steel
+trn:railway-track:peco:sl-e191,sl-e191,peco,sl-e191,0,185,610,75,turnout,Peco Code 75 Small Radius RH Electrofrog
+trn:railway-track:peco:sl-e192,sl-e192,peco,sl-e192,0,185,610,75,turnout,Peco Code 75 Small Radius LH Electrofrog
+trn:railway-track:peco:sl-e195,sl-e195,peco,sl-e195,0,219,914,75,turnout,Peco Code 75 Medium Radius RH Electrofrog
+trn:railway-track:peco:sl-e196,sl-e196,peco,sl-e196,0,219,914,75,turnout,Peco Code 75 Medium Radius LH Electrofrog
+trn:railway-track:peco:sl-e188,sl-e188,peco,sl-e188,0,258,1524,75,turnout,Peco Code 75 Large Radius RH Electrofrog
+trn:railway-track:peco:sl-e189,sl-e189,peco,sl-e189,0,258,1524,75,turnout,Peco Code 75 Large Radius LH Electrofrog
+trn:railway-track:peco:sl-e186,sl-e186,peco,sl-e186,0,249,,75,turnout,Peco Code 75 Curved RH Turnout (1524mm/762mm)
+trn:railway-track:peco:sl-e187,sl-e187,peco,sl-e187,0,249,,75,turnout,Peco Code 75 Curved LH Turnout (1524mm/762mm)
+trn:railway-track:peco:sl-e190,sl-e190,peco,sl-e190,0,249,,75,turnout,Peco Code 75 Double Slip Electrofrog
+trn:railway-track:peco:sl-e194,sl-e194,peco,sl-e194,0,219,,75,turnout,Peco Code 75 Long Crossing
+trn:railway-track:peco:sl-e193,sl-e193,peco,sl-e193,0,127,,75,turnout,Peco Code 75 Short Crossing
+trn:railway-track:peco:sl-e199,sl-e199,peco,sl-e199,0,210,762,75,turnout,Peco Code 75 Three Way Turnout
+trn:railway-track:peco:sl-108f,sl-108f,peco,sl-108f,0,168,,75,straight,Peco Streamline Code 75 Bullhead Flex (914mm)
+trn:railway-track:peco:sl-e1491,sl-e1491,peco,sl-e1491,0,188,762,75,turnout,Peco Code 75 Bullhead RH Turnout
+trn:railway-track:peco:sl-e1492,sl-e1492,peco,sl-e1492,0,188,762,75,turnout,Peco Code 75 Bullhead LH Turnout
+trn:railway-track:peco:sl-100,sl-100,peco,sl-100,0,914,,100,flex,Peco Streamline Code 100 Flex Wood Sleeper
+trn:railway-track:peco:sl-102,sl-102,peco,sl-102,0,914,,100,flex,Peco Streamline Code 100 Flex Concrete Sleeper
+trn:railway-track:peco:st-200,st-200,peco,st-200,0,168,,100,straight,Peco Setrack Standard Straight
+trn:railway-track:peco:st-201,st-201,peco,st-201,0,335,,100,straight,Peco Setrack Double Straight
+trn:railway-track:peco:st-202,st-202,peco,st-202,0,79,,100,straight,Peco Setrack Short Straight
+trn:railway-track:peco:st-220,st-220,peco,st-220,0,,371,100,curved,Peco Setrack 1st Radius Curve 22.5°
+trn:railway-track:peco:st-225,st-225,peco,st-225,0,,438,100,curved,Peco Setrack 2nd Radius Curve 22.5°
+trn:railway-track:peco:st-230,st-230,peco,st-230,0,,505,100,curved,Peco Setrack 3rd Radius Curve 22.5°
+trn:railway-track:peco:st-235,st-235,peco,st-235,0,,572,100,curved,Peco Setrack 4th Radius Curve 22.5°
+trn:railway-track:peco:sl-91,sl-91,peco,sl-91,0,185,610,100,turnout,Peco Streamline Small RH Insulfrog
+trn:railway-track:peco:sl-92,sl-92,peco,sl-92,0,185,610,100,turnout,Peco Streamline Small LH Insulfrog
+trn:railway-track:peco:sl-95,sl-95,peco,sl-95,0,219,914,100,turnout,Peco Streamline Medium RH Insulfrog
+trn:railway-track:peco:sl-96,sl-96,peco,sl-96,0,219,914,100,turnout,Peco Streamline Medium LH Insulfrog
+trn:railway-track:peco:sl-88,sl-88,peco,sl-88,0,258,1524,100,turnout,Peco Streamline Large RH Insulfrog
+trn:railway-track:peco:sl-89,sl-89,peco,sl-89,0,258,1524,100,turnout,Peco Streamline Large LH Insulfrog
+trn:railway-track:peco:sl-e91,sl-e91,peco,sl-e91,0,185,610,100,turnout,Peco Streamline Small RH Electrofrog
+trn:railway-track:peco:sl-e92,sl-e92,peco,sl-e92,0,185,610,100,turnout,Peco Streamline Small LH Electrofrog
+trn:railway-track:peco:sl-e95,sl-e95,peco,sl-e95,0,219,914,100,turnout,Peco Streamline Medium RH Electrofrog
+trn:railway-track:peco:sl-e96,sl-e96,peco,sl-e96,0,219,914,100,turnout,Peco Streamline Medium LH Electrofrog
+trn:railway-track:peco:sl-e88,sl-e88,peco,sl-e88,0,258,1524,100,turnout,Peco Streamline Large RH Electrofrog
+trn:railway-track:peco:sl-e89,sl-e89,peco,sl-e89,0,258,1524,100,turnout,Peco Streamline Large LH Electrofrog
+trn:railway-track:peco:sl-90,sl-90,peco,sl-90,0,249,,100,turnout,Peco Streamline Double Slip Insulfrog
+trn:railway-track:peco:sl-e90,sl-e90,peco,sl-e90,0,249,,100,turnout,Peco Streamline Double Slip Electrofrog
+trn:railway-track:peco:sl-94,sl-94,peco,sl-94,0,219,,100,crossing,Peco Streamline Long Crossing
+trn:railway-track:peco:st-240,st-240,peco,st-240,0,168,438,100,turnout,Peco Setrack RH Turnout (2nd Radius)
+trn:railway-track:peco:st-241,st-241,peco,st-241,0,168,438,100,turnout,Peco Setrack LH Turnout (2nd Radius)
+trn:railway-track:peco:st-244,st-244,peco,st-244,0,168,,100,turnout,Peco Setrack Curved RH Turnout
+trn:railway-track:peco:st-245,st-245,peco,st-245,0,168,,100,turnout,Peco Setrack Curved LH Turnout
+trn:railway-track:tillig:83101,83101,tillig,83101,0,166,,83,straight,Tillig HO Elite Straight G1 166mm
+trn:railway-track:tillig:83102,83102,tillig,83102,0,129,,83,straight,Tillig HO Elite Straight G2 129mm
+trn:railway-track:tillig:83103,83103,tillig,83103,0,114,,83,straight,Tillig HO Elite Straight G3 114mm
+trn:railway-track:tillig:83104,83104,tillig,83104,0,106,,83,straight,Tillig HO Elite Straight G4 106.5mm
+trn:railway-track:tillig:83105,83105,tillig,83105,0,57,,83,straight,Tillig HO Elite Straight G5 57mm
+trn:railway-track:tillig:83100,83100,tillig,83100,0,475,,83,straight,Tillig HO Elite Straight G6 475mm
+trn:railway-track:tillig:83125,83125,tillig,83125,0,890,,83,flex,Tillig HO Elite Flex Track Wood Sleeper
+trn:railway-track:tillig:83126,83126,tillig,83126,0,890,,83,flex,Tillig HO Elite Flex Track Concrete Sleeper
+trn:railway-track:tillig:83106,83106,tillig,83106,0,,366,83,curved,Tillig HO Elite Curved R11 30°
+trn:railway-track:tillig:83107,83107,tillig,83107,0,,425,83,curved,Tillig HO Elite Curved R21 30°
+trn:railway-track:tillig:83108,83108,tillig,83108,0,,484,83,curved,Tillig HO Elite Curved R31 30°
+trn:railway-track:tillig:83109,83109,tillig,83109,0,,543,83,curved,Tillig HO Elite Curved R41 30°
+trn:railway-track:tillig:83110,83110,tillig,83110,0,,59,83,curved,Tillig HO Elite Curved R12 7.5°
+trn:railway-track:tillig:83113,83113,tillig,83113,0,,1350,83,curved,Tillig HO Elite Curved R51 15°
+trn:railway-track:tillig:83321,83321,tillig,83321,0,228,866,83,turnout,Tillig HO Elite Left Turnout EW1 15°
+trn:railway-track:tillig:83322,83322,tillig,83322,0,228,866,83,turnout,Tillig HO Elite Right Turnout EW1 15°
+trn:railway-track:tillig:83331,83331,tillig,83331,0,284,1350,83,turnout,Tillig HO Elite Left Turnout EW2 11°
+trn:railway-track:tillig:83332,83332,tillig,83332,0,284,1350,83,turnout,Tillig HO Elite Right Turnout EW2 11°
+trn:railway-track:tillig:83341,83341,tillig,83341,0,389,2180,83,turnout,Tillig HO Elite Left Turnout EW3 9°
+trn:railway-track:tillig:83342,83342,tillig,83342,0,389,2180,83,turnout,Tillig HO Elite Right Turnout EW3 9°
+trn:railway-track:tillig:83380,83380,tillig,83380,0,228,,83,turnout,Tillig HO Elite Double Slip DKW1 15°
+trn:railway-track:tillig:83300,83300,tillig,83300,0,,366,83,turnout,Tillig HO Elite Curved Turnout Left R11/R21
+trn:railway-track:tillig:83301,83301,tillig,83301,0,,366,83,turnout,Tillig HO Elite Curved Turnout Right R11/R21
+trn:railway-track:tillig:83361,83361,tillig,83361,0,284,,83,turnout,Tillig HO Elite Three Way Turnout DWW

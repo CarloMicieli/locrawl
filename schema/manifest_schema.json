@@ -174,7 +174,7 @@
         },
         "status": {
           "type": "string",
-          "enum": ["ACTIVE", "INACTIVE"],
+          "enum": ["ACTIVE", "INACTIVE", "MERGED"],
           "default": "ACTIVE",
           "description": "Operational status of the railway company"
         },
@@ -267,24 +267,17 @@
       "additionalProperties": false
     },
     "Category": {
-      "type": "object",
-      "required": ["type"],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "LOCOMOTIVES",
-            "PASSENGER_CARS",
-            "FREIGHT_CARS",
-            "ELECTRIC_MULTIPLE_UNITS",
-            "RAILCARS",
-            "TRAIN_SETS",
-            "STARTER_SETS"
-          ],
-          "description": "Primary category of railway model"
-        }
-      },
-      "additionalProperties": false
+      "type": "string",
+      "enum": [
+        "LOCOMOTIVES",
+        "PASSENGER_CARS",
+        "FREIGHT_CARS",
+        "ELECTRIC_MULTIPLE_UNITS",
+        "RAILCARS",
+        "TRAIN_SETS",
+        "STARTER_SETS"
+      ],
+      "description": "Primary category of railway model"
     },
     "LocalizedText": {
       "type": "object",

@@ -103,6 +103,7 @@ pub struct RailwayCompany {
 pub enum RailwayCompanyStatus {
     Active,
     Inactive,
+    Merged,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -161,15 +162,8 @@ pub enum AvailabilityStatus {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct Category {
-    #[serde(rename = "type")]
-    pub category_type: CategoryType,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum CategoryType {
+pub enum Category {
     Locomotives,
     PassengerCars,
     FreightCars,

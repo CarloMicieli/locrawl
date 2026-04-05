@@ -1,0 +1,230 @@
+id,railway_company_id,series_code,friendly_name,specification_type,locomotive_type,locomotive_series,service_level,passenger_car_type,freight_car_type,railcar_type,electric_multiple_unit_type,elements_count,is_permanently_coupled,is_motorized,default_is_dummy
+trn:prototype:fs-214,trn:railway-company:fs,Series 214,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-aln663,trn:railway-company:fs,ALn 663,,RAILCAR,,,FIRST_SECOND,,,POWER_CAR,,,,1,0
+trn:prototype:fs-aln668,trn:railway-company:fs,ALn 668,,RAILCAR,,,SECOND,,,POWER_CAR,,,,1,0
+trn:prototype:fs-aln56-fiat,trn:railway-company:fs,ALn 56 (Fiat),ALn 56 "Littorina" Fiat,RAILCAR,,,SECOND,,,POWER_CAR,,1,0,1,0
+trn:prototype:fs-aln56-breda,trn:railway-company:fs,ALn 56 (Breda),ALn 56 "Littorina" Breda,RAILCAR,,,SECOND,,,POWER_CAR,,1,0,1,0
+trn:prototype:fs-ln56,trn:railway-company:fs,Ln 56,Rimorchiata per ALn 56,RAILCAR,,,SECOND,,,TRAILER_CAR,,1,0,0,0
+trn:prototype:fs-aln556-fiat,trn:railway-company:fs,ALn 556 (Fiat),Littorina,RAILCAR,,,SECOND,,,POWER_CAR,,,,1,0
+trn:prototype:fs-aln556-breda,trn:railway-company:fs,ALn 556 (Breda),,RAILCAR,,,SECOND,,,POWER_CAR,,,,1,0
+trn:prototype:fs-aln772,trn:railway-company:fs,ALn 772,,RAILCAR,,,SECOND,,,POWER_CAR,,,,1,0
+trn:prototype:fs-aln773,trn:railway-company:fs,ALn 773,,RAILCAR,,,FIRST_SECOND,,,POWER_CAR,,,,1,0
+trn:prototype:fs-aln873,trn:railway-company:fs,ALn 873,,RAILCAR,,,FIRST_SECOND,,,POWER_CAR,,,,1,0
+trn:prototype:fs-aln990,trn:railway-company:fs,ALn 990,,RAILCAR,,,SECOND,,,POWER_CAR,,,,1,0
+trn:prototype:fs-aln442-448,trn:railway-company:fs,ALn 442/448,Binato TEE,RAILCAR,,,FIRST,,,POWER_CAR,,,,1,0
+trn:prototype:fs-alnd642,trn:railway-company:fs,ALnD 642,,RAILCAR,,,SECOND,,,POWER_CAR,,,,1,0
+trn:prototype:fs-ln664,trn:railway-company:fs,Ln 664,Rimorchiata per ALn 668,RAILCAR,,,SECOND,,,TRAILER_CAR,,1,0,0,0
+trn:prototype:fs-ln663,trn:railway-company:fs,Ln 663,Rimorchiata per ALn 663,RAILCAR,,,SECOND,,,TRAILER_CAR,,1,0,0,0
+trn:prototype:fs-ln556,trn:railway-company:fs,Ln 556,Rimorchiata per ALn 556 Breda,RAILCAR,,,SECOND,,,TRAILER_CAR,,1,0,0,0
+trn:prototype:fs-ln880,trn:railway-company:fs,Ln 880,Rimorchiata per ALn 773,RAILCAR,,,FIRST_SECOND,,,TRAILER_CAR,,1,0,0,0
+trn:prototype:fs-ldn24,trn:railway-company:fs,LDn 24,Rimorchiata Postale/Bagagliaio,RAILCAR,,,,,,TRAILER_BAGGAGE_CAR,,1,0,0,0
+trn:prototype:fs-d141,trn:railway-company:fs,D.141,,LOCOMOTIVE,DIESEL_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-d143,trn:railway-company:fs,D.143,Truman,LOCOMOTIVE,DIESEL_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-d145,trn:railway-company:fs,D.145,Arancia Meccanica,LOCOMOTIVE,DIESEL_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-d341,trn:railway-company:fs,D.341,,LOCOMOTIVE,DIESEL_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-d342,trn:railway-company:fs,D.342,,LOCOMOTIVE,DIESEL_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-d343,trn:railway-company:fs,D.343,,LOCOMOTIVE,DIESEL_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-d345,trn:railway-company:fs,D.345,,LOCOMOTIVE,DIESEL_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-d445,trn:railway-company:fs,D.445,,LOCOMOTIVE,DIESEL_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-d461,trn:railway-company:fs,D.461,,LOCOMOTIVE,DIESEL_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e326,trn:railway-company:fs,E.326,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e401,trn:railway-company:fs,E.401,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e402a,trn:railway-company:fs,E.402A,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e402b,trn:railway-company:fs,E.402B,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e403,trn:railway-company:fs,E.403,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e424,trn:railway-company:fs,E.424,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e428,trn:railway-company:fs,E.428,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e444-tartaruga,trn:railway-company:fs,E.444 Tartaruga,Tartaruga,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e444r,trn:railway-company:fs,E.444R,Tartaruga,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e453,trn:railway-company:fs,E.453,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e454,trn:railway-company:fs,E.454,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e464,trn:railway-company:fs,E.464,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e494,trn:railway-company:fs,E.494 (TRAXX DC3),,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e626,trn:railway-company:fs,E.626,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e632,trn:railway-company:fs,E.632,Tigre,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e633,trn:railway-company:fs,E.633,Tigre,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e636,trn:railway-company:fs,E.636,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e645,trn:railway-company:fs,E.645,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e646,trn:railway-company:fs,E.646,Caimano,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e652,trn:railway-company:fs,E.652,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e655,trn:railway-company:fs,E.655,,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-e656,trn:railway-company:fs,E.656,Caimano,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-gr480,trn:railway-company:fs,Gr. 480,,LOCOMOTIVE,STEAM_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-gr623,trn:railway-company:fs,Gr. 623,,LOCOMOTIVE,STEAM_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-gr625,trn:railway-company:fs,Gr. 625,Signorina,LOCOMOTIVE,STEAM_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-gr640,trn:railway-company:fs,Gr. 640,Signorina,LOCOMOTIVE,STEAM_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-gr685,trn:railway-company:fs,Gr. 685,Regina,LOCOMOTIVE,STEAM_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-gr690,trn:railway-company:fs,Gr. 690,,LOCOMOTIVE,STEAM_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-gr691,trn:railway-company:fs,Gr. 691,,LOCOMOTIVE,STEAM_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-gr740,trn:railway-company:fs,Gr. 740,,LOCOMOTIVE,STEAM_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-gr741,trn:railway-company:fs,Gr. 741 (Franco-Crosti),,LOCOMOTIVE,STEAM_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-gr743,trn:railway-company:fs,Gr. 743 (Franco-Crosti),,LOCOMOTIVE,STEAM_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-gr744,trn:railway-company:fs,Gr. 744,,LOCOMOTIVE,STEAM_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-gr835,trn:railway-company:fs,Gr. 835,Cirilla,LOCOMOTIVE,STEAM_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-gr851,trn:railway-company:fs,Gr. 851,,LOCOMOTIVE,STEAM_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-gr875,trn:railway-company:fs,Gr. 875,,LOCOMOTIVE,STEAM_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-gr940,trn:railway-company:fs,Gr. 940,,LOCOMOTIVE,STEAM_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-100p-1928-cl3,trn:railway-company:fs,Centoporte Tipo 1928 (Cz),,PASSENGER_CAR,,,THIRD,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-100p-1928-cl2,trn:railway-company:fs,Centoporte Tipo 1928 (Bz),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-100p-1931r,trn:railway-company:fs,Centoporte Tipo 1931R,,PASSENGER_CAR,,,SECOND_THIRD,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-100p-1933r-mix,trn:railway-company:fs,Centoporte Tipo 1933R (BCz),,PASSENGER_CAR,,,SECOND_THIRD,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-100p-1949r,trn:railway-company:fs,Centoporte Tipo 1949R,,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-100p-bagagliaio,trn:railway-company:fs,Centoporte Bagagliaio (DI),,PASSENGER_CAR,,,,BAGGAGE_CAR,,,,,,0,0
+trn:prototype:fs-100p-barellata,trn:railway-company:fs,Centoporte Barellata,,PASSENGER_CAR,,,,COMBINE_CAR,,,,,,0,0
+trn:prototype:fs-corb-1947-2ax,trn:railway-company:fs,Corbellini 2 Assi (Tipo 1947),,PASSENGER_CAR,,,SECOND_THIRD,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-corb-1947-bog,trn:railway-company:fs,Corbellini Carrelli (Tipo 1947),,PASSENGER_CAR,,,SECOND_THIRD,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-corb-1951r-bog,trn:railway-company:fs,Corbellini Tipo 1951R,,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-corb-1957r-bog,trn:railway-company:fs,Corbellini Tipo 1957R,,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-corb-bagagliaio,trn:railway-company:fs,Corbellini Bagagliaio (DI),,PASSENGER_CAR,,,,BAGGAGE_CAR,,,,,,0,0
+trn:prototype:fs-corb-pilota,trn:railway-company:fs,Corbellini Pilota,,PASSENGER_CAR,,,SECOND,DRIVING_TRAILER,,,,,,0,1
+trn:prototype:fs-uic-x-1964,trn:railway-company:fs,UIC-X Tipo 1964,,PASSENGER_CAR,,,FIRST_SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-uic-x-1966,trn:railway-company:fs,UIC-X Tipo 1966,,PASSENGER_CAR,,,FIRST_SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-uic-x-1968,trn:railway-company:fs,UIC-X Tipo 1968,,PASSENGER_CAR,,,FIRST_SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-uic-x-1970,trn:railway-company:fs,UIC-X Tipo 1970,,PASSENGER_CAR,,,FIRST_SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-uic-x-1975,trn:railway-company:fs,UIC-X Tipo 1975,,PASSENGER_CAR,,,FIRST_SECOND,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-uic-x-1979,trn:railway-company:fs,UIC-X Tipo 1979,,PASSENGER_CAR,,,FIRST_SECOND,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-uic-x-1982,trn:railway-company:fs,UIC-X Tipo 1982,,PASSENGER_CAR,,,FIRST_SECOND,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-uic-x-bagagliaio,trn:railway-company:fs,UIC-X Bagagliaio,,PASSENGER_CAR,,,,BAGGAGE_CAR,,,,,,0,0
+trn:prototype:fs-uic-x-cuccette,trn:railway-company:fs,UIC-X Cuccette,,PASSENGER_CAR,,,SECOND,SLEEPERETTE,,,,,,0,0
+trn:prototype:fs-uic-x-pilota,trn:railway-company:fs,UIC-X Pilota,,PASSENGER_CAR,,,SECOND,DRIVING_TRAILER,,,,,,0,1
+trn:prototype:fs-mdvc-1980,trn:railway-company:fs,MDVC (Medie Distanze),,PASSENGER_CAR,,,SECOND,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-mdve-1980,trn:railway-company:fs,MDVE (Medie Distanze),,PASSENGER_CAR,,,SECOND,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-pr-1965,trn:railway-company:fs,Piano Ribassato Tipo 1965,,PASSENGER_CAR,,,SECOND,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-pr-1973,trn:railway-company:fs,Piano Ribassato Tipo 1973,,PASSENGER_CAR,,,SECOND,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-pr-npBD,trn:railway-company:fs,Pilota PR Tipo 1965 (Flat),,PASSENGER_CAR,,,SECOND,DRIVING_TRAILER,,,,,,0,1
+trn:prototype:fs-pr-npBDH,trn:railway-company:fs,Pilota PR,Mazinga,PASSENGER_CAR,,,SECOND,DRIVING_TRAILER,,,,,,0,1
+trn:prototype:fs-pr-revamp,trn:railway-company:fs,Piano Ribassato Revamp,,PASSENGER_CAR,,,SECOND,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-dp-casaralta-1979,trn:railway-company:fs,Due Piani Casaralta (Tipo 1979),,PASSENGER_CAR,,,SECOND,DOUBLE_DECKER,,,,,,0,0
+trn:prototype:fs-dp-casaralta-1991,trn:railway-company:fs,Due Piani Casaralta (Tipo 1991),,PASSENGER_CAR,,,FIRST_SECOND,DOUBLE_DECKER,,,,,,0,0
+trn:prototype:fs-dp-cas-pilota-flat,trn:railway-company:fs,Pilota DP (Flat Front),,PASSENGER_CAR,,,SECOND,DRIVING_TRAILER,,,,,,0,1
+trn:prototype:fs-dp-cas-pilota-round,trn:railway-company:fs,Pilota DP (Tevere/Mazinga),,PASSENGER_CAR,,,SECOND,DRIVING_TRAILER,,,,,,0,1
+trn:prototype:fs-dp-vivalto-npr,trn:railway-company:fs,Vivalto (nB),,PASSENGER_CAR,,,SECOND,DOUBLE_DECKER,,,,,,0,0
+trn:prototype:fs-dp-vivalto-pilota,trn:railway-company:fs,Vivalto Pilota (npB),,PASSENGER_CAR,,,FIRST_SECOND,DRIVING_TRAILER,,,,,,0,1
+trn:prototype:fs-uic-z1-1985,trn:railway-company:fs,UIC-Z1,,PASSENGER_CAR,,,FIRST_SECOND,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-gc-compartment-1971,trn:railway-company:fs,Gran Comfort Compartment (A),,PASSENGER_CAR,,,FIRST,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-gc-open-1971,trn:railway-company:fs,Gran Comfort Open Space (B),,PASSENGER_CAR,,,FIRST,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-gc-restaurant-1971,trn:railway-company:fs,Gran Comfort Ristorante,,PASSENGER_CAR,,,,DINING_CAR,,,,,,0,0
+trn:prototype:fs-gc-bagagliaio-1971,trn:railway-company:fs,Gran Comfort Bagagliaio,,PASSENGER_CAR,,,,BAGGAGE_CAR,,,,,,0,0
+trn:prototype:fs-gc-uic-z-1985,trn:railway-company:fs,Gran Comfort Tipo UIC-Z,,PASSENGER_CAR,,,FIRST,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-gc-rebuilt-2nd-1990,trn:railway-company:fs,Gran Comfort Rebuilt,,PASSENGER_CAR,,,SECOND,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-gc-pilota-progetto-ic901,trn:railway-company:fs,Gran Comfort Pilota (IC901),,PASSENGER_CAR,,,,DRIVING_TRAILER,,,,,,0,1
+trn:prototype:fs-tipo-1957-1st,trn:railway-company:fs,Tipo 1957 (Az),,PASSENGER_CAR,,,FIRST,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo-1957-2nd,trn:railway-company:fs,Tipo 1957 (Bz),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo-1959-1st,trn:railway-company:fs,Tipo 1957/59 (Az),,PASSENGER_CAR,,,FIRST,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo-1959-2nd,trn:railway-company:fs,Tipo 1957/59 (Bz),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo-1959-mixed,trn:railway-company:fs,Tipo 1959 (ABz),,PASSENGER_CAR,,,FIRST_SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo-1959-bag,trn:railway-company:fs,Tipo 1959 (Dz),,PASSENGER_CAR,,,,BAGGAGE_CAR,,,,,,0,0
+trn:prototype:fs-tipo-1959-cuccette,trn:railway-company:fs,Tipo 1959 (Bcz),,PASSENGER_CAR,,,SECOND,SLEEPERETTE,,,,,,0,0
+trn:prototype:fs-wr-2970-pistoiesi,trn:railway-company:fs,WR 2970,Pistoiesi,PASSENGER_CAR,,,FIRST,DINING_CAR,,,,,,0,0
+trn:prototype:fs-mu-1964,trn:railway-company:fs,Carrozza Letti MU (1964),,PASSENGER_CAR,,,FIRST_SECOND,SLEEPING_CAR,,,,,,0,0
+trn:prototype:fs-mu-1973,trn:railway-company:fs,Carrozza Letti MU (1973),,PASSENGER_CAR,,,FIRST_SECOND,SLEEPING_CAR,,,,,,0,0
+trn:prototype:fs-mu-1981,trn:railway-company:fs,Carrozza Letti MU (1981),,PASSENGER_CAR,,,FIRST_SECOND,SLEEPING_CAR,,,,,,0,0
+trn:prototype:fs-t2s,trn:railway-company:fs,Carrozza Letti T2s,,PASSENGER_CAR,,,SECOND,SLEEPING_CAR,,,,,,0,0
+trn:prototype:fs-dui-1952,trn:railway-company:fs,Bagagliaio-Posta Tipo 1952,,PASSENGER_CAR,,,,COMBINE_CAR,,,,,,0,0
+trn:prototype:fs-dui-1964,trn:railway-company:fs,Bagagliaio-Posta Tipo 1964,,PASSENGER_CAR,,,,COMBINE_CAR,,,,,,0,0
+trn:prototype:fs-dui-uic-x-1970,trn:railway-company:fs,Bagagliaio-Posta UIC-X,,PASSENGER_CAR,,,,COMBINE_CAR,,,,,,0,0
+trn:prototype:fs-dui-uic-x-1975,trn:railway-company:fs,Bagagliaio-Posta UIC-X (Ribbed),,PASSENGER_CAR,,,,COMBINE_CAR,,,,,,0,0
+trn:prototype:fs-uz-posta-1970,trn:railway-company:fs,Carrozza Postale Tipo UM,,PASSENGER_CAR,,,,RAILWAY_POST_OFFICE,,,,,,0,0
+trn:prototype:fs-ale790,trn:railway-company:fs,ALe 790 / 880,,RAILCAR,,,SECOND,,,POWER_CAR,,,,1,0
+trn:prototype:fs-ale840,trn:railway-company:fs,ALe 840,,RAILCAR,,,SECOND,,,POWER_CAR,,,,1,0
+trn:prototype:fs-ale601,trn:railway-company:fs,ALe 601,Albatros,RAILCAR,,,FIRST,,,POWER_CAR,,,,1,0
+trn:prototype:fs-ale801,trn:railway-company:fs,ALe 801/940,Fanta,ELECTRIC_MULTIPLE_UNIT,,,SECOND,,,,TRAIN_SET,,,1,0
+trn:prototype:fs-ale582,trn:railway-company:fs,ALe 582,,RAILCAR,,,SECOND,,,POWER_CAR,,,,1,0
+trn:prototype:fs-ale642,trn:railway-company:fs,ALe 642,,RAILCAR,,,SECOND,,,POWER_CAR,,,,1,0
+trn:prototype:fs-ale426,trn:railway-company:fs,ALe 426/506,TAF,ELECTRIC_MULTIPLE_UNIT,,,SECOND,,,,TRAIN_SET,,,1,0
+trn:prototype:fs-ale501,trn:railway-company:fs,ALe 501,Minuetto,ELECTRIC_MULTIPLE_UNIT,,,SECOND,,,,TRAIN_SET,,,1,0
+trn:prototype:fs-le640,trn:railway-company:fs,Le 640,,ELECTRIC_MULTIPLE_UNIT,,,SECOND,,,,TRAILER_CAR,,,0,0
+trn:prototype:fs-le760,trn:railway-company:fs,Le 760,,ELECTRIC_MULTIPLE_UNIT,,,SECOND,,,,TRAILER_CAR,,,0,0
+trn:prototype:fs-le840,trn:railway-company:fs,Le 840,,ELECTRIC_MULTIPLE_UNIT,,,SECOND,,,,TRAILER_CAR,,,0,0
+trn:prototype:fs-le601,trn:railway-company:fs,Le 601,,ELECTRIC_MULTIPLE_UNIT,,,FIRST,,,,TRAILER_CAR,,,0,0
+trn:prototype:fs-le480,trn:railway-company:fs,Le 480 (Ristorante),,ELECTRIC_MULTIPLE_UNIT,,,FIRST,,,,TRAILER_CAR,,,0,0
+trn:prototype:fs-le108,trn:railway-company:fs,Le 108,,ELECTRIC_MULTIPLE_UNIT,,,SECOND,,,,TRAILER_CAR,,,0,0
+trn:prototype:fs-le582,trn:railway-company:fs,Le 582,,ELECTRIC_MULTIPLE_UNIT,,,SECOND,,,,TRAILER_CAR,,,0,0
+trn:prototype:fs-le763,trn:railway-company:fs,Le 763,,ELECTRIC_MULTIPLE_UNIT,,,SECOND,,,,TRAILER_CAR,,,0,0
+trn:prototype:e483-mercitalia,trn:railway-company:mercitalia,E.483 (TRAXX DC),,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:e483-oceanogate,trn:railway-company:oceanogate,E.483 (TRAXX DC),,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:e483-db-cargo,trn:railway-company:db-cargo-it,E.483 (TRAXX DC),,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:e483-rtc,trn:railway-company:rtc,E.483 (TRAXX DC),,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:e483-sangritana,trn:railway-company:sangritana,E.483 (TRAXX DC),,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:e483-gtc,trn:railway-company:gtc,E.483 (TRAXX DC),,LOCOMOTIVE,ELECTRIC_LOCOMOTIVE,,,,,,,,,1,0
+trn:prototype:fs-tipo21-az-10000,trn:railway-company:fs,Tipo 1921 (Az 10.000),,PASSENGER_CAR,,,FIRST,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo21-bz-20000,trn:railway-company:fs,Tipo 1921 (Bz 20.000),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo21-cz-30000,trn:railway-company:fs,Tipo 1921 (Cz 30.000),,PASSENGER_CAR,,,THIRD,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo21-abz-50000,trn:railway-company:fs,Tipo 1921 (ABz 50.000),,PASSENGER_CAR,,,FIRST_SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo21-bcz-30000,trn:railway-company:fs,Tipo 1921 (Bcz),,PASSENGER_CAR,,,SECOND,SLEEPERETTE,,,,,,0,0
+trn:prototype:fs-tipo21-dz-80000,trn:railway-company:fs,Tipo 1921 (Dz 80.000),,PASSENGER_CAR,,,,BAGGAGE_CAR,,,,,,0,0
+trn:prototype:fs-tipo21-duz-93000,trn:railway-company:fs,Tipo 1921 (DUz 93.000),,PASSENGER_CAR,,,,COMBINE_CAR,,,,,,0,0
+trn:prototype:fs-tipo31-az-11000,trn:railway-company:fs,Tipo 1931 (Az 11.000),,PASSENGER_CAR,,,FIRST,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo31-bz-21000,trn:railway-company:fs,Tipo 1931 (Bz 21.000),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo31-cz-31000,trn:railway-company:fs,Tipo 1931 (Cz 31.000),,PASSENGER_CAR,,,THIRD,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo31-abz-51000,trn:railway-company:fs,Tipo 1931 (ABz 51.000),,PASSENGER_CAR,,,FIRST_SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo31-dz-81000,trn:railway-company:fs,Tipo 1931 (Dz 81.000),,PASSENGER_CAR,,,,BAGGAGE_CAR,,,,,,0,0
+trn:prototype:fs-tipo33-az-13000,trn:railway-company:fs,Tipo 1933 (Az 13.000),,PASSENGER_CAR,,,FIRST,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo33-bz-23000,trn:railway-company:fs,Tipo 1933 (Bz 23.000),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo33-cz-33000,trn:railway-company:fs,Tipo 1933 (Cz 33.000),,PASSENGER_CAR,,,THIRD,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo33-abz-53000,trn:railway-company:fs,Tipo 1933 (ABz 53.000),,PASSENGER_CAR,,,FIRST_SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo33-dz-83000,trn:railway-company:fs,Tipo 1933 (Dz 83.000),,PASSENGER_CAR,,,,BAGGAGE_CAR,,,,,,0,0
+trn:prototype:fs-tipo46-az-13000,trn:railway-company:fs,Tipo 1946 (Az 13.000),,PASSENGER_CAR,,,FIRST,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo46-bz-23000,trn:railway-company:fs,Tipo 1946 (Bz 23.000),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo46-cz-33000,trn:railway-company:fs,Tipo 1946 (Cz 33.000),,PASSENGER_CAR,,,THIRD,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo46-abz-53000,trn:railway-company:fs,Tipo 1946 (ABz 53.000),,PASSENGER_CAR,,,FIRST_SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-tipo46-duz-93000,trn:railway-company:fs,Tipo 1946 (DUz 93.000),,PASSENGER_CAR,,,,COMBINE_CAR,,,,,,0,0
+trn:prototype:fs-uicy-61-az,trn:railway-company:fs,UIC-Y Tipo 1961 (Az),,PASSENGER_CAR,,,FIRST,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-uicy-61-bz,trn:railway-company:fs,UIC-Y Tipo 1961 (Bz),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-uicy-61-abz,trn:railway-company:fs,UIC-Y Tipo 1961 (ABz),,PASSENGER_CAR,,,FIRST_SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-uicy-65-bz,trn:railway-company:fs,UIC-Y Tipo 1965 (Bz),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-uicy-61-bcz,trn:railway-company:fs,UIC-Y Tipo 1961 (Bcz),,PASSENGER_CAR,,,SECOND,SLEEPERETTE,,,,,,0,0
+trn:prototype:fs-uicz-eurofima-az,trn:railway-company:fs,UIC-Z Eurofima (Az),,PASSENGER_CAR,,,FIRST,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-uicz1-1985-az,trn:railway-company:fs,UIC-Z1 Tipo 1985 (Az),,PASSENGER_CAR,,,FIRST,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-uicz1-1985-bz,trn:railway-company:fs,UIC-Z1 Tipo 1985 (Bz),,PASSENGER_CAR,,,SECOND,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-uicz1-1996-bh,trn:railway-company:fs,UIC-Z1 Tipo 1996 (BH),,PASSENGER_CAR,,,SECOND,OPEN_COACH,,,,,,0,0
+trn:prototype:fs-uicz1-pilota-npb,trn:railway-company:fs,UIC-Z1 Pilota (npB),,PASSENGER_CAR,,,SECOND,DRIVING_TRAILER,,,,,,0,1
+trn:prototype:fs-uicz1-bagagliaio,trn:railway-company:fs,UIC-Z1 Bagagliaio (Dz),,PASSENGER_CAR,,,,BAGGAGE_CAR,,,,,,0,0
+trn:prototype:fs-vrz-tipo-1935,trn:railway-company:fs,Carro Riscaldo Vrz (Vapore),,FREIGHT_CAR,,,,,SPECIAL_TRANSPORT,,,,,0,0
+trn:prototype:fs-vrz-tipo-1956,trn:railway-company:fs,Carro Riscaldo Vrz (Rebuild),,FREIGHT_CAR,,,,,SPECIAL_TRANSPORT,,,,,0,0
+trn:prototype:fs-vrec-tipo-1960,trn:railway-company:fs,Carro Generatore Vrec,,FREIGHT_CAR,,,,,SPECIAL_TRANSPORT,,,,,0,0
+trn:prototype:fs-nvdrec-uic-x,trn:railway-company:fs,Bagagliaio-Generatore nVDrec,,PASSENGER_CAR,,,,COMBINE_CAR,,,,,,0,0
+trn:prototype:fs-v-fast-postal,trn:railway-company:fs,Carro Riscaldo (Fast/Postal),,FREIGHT_CAR,,,,,SPECIAL_TRANSPORT,,,,,0,0
+trn:prototype:fs-k-1953r-k40,trn:railway-company:fs,Cellulare 1953R (K 40.000),,PASSENGER_CAR,,,,COMBINE_CAR,,,,,,0,0
+trn:prototype:fs-k-1953r-k41,trn:railway-company:fs,Cellulare 1953R (K 41.000),,PASSENGER_CAR,,,,COMBINE_CAR,,,,,,0,0
+trn:prototype:fs-wr-gc-1970,trn:railway-company:fs,Ristorante Gran Confort (1970),,PASSENGER_CAR,,,FIRST,DINING_CAR,,,,,,0,0
+trn:prototype:fs-wr-self-1974,trn:railway-company:fs,Self-Service (Tipo 1974),,PASSENGER_CAR,,,SECOND,BUFFET_CAR,,,,,,0,0
+trn:prototype:fs-wr-br-uic-z,trn:railway-company:fs,Breda/Snack Bar (UIC-Z),,PASSENGER_CAR,,,,BUFFET_CAR,,,,,,0,0
+trn:prototype:fs-wr-pizza-express,trn:railway-company:fs,Pizza Express (Tipo 1990),,PASSENGER_CAR,,,,DINING_CAR,,,,,,0,0
+trn:prototype:fs-t55r-az20500,trn:railway-company:fs,Tipo 1955R (Az 20500),,PASSENGER_CAR,,,FIRST,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-t56r-bz30800,trn:railway-company:fs,Tipo 1956R (Bz 30800),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-t60r-arz601,trn:railway-company:fs,Tipo 1960R (ARz 601),,PASSENGER_CAR,,,FIRST,BUFFET_CAR,,,,,,0,0
+trn:prototype:fs-t55-abz64100,trn:railway-company:fs,Tipo 1955 (ABz 64100),,PASSENGER_CAR,,,FIRST_SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-t57-bz45000,trn:railway-company:fs,Tipo 1957 (Bz 45000),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-t59-az23658,trn:railway-company:fs,Tipo 1959 (Az 23658),,PASSENGER_CAR,,,FIRST,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-t59-bz45100,trn:railway-company:fs,Tipo 1959 (Bz 45100),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-corb-47-bi,trn:railway-company:fs,Corbellini Tipo 1947 (BI),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-corb-47-ci,trn:railway-company:fs,Corbellini Tipo 1947 (CI),,PASSENGER_CAR,,,THIRD,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-corb-47-bz,trn:railway-company:fs,Corbellini Tipo 1947 (Bz),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-corb-51r-bz,trn:railway-company:fs,Corbellini Tipo 1951R (Bz),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-corb-57r-abz,trn:railway-company:fs,Corbellini Tipo 1957R (ABz),,PASSENGER_CAR,,,FIRST_SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-corb-38900,trn:railway-company:fs,Corbellini (Bz 38900-929),,PASSENGER_CAR,,,SECOND,COMPARTMENT_COACH,,,,,,0,0
+trn:prototype:fs-e-tipo-1945,trn:railway-company:fs,Carro E (Open),,FREIGHT_CAR,,,,,GONDOLA,,,,,0,0
+trn:prototype:fs-eaos,trn:railway-company:fs,Eaos,Carro a sponde alte,FREIGHT_CAR,,,,,OPEN_HIGH_SIDES,,,1,0,0,0
+trn:prototype:fs-f-tipo-1925,trn:railway-company:fs,Carro F (Tipo 1925),,FREIGHT_CAR,,,,,COVERED_FREIGHT_CARS,,,,,0,0
+trn:prototype:fs-fals,trn:railway-company:fs,Fals,Carro tramoggia,FREIGHT_CAR,,,,,HOPPER_WAGON,,,1,0,0,0
+trn:prototype:fs-ghkkms,trn:railway-company:fs,Carro G (Ghkkms),,FREIGHT_CAR,,,,, COVERED_FREIGHT_CARS,,,,,0,0
+trn:prototype:fs-gs,trn:railway-company:fs,Gs,Carro coperto standard,FREIGHT_CAR,,,,,COVERED_FREIGHT_CAR,,,1,0,0,0
+trn:prototype:fs-habis,trn:railway-company:fs,Carro Habis,,FREIGHT_CAR,,,,,SLIDING_WALL_BOXCARS,,,,,0,0
+trn:prototype:fs-hbbillns,trn:railway-company:fs,Hbbillns,Carro a pareti scorrevoli,FREIGHT_CAR,,,,,COVERED_FREIGHT_CAR,,,1,0,0,0
+trn:prototype:fs-kgps-flat,trn:railway-company:fs,Carro K (Kgps),,FREIGHT_CAR,,,,,STAKE_WAGONS,,,,,0,0
+trn:prototype:fs-ks,trn:railway-company:fs,Ks,Pianale a due assi,FREIGHT_CAR,,,,,FLAT_WAGON,,,1,0,0,0
+trn:prototype:fs-po-carro-scorie,trn:railway-company:fs,Carro Pozzo (Po),,FREIGHT_CAR,,,,,DEEP_WELL_FLAT_CARS,,,,,0,0
+trn:prototype:fs-res,trn:railway-company:fs,Res,Pianale a carrelli con stanti,FREIGHT_CAR,,,,,FLAT_WAGON,,,1,0,0,0
+trn:prototype:fs-sgnss,trn:railway-company:fs,Sgnss,Pianale porta-container,FREIGHT_CAR,,,,,FLAT_WAGON,,,1,0,0,0
+trn:prototype:fs-shimms,trn:railway-company:fs,Carro Shimms,,FREIGHT_CAR,,,,,TELESCOPE_HOOD_WAGONS,,,,,0,0
+trn:prototype:fs-ufa-auto,trn:railway-company:fs,Carro Ufa (Bisarca),,FREIGHT_CAR,,,,,AUTO_TRANSPORT_CARS,,,,,0,0
+trn:prototype:fs-vgh-cisterna,trn:railway-company:fs,Carro Cisterna (Vgh),,FREIGHT_CAR,,,,,TANK_CARS,,,,,0,0
+trn:prototype:fs-z,trn:railway-company:fs,Tipo Z,Carro cisterna,FREIGHT_CAR,,,,,TANK_CARS,,,1,0,0,0
+trn:prototype:fs-hg,trn:railway-company:fs,Tipo Hg,Carro Frigorifero a due assi,FREIGHT_CAR,,,,,REFRIGERATOR_CARS,,,1,0,0,0
+trn:prototype:fs-ibbps,trn:railway-company:fs,Ibbps,Carro Frigo a carrelli (Interfrigo),FREIGHT_CAR,,,,,REFRIGERATOR_CARS,,,1,0,0,0
+trn:prototype:fs-uagps,trn:railway-company:fs,Uagps,Carro Silo per Cereali,FREIGHT_CAR,,,,,HOPPER_WAGON,,,1,0,0,0
+trn:prototype:fs-fcc,trn:railway-company:fs,Carro Fcc,Tramoggia per Massicciata (Ballast),FREIGHT_CAR,,,,,HOPPER_WAGON,,,1,0,0,0
+trn:prototype:fs-sdggmrss,trn:railway-company:fs,Sdggmrss,Carro Tasca (Pocket Wagon),FREIGHT_CAR,,,,,DEEP_WELL_FLAT_CARS,,,1,0,0,0
+trn:prototype:fs-smnps,trn:railway-company:fs,Smnps,Pianale per Coils (Scoperto),FREIGHT_CAR,,,,,FLAT_WAGON,,,1,0,0,0
+trn:prototype:fs-gabs,trn:railway-company:fs,Gabs,Carro Coperto Gran Volume,FREIGHT_CAR,,,,,COVERED_FREIGHT_CARS,,,1,0,0,0

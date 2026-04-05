@@ -1,5 +1,5 @@
-mod cli;
-mod commands;
+pub mod cli;
+pub mod commands;
 pub mod import;
 pub mod manifest;
 

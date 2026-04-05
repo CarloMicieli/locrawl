@@ -8,8 +8,9 @@ use log::info;
 use serde_json::Value;
 
 use crate::commands::import_collection::{
-    ensure_parent_dir, load_existing_manifest_or_empty, make_model_id, map_railway_model,
-    normalize_id_segment, parse_rfc3339_to_utc, strip_nulls, write_zip,
+    SeedData, ensure_parent_dir, load_existing_manifest_or_empty, load_seed_data, make_model_id,
+    map_railway_model, normalize_id_segment, parse_rfc3339_to_utc, strip_nulls, trn_slug,
+    write_zip,
 };
 use crate::commands::validation::{manifest_schema_path, validate_value_with_schema};
 use crate::import::{Wishlist as ImportWishlist, WishlistPriority as ImportWishlistPriority};
@@ -53,7 +54,8 @@ pub async fn run(args: ImportWishlistArgs) -> Result<()> {
             )
         })?;
 
-    let incoming_manifest = map_wishlist_to_manifest(&import_wishlist)?;
+    let seed_data = load_seed_data()?;
+    let incoming_manifest = map_wishlist_to_manifest(&import_wishlist, &seed_data)?;
     let existing_manifest = load_existing_manifest_or_empty(&args.output)?;
     let merged_manifest =
         merge_wishlist_manifests(existing_manifest, incoming_manifest, args.force)?;
@@ -80,7 +82,7 @@ fn wishlist_schema_path() -> PathBuf {
         .join("wishlist_schema.json")
 }
 
-fn map_wishlist_to_manifest(import: &ImportWishlist) -> Result<Manifest> {
+fn map_wishlist_to_manifest(import: &ImportWishlist, seeds: &SeedData) -> Result<Manifest> {
     let exported_at = parse_rfc3339_to_utc(&import.modified_at, "modifiedAt")?;
     let added_date = exported_at.date_naive();
 
@@ -90,30 +92,28 @@ fn map_wishlist_to_manifest(import: &ImportWishlist) -> Result<Manifest> {
     let mut wishlist_items: Vec<WishlistItem> = Vec::with_capacity(import.railway_models.len());
 
     for model in &import.railway_models {
-        let manufacturer_slug = normalize_id_segment(&model.manufacturer);
+        let manufacturer_slug = trn_slug(&model.manufacturer, "trn:manufacturer:");
         let manufacturer_id = ManufacturerId(format!("trn:manufacturer:{}", manufacturer_slug));
 
+        let seed_manufacturer = seeds
+            .manufacturers
+            .get(&manufacturer_slug)
+            .with_context(|| {
+                format!(
+                    "Manufacturer '{}' (slug: '{}') not found in seed/manufacturers.csv",
+                    model.manufacturer, manufacturer_slug
+                )
+            })?;
         manufacturers
             .entry(manufacturer_id.0.clone())
-            .or_insert_with(|| Manufacturer {
-                id: manufacturer_id.clone(),
-                name: model.manufacturer.clone(),
-                registered_company_name: None,
-                country_code: None,
-                status: None,
-                website_url: None,
-                street_address: None,
-                extended_address: None,
-                city: None,
-                state_region: None,
-                postal_code: None,
-            });
+            .or_insert_with(|| seed_manufacturer.clone());
 
         railway_models.push(map_railway_model(
             model,
             &manufacturer_id,
             &mut railway_companies,
-        ));
+            seeds,
+        )?);
 
         let railway_model_id = make_model_id(&model.manufacturer, &model.product_code);
         let wishlist_slug = normalize_id_segment(&import.name);
@@ -313,7 +313,7 @@ mod tests {
             "railwayModels": [
                 {
                     "id": format!("rm-{}", product_code),
-                    "manufacturer": "ACME Rail",
+                    "manufacturer": "trn:manufacturer:acme",
                     "productCode": product_code,
                     "description": "Demo locomotive",
                     "powerMethod": "DC",
@@ -324,7 +324,7 @@ mod tests {
                         {
                             "id": "stock-1",
                             "category": "LOCOMOTIVE",
-                            "railway": "Deutsche Bahn"
+                            "railway": "trn:railway-company:db"
                         }
                     ],
                     "wishlistInfo": {

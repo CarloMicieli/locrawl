@@ -1,0 +1,42 @@
+name,registered_company_name,country_code,status,operating_since,operating_until
+BDZ,Balgarski darzhavni zheleznitsi,BG,ACTIVE,1888-01-01,
+BR,British Railways,GB,INACTIVE,1948-01-01,1997-03-31
+CFR,Compania Națională de Căi Ferate CFR SA,RO,ACTIVE,1880-04-01,
+DB,Deutsche Bahn AG,DE,ACTIVE,1994-01-01,
+DR,Deutsche Reichsbahn,DD,MERGED,1949-04-01,1993-12-31
+DRG,Deutsche Reichsbahn-Gesellschaft,DE,MERGED,1920-04-01,1945-05-23
+DSB,Danske Statsbaner,DK,ACTIVE,1885-01-01,
+FS,Ferrovie dello Stato Italiane S.p.A.,IT,ACTIVE,1905-07-01,
+GWR,Great Western Railway,GB,MERGED,1835-08-31,1947-12-31
+LMS,"London, Midland and Scottish Railway",GB,MERGED,1923-01-01,1947-12-31
+LNER,London and North Eastern Railway,GB,MERGED,1923-01-01,1947-12-31
+MÁV,Magyar Államvasutak,HU,ACTIVE,1868-07-01,
+NMBS/SNCB,Nationale Maatschappij der Belgische Spoorwegen,BE,ACTIVE,1926-07-23,
+NS,Nederlandse Spoorwegen,NL,ACTIVE,1938-05-01,
+SNCB,Société Nationale des Chemins de fer Belges,BE,ACTIVE,1926-07-23,
+NSB,Norges Statsbaner,NO,MERGED,1883-03-01,2019-03-22
+Network Rail,Network Rail Limited,GB,ACTIVE,2002-10-03,
+PKP,Polskie Koleje Państwowe,PL,ACTIVE,1918-11-01,
+RENFE,Red Nacional de los Ferrocarriles Españoles,ES,ACTIVE,1941-01-24,
+RhB,Rhätische Bahn AG,CH,ACTIVE,1888-02-07,
+SBB CFF FFS,Schweizerische Bundesbahnen,CH,ACTIVE,1902-01-01,
+SJ,Statens Järnvägar,SE,ACTIVE,1856-12-01,
+SNCF,Société Nationale des Chemins de fer Français,FR,ACTIVE,1938-01-01,
+SR,Southern Railway,GB,MERGED,1923-01-01,1947-12-31
+VR,VR-Yhtymä Oyj,FI,ACTIVE,1862-03-17,
+Vy,Vygruppen AS,NO,ACTIVE,2019-03-22,
+ZSSK,Železničná spoločnosť Slovensko,SK,ACTIVE,2005-01-01,
+ÖBB,Österreichische Bundesbahnen,AT,ACTIVE,1923-07-19,
+ČD,České dráhy,CZ,ACTIVE,1993-01-01,
+ČSD,Československé státní dráhy,CZ,INACTIVE,1918-10-28,1992-12-31
+FNM,Ferrovie Nord Milano S.p.A.,IT,ACTIVE,1879-01-01,
+RTC,Rail Traction Company S.p.A.,IT,ACTIVE,2000-01-01,
+Mercitalia,Mercitalia Rail S.r.l.,IT,ACTIVE,2017-01-01,
+SBB Cargo,SBB Cargo AG,CH,ACTIVE,1999-01-01,
+DB Cargo,DB Cargo AG,DE,ACTIVE,1999-01-01,
+Trenord,Trenord S.r.l.,IT,ACTIVE,2011-01-01,
+Privat,Generic Private Operator,DE,ACTIVE,2000-01-01,
+DB Cargo IT,DB Cargo Italia S.r.l.,IT,ACTIVE,2003-01-01,
+GTC,GTC S.r.l.,IT,ACTIVE,2004-01-01,
+Oceanogate,Oceanogate Italia S.r.l.,IT,ACTIVE,2004-01-01,
+Sangritana,Fondazione Ferrovie della Sangritana,IT,ACTIVE,1922-01-01,
