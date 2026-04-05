@@ -8,15 +8,15 @@ use log::info;
 use serde_json::Value;
 
 use crate::commands::import_collection::{
-    SeedData, ensure_parent_dir, load_existing_manifest_or_empty, load_seed_data, make_model_id,
+    Registry, ensure_parent_dir, load_existing_manifest_or_empty, load_registry, make_model_id,
     map_railway_model, normalize_id_segment, parse_rfc3339_to_utc, strip_nulls, trn_slug,
-    write_zip,
+    validate_manifest_integrity, write_zip,
 };
 use crate::commands::validation::{manifest_schema_path, validate_value_with_schema};
 use crate::import::{Wishlist as ImportWishlist, WishlistPriority as ImportWishlistPriority};
 use crate::manifest::{
-    self, DataContainer, Manifest, Manufacturer, ManufacturerId, RailwayCompany, RailwayModel,
-    Wishlist, WishlistItem, WishlistPriority, WishlistStatus,
+    self, DataContainer, Manifest, Manufacturer, RailwayCompany, RailwayModel, Wishlist,
+    WishlistItem, WishlistPriority, WishlistStatus,
 };
 
 #[derive(Debug, Args, Clone)]
@@ -54,11 +54,12 @@ pub async fn run(args: ImportWishlistArgs) -> Result<()> {
             )
         })?;
 
-    let seed_data = load_seed_data()?;
-    let incoming_manifest = map_wishlist_to_manifest(&import_wishlist, &seed_data)?;
+    let registry = load_registry()?;
+    let incoming_manifest = map_wishlist_to_manifest(&import_wishlist, &registry)?;
     let existing_manifest = load_existing_manifest_or_empty(&args.output)?;
-    let merged_manifest =
+    let mut merged_manifest =
         merge_wishlist_manifests(existing_manifest, incoming_manifest, args.force)?;
+    validate_manifest_integrity(&mut merged_manifest)?;
 
     let mut manifest_value = serde_json::to_value(&merged_manifest)
         .context("Failed to serialize manifest to JSON value")?;
@@ -82,7 +83,7 @@ fn wishlist_schema_path() -> PathBuf {
         .join("wishlist_schema.json")
 }
 
-fn map_wishlist_to_manifest(import: &ImportWishlist, seeds: &SeedData) -> Result<Manifest> {
+fn map_wishlist_to_manifest(import: &ImportWishlist, seeds: &Registry) -> Result<Manifest> {
     let exported_at = parse_rfc3339_to_utc(&import.modified_at, "modifiedAt")?;
     let added_date = exported_at.date_naive();
 
@@ -93,7 +94,7 @@ fn map_wishlist_to_manifest(import: &ImportWishlist, seeds: &SeedData) -> Result
 
     for model in &import.railway_models {
         let manufacturer_slug = trn_slug(&model.manufacturer, "trn:manufacturer:");
-        let manufacturer_id = ManufacturerId(format!("trn:manufacturer:{}", manufacturer_slug));
+        let manufacturer_id = Registry::manufacturer_id(&manufacturer_slug);
 
         let seed_manufacturer = seeds
             .manufacturers

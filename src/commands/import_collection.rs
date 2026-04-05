@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fs;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -10,7 +10,7 @@ use zip::{CompressionMethod, ZipArchive};
 use anyhow::{Context, Result, bail};
 use chrono::{DateTime, NaiveDate, Utc};
 use clap::Args;
-use log::info;
+use log::{info, warn};
 use serde_json::Value;
 use slug::slugify;
 use uuid::Uuid;
@@ -76,11 +76,12 @@ pub async fn run(args: ImportCollectionArgs) -> Result<()> {
         )
     })?;
 
-    let seed_data = load_seed_data()?;
-    let incoming_manifest = map_import_to_manifest(&import_collection, &seed_data)?;
+    let registry = load_registry()?;
+    let incoming_manifest = map_import_to_manifest(&import_collection, &registry)?;
     let existing_manifest = load_existing_manifest_or_empty(&output)?;
-    let merged_manifest =
+    let mut merged_manifest =
         merge_collection_manifests(existing_manifest, incoming_manifest, args.force)?;
+    validate_manifest_integrity(&mut merged_manifest)?;
 
     let mut manifest_value = serde_json::to_value(&merged_manifest)
         .context("Failed to serialize manifest to JSON value")?;
@@ -163,10 +164,31 @@ struct SellerRow {
 
 use std::collections::HashMap;
 
-pub(crate) struct SeedData {
+pub(crate) struct Registry {
     pub(crate) manufacturers: HashMap<String, Manufacturer>,
     pub(crate) railway_companies: HashMap<String, RailwayCompany>,
     pub(crate) sellers: HashMap<String, Seller>,
+}
+
+impl Registry {
+    pub(crate) fn manufacturer_id(slug: &str) -> ManufacturerId {
+        ManufacturerId(format!("trn:manufacturer:{}", slug))
+    }
+
+    pub(crate) fn company_id(slug: &str) -> RailwayCompanyId {
+        RailwayCompanyId(format!("trn:railway-company:{}", slug))
+    }
+
+    pub(crate) fn seller_id(slug: &str) -> SellerId {
+        SellerId(format!("trn:seller:{}", slug))
+    }
+
+    pub(crate) fn model_id(manufacturer_slug: &str, product_slug: &str) -> RailwayModelId {
+        RailwayModelId(format!(
+            "trn:railway-model:{}:{}",
+            manufacturer_slug, product_slug
+        ))
+    }
 }
 
 /// Slugify a display name. Removes dots first so "A.C.M.E." → "acme".
@@ -216,7 +238,7 @@ fn opt_str(s: &str) -> Option<String> {
     }
 }
 
-pub(crate) fn load_seed_data() -> Result<SeedData> {
+pub(crate) fn load_registry() -> Result<Registry> {
     // ── Manufacturers ──────────────────────────────────────────────────────
     let mut manufacturers: HashMap<String, Manufacturer> = HashMap::new();
     let mut rdr = csv::Reader::from_path(manufacturers_seed_path())
@@ -225,7 +247,7 @@ pub(crate) fn load_seed_data() -> Result<SeedData> {
         let row = result.context("Failed to parse row in seed/manufacturers.csv")?;
         let slug = slugify_name(&row.name);
         let manufacturer = Manufacturer {
-            id: ManufacturerId(format!("trn:manufacturer:{}", slug)),
+            id: Registry::manufacturer_id(&slug),
             name: row.name.clone(),
             registered_company_name: opt_str(&row.registered_company_name),
             country_code: opt_str(&row.country_code),
@@ -258,7 +280,7 @@ pub(crate) fn load_seed_data() -> Result<SeedData> {
             Some(parse_date(&row.operating_until, "operating_until")?)
         };
         let company = RailwayCompany {
-            id: RailwayCompanyId(format!("trn:railway-company:{}", slug)),
+            id: Registry::company_id(&slug),
             name: row.name.clone(),
             country_code: opt_str(&row.country_code),
             status: parse_railway_company_status(&row.status),
@@ -292,7 +314,7 @@ pub(crate) fn load_seed_data() -> Result<SeedData> {
             None
         };
         let seller = Seller {
-            id: SellerId(format!("trn:seller:{}", slug)),
+            id: Registry::seller_id(&slug),
             name: row.name.clone(),
             seller_type: parse_seller_type(&row.seller_type)?,
             email: opt_str(&row.email),
@@ -303,7 +325,7 @@ pub(crate) fn load_seed_data() -> Result<SeedData> {
         sellers.insert(slug, seller);
     }
 
-    Ok(SeedData {
+    Ok(Registry {
         manufacturers,
         railway_companies,
         sellers,
@@ -470,7 +492,127 @@ pub(crate) fn load_existing_manifest_or_empty(output: &Path) -> Result<Manifest>
     })
 }
 
-pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &SeedData) -> Result<Manifest> {
+pub(crate) fn validate_manifest_integrity(manifest: &mut Manifest) -> Result<()> {
+    let valid_manufacturer_ids: HashSet<String> = manifest
+        .data
+        .manufacturers
+        .iter()
+        .map(|m| m.id.0.clone())
+        .collect();
+
+    let valid_company_ids: HashSet<String> = manifest
+        .data
+        .railway_companies
+        .iter()
+        .map(|c| c.id.0.clone())
+        .collect();
+
+    let valid_seller_ids: HashSet<String> = manifest
+        .data
+        .sellers
+        .iter()
+        .map(|s| s.id.0.clone())
+        .collect();
+
+    let valid_model_ids: HashSet<String> = manifest
+        .data
+        .railway_models
+        .iter()
+        .map(|m| m.id.0.clone())
+        .collect();
+
+    let mut errors: Vec<String> = Vec::new();
+
+    // ── Manufacturer integrity ─────────────────────────────────────────────
+    for model in &manifest.data.railway_models {
+        if !valid_manufacturer_ids.contains(&model.manufacturer_id.0) {
+            let slug = model
+                .manufacturer_id
+                .0
+                .strip_prefix("trn:manufacturer:")
+                .unwrap_or(&model.manufacturer_id.0);
+            errors.push(format!(
+                "RailwayModel '{}' references Manufacturer '{}', but '{}' was not found in manufacturers.csv.",
+                model.product_code, model.manufacturer_id.0, slug
+            ));
+        }
+    }
+
+    // ── Railway company integrity ──────────────────────────────────────────
+    for model in &manifest.data.railway_models {
+        for stock in &model.rolling_stocks {
+            if !valid_company_ids.contains(&stock.railway_company_id.0) {
+                let slug = stock
+                    .railway_company_id
+                    .0
+                    .strip_prefix("trn:railway-company:")
+                    .unwrap_or(&stock.railway_company_id.0);
+                let stock_id = stock.id.as_deref().unwrap_or("(unknown)");
+                errors.push(format!(
+                    "RollingStock '{}' in RailwayModel '{}' references RailwayCompany '{}', but '{}' was not found in railway_companies.csv.",
+                    stock_id, model.product_code, stock.railway_company_id.0, slug
+                ));
+            }
+        }
+    }
+
+    // ── Seller integrity ───────────────────────────────────────────────────
+    for item in &manifest.data.collection_items {
+        if let Some(purchase) = &item.purchase
+            && let Some(seller_id) = &purchase.seller_id
+            && !valid_seller_ids.contains(&seller_id.0)
+        {
+            let slug = seller_id
+                .0
+                .strip_prefix("trn:seller:")
+                .unwrap_or(&seller_id.0);
+            errors.push(format!(
+                "CollectionItem '{}' purchase references Seller '{}', but '{}' was not found in sellers.csv.",
+                item.id.0, seller_id.0, slug
+            ));
+        }
+    }
+
+    if !errors.is_empty() {
+        bail!(
+            "Manifest integrity validation failed — Orphaned references:\n{}",
+            errors.join("\n")
+        );
+    }
+
+    // ── CollectionItem model-reference pruning ─────────────────────────────
+    let before_count = manifest.data.collection_items.len();
+    manifest
+        .data
+        .collection_items
+        .retain(|item| valid_model_ids.contains(&item.railway_model_id.0));
+    let pruned = before_count - manifest.data.collection_items.len();
+    if pruned > 0 {
+        warn!(
+            "Pruned {} CollectionItem(s) with missing railwayModelId.",
+            pruned
+        );
+    }
+
+    // ── WishlistItem model-reference pruning ───────────────────────────────
+    for wishlist in &mut manifest.data.wishlists {
+        let before = wishlist.items.len();
+        wishlist
+            .items
+            .retain(|item| valid_model_ids.contains(&item.railway_model_id.0));
+        let pruned = before - wishlist.items.len();
+        if pruned > 0 {
+            warn!(
+                "Pruned {} WishlistItem(s) from '{}' with missing railwayModelId.",
+                pruned, wishlist.name
+            );
+        }
+    }
+
+    Ok(())
+}
+
+pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &Registry) -> Result<Manifest> {
     let exported_at = parse_rfc3339_to_utc(&import.modified_at, "modifiedAt")?;
 
     let mut manufacturers: BTreeMap<String, Manufacturer> = BTreeMap::new();
@@ -483,7 +625,7 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &SeedData) -> R
     for model in &import.railway_models {
         let manufacturer_slug = trn_slug(&model.manufacturer, "trn:manufacturer:");
         let product_slug = normalize_id_segment(&model.product_code);
-        let manufacturer_id = ManufacturerId(format!("trn:manufacturer:{}", manufacturer_slug));
+        let manufacturer_id = Registry::manufacturer_id(&manufacturer_slug);
 
         let seed_manufacturer = seeds
             .manufacturers
@@ -505,10 +647,7 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &SeedData) -> R
             seeds,
         )?);
 
-        let railway_model_id = RailwayModelId(format!(
-            "trn:railway-model:{}:{}",
-            manufacturer_slug, product_slug
-        ));
+        let railway_model_id = Registry::model_id(&manufacturer_slug, &product_slug);
 
         let mut purchase = None;
         let mut added_date = exported_at.date_naive();
@@ -517,7 +656,7 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &SeedData) -> R
             added_date = parse_date(&import_purchase.purchase_date, "purchaseDate")?;
 
             let seller_slug = trn_slug(&import_purchase.seller, "trn:seller:");
-            let seller_id = SellerId(format!("trn:seller:{}", seller_slug));
+            let seller_id = Registry::seller_id(&seller_slug);
 
             let seed_seller = seeds.sellers.get(&seller_slug).with_context(|| {
                 format!(
@@ -583,27 +722,23 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &SeedData) -> R
 }
 
 pub(crate) fn make_model_id(manufacturer: &str, product_code: &str) -> RailwayModelId {
-    RailwayModelId(format!(
-        "trn:railway-model:{}:{}",
-        trn_slug(manufacturer, "trn:manufacturer:"),
-        normalize_id_segment(product_code)
-    ))
+    Registry::model_id(
+        &trn_slug(manufacturer, "trn:manufacturer:"),
+        &normalize_id_segment(product_code),
+    )
 }
 
 pub(crate) fn map_railway_model(
     model: &ImportRailwayModel,
     manufacturer_id: &ManufacturerId,
     railway_companies: &mut BTreeMap<String, RailwayCompany>,
-    seeds: &SeedData,
+    seeds: &Registry,
 ) -> Result<RailwayModel> {
     let manufacturer_slug = trn_slug(&model.manufacturer, "trn:manufacturer:");
     let product_slug = normalize_id_segment(&model.product_code);
 
     Ok(RailwayModel {
-        id: RailwayModelId(format!(
-            "trn:railway-model:{}:{}",
-            manufacturer_slug, product_slug
-        )),
+        id: Registry::model_id(&manufacturer_slug, &product_slug),
         manufacturer_id: manufacturer_id.clone(),
         product_code: model.product_code.clone(),
         description: LocalizedText {
@@ -629,7 +764,7 @@ pub(crate) fn map_railway_model(
 fn map_rolling_stock(
     stock: &ImportRollingStock,
     railway_companies: &mut BTreeMap<String, RailwayCompany>,
-    seeds: &SeedData,
+    seeds: &Registry,
 ) -> Result<RollingStock> {
     let railway_company_id = railway_company_id_for(&stock.railway, railway_companies, seeds)?;
 
@@ -676,10 +811,10 @@ fn map_rolling_stock(
 pub(crate) fn railway_company_id_for(
     railway_name: &str,
     railway_companies: &mut BTreeMap<String, RailwayCompany>,
-    seeds: &SeedData,
+    seeds: &Registry,
 ) -> Result<RailwayCompanyId> {
     let railway_slug = trn_slug(railway_name, "trn:railway-company:");
-    let company_id = RailwayCompanyId(format!("trn:railway-company:{}", railway_slug));
+    let company_id = Registry::company_id(&railway_slug);
 
     if !railway_companies.contains_key(&company_id.0) {
         let seed_company = seeds
