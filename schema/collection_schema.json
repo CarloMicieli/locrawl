@@ -14,13 +14,18 @@
       "format": "date-time",
       "description": "Timestamp of the last modification."
     },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CollectionItem"
+      }
+    },
     "railwayModels": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/RailwayModel"
       }
-    }
-    ,
+    },
     "ownedRollingStocks": {
       "type": "array",
       "items": { "$ref": "#/definitions/OwnedRollingStock" }
@@ -29,7 +34,9 @@
   "required": [
     "version",
     "modifiedAt",
-    "railwayModels"
+    "railwayModels",
+    "ownedRollingStocks",
+    "items"
   ],
   "definitions": {
     "PurchaseInfo": {
@@ -194,18 +201,11 @@
             "2020/04"
           ]
         },
-        "collectionItemId": {
-          "type": "string",
-          "description": "Optional source collection item id to preserve mapping when importing ownedRollingStocks"
-        },
         "rollingStocks": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/RollingStock"
           }
-        },
-        "purchaseInfo": {
-          "$ref": "#/definitions/PurchaseInfo"
         }
       },
       "required": [
@@ -220,6 +220,25 @@
         "rollingStocks"
       ]
     },
+    "CollectionItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "railwayModelId": {
+          "type": "string"
+        },
+        "purchaseInfo": {
+          "$ref": "#/definitions/PurchaseInfo"
+        }
+      },
+      "required": [
+        "id",
+        "railwayModelId",
+        "purchaseInfo"
+      ]
+    },    
     "Category": {
       "type": "string",
       "enum": [
@@ -281,7 +300,7 @@
     ,
     "OwnedRollingStock": {
       "type": "object",
-      "required": ["id", "collectionItemId"],
+      "required": ["id", "collectionItemId", "rollingStockId"],
       "properties": {
         "id": {
           "type": "string",

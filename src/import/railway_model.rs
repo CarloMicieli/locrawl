@@ -95,4 +95,8 @@ pub struct RailwayModel {
     pub wishlist_info: Option<WishlistInfo>,
     #[serde(default)]
     pub collection_item_id: Option<String>,
+    /// Legacy catalog item id present in some exports (snake_case).
+    #[serde(alias = "catalog_item_id")]
+    #[serde(default)]
+    pub catalog_item_id: Option<String>,
 }

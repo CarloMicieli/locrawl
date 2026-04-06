@@ -63,14 +63,41 @@ pub async fn run(args: ImportCollectionArgs) -> Result<()> {
     let source_json: Value = serde_json::from_str(&source_content)
         .with_context(|| format!("Failed to parse JSON from '{}'.", args.source.display()))?;
 
-    validate_value_with_schema(
+    // Validate input; if it doesn't match the current schema, try migrating
+    // legacy input into the new schema and validate the migrated result.
+    let input_json: Value = if validate_value_with_schema(
         &source_json,
         &collection_schema_path,
         "collection import input",
     )
-    .context("Failed to load schema/collection_schema.json")?;
+    .is_ok()
+    {
+        source_json.clone()
+    } else {
+        // Try deserializing into the permissive import structs and migrate
+        let import_collection_legacy: Collection = serde_json::from_value(source_json.clone())
+            .with_context(|| {
+                format!(
+                    "Failed to deserialize legacy source data from '{}'.",
+                    args.source.display()
+                )
+            })?;
 
-    let import_collection: Collection = serde_json::from_value(source_json).with_context(|| {
+        let migrated = migrate_collection_to_new_schema(&import_collection_legacy)
+            .context("Failed to migrate legacy collection to new schema")?;
+
+        // Validate migrated output
+        validate_value_with_schema(
+            &migrated,
+            &collection_schema_path,
+            "migrated collection input",
+        )
+        .context("Migrated collection did not validate against new schema")?;
+
+        migrated
+    };
+
+    let import_collection: Collection = serde_json::from_value(input_json).with_context(|| {
         format!(
             "Failed to deserialize source data from '{}'.",
             args.source.display()
@@ -362,6 +389,171 @@ pub(crate) fn parse_date(raw: &str, field_name: &str) -> Result<NaiveDate> {
         .with_context(|| format!("Invalid date '{}' for field '{}'.", raw, field_name))
 }
 
+pub(crate) fn migrate_collection_to_new_schema(
+    import: &crate::import::Collection,
+) -> Result<serde_json::Value> {
+    use serde_json::{Value, json};
+    use std::collections::{BTreeMap, HashSet};
+
+    // railwayModels without purchase/catalog fields
+    let mut railway_models_vals: Vec<Value> = Vec::new();
+    for model in &import.railway_models {
+        let mut mval = serde_json::to_value(model)?;
+        if let Value::Object(map) = &mut mval {
+            map.remove("collectionItemId");
+            map.remove("purchaseInfo");
+            map.remove("catalogItemId");
+        }
+        // Remove nulls so schema validation does not see `null` values
+        strip_nulls(&mut mval);
+        railway_models_vals.push(mval);
+    }
+
+    // items[] - start with any explicit items provided in the import (new schema)
+    let mut items_vals: Vec<Value> = Vec::new();
+    let mut import_model_to_collection_item: BTreeMap<String, String> = BTreeMap::new();
+    let mut source_collection_id_to_generated: BTreeMap<String, String> = BTreeMap::new();
+
+    for input_item in &import.items {
+        let mut item_val = serde_json::to_value(input_item)?;
+        strip_nulls(&mut item_val);
+        items_vals.push(item_val);
+        source_collection_id_to_generated.insert(input_item.id.clone(), input_item.id.clone());
+        import_model_to_collection_item
+            .entry(input_item.railway_model_id.clone())
+            .or_insert_with(|| input_item.id.clone());
+    }
+
+    // Create items for models that provide purchase_info but didn't have explicit items[]
+    for model in &import.railway_models {
+        if import_model_to_collection_item.contains_key(&model.id) {
+            continue;
+        }
+        if let Some(pi) = &model.purchase_info {
+            let gen_id = format!("trn:collection-item:{}", Uuid::new_v4());
+            let mut item_obj = json!({
+                "id": gen_id.clone(),
+                "railwayModelId": model.id.clone(),
+                "purchaseInfo": serde_json::to_value(pi)?,
+            });
+            if let Some(cat) = &model.catalog_item_id
+                && let Value::Object(map) = &mut item_obj
+            {
+                map.insert("catalogItemId".to_string(), Value::String(cat.clone()));
+            }
+            strip_nulls(&mut item_obj);
+            items_vals.push(item_obj);
+            import_model_to_collection_item.insert(model.id.clone(), gen_id.clone());
+            if let Some(source_cid) = &model.collection_item_id {
+                source_collection_id_to_generated.insert(source_cid.clone(), gen_id.clone());
+            }
+        }
+    }
+
+    // Build ownedRollingStocks[] by resolving explicit owned entries and inline markers
+    let mut owned_vals: Vec<Value> = Vec::new();
+    let mut handled_rolling_stock_ids: HashSet<String> = HashSet::new();
+
+    // explicit top-level owned entries
+    for input_owned in &import.owned_rolling_stocks {
+        let resolved: Option<String> = source_collection_id_to_generated
+            .get(&input_owned.collection_item_id)
+            .cloned()
+            .or_else(|| {
+                input_owned.rolling_stock_id.as_ref().and_then(|rs_id| {
+                    import
+                        .railway_models
+                        .iter()
+                        .find(|m| m.rolling_stocks.iter().any(|s| s.id == *rs_id))
+                        .and_then(|model| import_model_to_collection_item.get(&model.id).cloned())
+                })
+            });
+
+        if let Some(collection_item_id) = resolved {
+            if let Some(rs) = &input_owned.rolling_stock_id {
+                handled_rolling_stock_ids.insert(rs.clone());
+            }
+
+            let mut owned_obj = serde_json::to_value(input_owned)?;
+            if let Value::Object(map) = &mut owned_obj {
+                map.insert(
+                    "collectionItemId".to_string(),
+                    Value::String(collection_item_id),
+                );
+            }
+            strip_nulls(&mut owned_obj);
+            owned_vals.push(owned_obj);
+        } else {
+            warn!(
+                "Could not resolve collectionItemId '{}' for ownedRollingStock '{}'; skipping.",
+                input_owned.collection_item_id, input_owned.id
+            );
+        }
+    }
+
+    // Inline owned_rolling_stock_id markers on rolling stocks
+    for model in &import.railway_models {
+        let gen_cid_opt = import_model_to_collection_item.get(&model.id).cloned();
+        for stock in &model.rolling_stocks {
+            if handled_rolling_stock_ids.contains(&stock.id) {
+                continue;
+            }
+            if let Some(owned_id) = &stock.owned_rolling_stock_id {
+                // If model has no generated collection item, this is an error
+                let gen_cid = match &gen_cid_opt {
+                    Some(v) => v.clone(),
+                    None => bail!(
+                        "Model '{}' is missing purchaseInfo; cannot migrate ownedRollingStock '{}'",
+                        model.id,
+                        owned_id
+                    ),
+                };
+
+                let mut owned_obj = json!({
+                    "id": owned_id.clone(),
+                    "collectionItemId": gen_cid,
+                    "rollingStockId": stock.id.clone(),
+                });
+                strip_nulls(&mut owned_obj);
+                owned_vals.push(owned_obj);
+                handled_rolling_stock_ids.insert(stock.id.clone());
+            }
+        }
+    }
+
+    // For any remaining rolling stocks in models that have a generated collection item,
+    // create derived OwnedRollingStock records.
+    for model in &import.railway_models {
+        if let Some(gen_cid) = import_model_to_collection_item.get(&model.id) {
+            for stock in &model.rolling_stocks {
+                if handled_rolling_stock_ids.contains(&stock.id) {
+                    continue;
+                }
+                let derived_id = format!("trn:owned-rolling-stock:{}", Uuid::new_v4());
+                let mut owned_obj = json!({
+                    "id": derived_id,
+                    "collectionItemId": gen_cid.clone(),
+                    "rollingStockId": stock.id.clone(),
+                });
+                strip_nulls(&mut owned_obj);
+                owned_vals.push(owned_obj);
+                handled_rolling_stock_ids.insert(stock.id.clone());
+            }
+        }
+    }
+
+    let result = json!({
+        "version": import.version,
+        "description": import.description.clone().unwrap_or_default(),
+        "modifiedAt": import.modified_at.clone(),
+        "railwayModels": railway_models_vals,
+        "items": items_vals,
+        "ownedRollingStocks": owned_vals,
+    });
+
+    Ok(result)
+}
+
 pub(crate) fn normalize_id_segment(raw: &str) -> String {
     let candidate = slugify(raw);
     if candidate.is_empty() {
@@ -622,13 +814,69 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &Registry) -> R
     let mut sellers: BTreeMap<String, Seller> = BTreeMap::new();
 
     let mut railway_models = Vec::with_capacity(import.railway_models.len());
-    let mut collection_items = Vec::with_capacity(import.railway_models.len());
+    let mut collection_items = Vec::new();
     let mut owned_rolling_stocks: Vec<OwnedRollingStock> = Vec::new();
     // mappings to translate source collection IDs (if provided) and import model ids
     // to the generated manifest CollectionItemId values.
     let mut import_model_to_collection_item: BTreeMap<String, CollectionItemId> = BTreeMap::new();
     let mut source_collection_id_to_generated: BTreeMap<String, CollectionItemId> = BTreeMap::new();
 
+    // First, process any explicit `items[]` provided in the (new) collection schema.
+    // These entries map directly to manifest CollectionItem records and may
+    // reference existing railway model ids.
+    for input_item in &import.items {
+        let added_date = parse_date(&input_item.purchase_info.purchase_date, "purchaseDate")?;
+
+        // Map seller
+        let seller_slug = trn_slug(&input_item.purchase_info.seller, "trn:seller:");
+        let seller_id = Registry::seller_id(&seller_slug);
+        if let Some(seed_seller) = seeds.sellers.get(&seller_slug).cloned() {
+            sellers
+                .entry(seller_id.0.clone())
+                .or_insert_with(|| seed_seller.clone());
+        }
+
+        let purchase = Some(Purchase {
+            r#type: PurchaseType::Purchased,
+            purchase_date: Some(added_date),
+            price: Some(manifest::Money {
+                amount: input_item.purchase_info.price.amount.round() as i64,
+                currency: input_item.purchase_info.price.currency.clone(),
+            }),
+            seller_id: Some(seller_id.clone()),
+            sale_date: None,
+            sale_price: None,
+            deposit_amount: None,
+            expected_delivery: None,
+        });
+
+        let generated_collection_item_id = CollectionItemId(input_item.id.clone());
+
+        collection_items.push(CollectionItem {
+            id: generated_collection_item_id.clone(),
+            railway_model_id: RailwayModelId(input_item.railway_model_id.clone()),
+            added_date,
+            removed_date: None,
+            purchase_condition: None,
+            model_condition: None,
+            box_condition: None,
+            notes: None,
+            image: None,
+            purchase,
+        });
+
+        // Map source collection item id -> generated id
+        source_collection_id_to_generated
+            .insert(input_item.id.clone(), generated_collection_item_id.clone());
+
+        // Map railway model -> generated collection item if not already present
+        import_model_to_collection_item
+            .entry(input_item.railway_model_id.clone())
+            .or_insert_with(|| generated_collection_item_id.clone());
+    }
+
+    // Now process railway models; generate a CollectionItem for models that
+    // provide `purchaseInfo` but did not already have an explicit `items[]`
     for model in &import.railway_models {
         let manufacturer_slug = trn_slug(&model.manufacturer, "trn:manufacturer:");
         let product_slug = normalize_id_segment(&model.product_code);
@@ -656,66 +904,69 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &Registry) -> R
 
         let railway_model_id = Registry::model_id(&manufacturer_slug, &product_slug);
 
-        let mut purchase = None;
-        let mut added_date = exported_at.date_naive();
+        // If this model already has an explicit item (from import.items), skip
+        // generating an additional CollectionItem; otherwise, always generate
+        // a CollectionItem (purchase may be none).
+        if !import_model_to_collection_item.contains_key(&model.id) {
+            let mut added_date = exported_at.date_naive();
 
-        if let Some(import_purchase) = &model.purchase_info {
-            added_date = parse_date(&import_purchase.purchase_date, "purchaseDate")?;
+            let purchase = if let Some(import_purchase) = &model.purchase_info {
+                added_date = parse_date(&import_purchase.purchase_date, "purchaseDate")?;
 
-            let seller_slug = trn_slug(&import_purchase.seller, "trn:seller:");
-            let seller_id = Registry::seller_id(&seller_slug);
+                let seller_slug = trn_slug(&import_purchase.seller, "trn:seller:");
+                let seller_id = Registry::seller_id(&seller_slug);
 
-            let seed_seller = seeds.sellers.get(&seller_slug).with_context(|| {
-                format!(
-                    "Seller '{}' (slug: '{}') not found in seed/sellers.csv",
-                    import_purchase.seller, seller_slug
-                )
-            })?;
-            sellers
-                .entry(seller_id.0.clone())
-                .or_insert_with(|| seed_seller.clone());
+                let seed_seller = seeds.sellers.get(&seller_slug).with_context(|| {
+                    format!(
+                        "Seller '{}' (slug: '{}') not found in seed/sellers.csv",
+                        import_purchase.seller, seller_slug
+                    )
+                })?;
+                sellers
+                    .entry(seller_id.0.clone())
+                    .or_insert_with(|| seed_seller.clone());
 
-            purchase = Some(Purchase {
-                r#type: PurchaseType::Purchased,
-                purchase_date: Some(added_date),
-                price: Some(manifest::Money {
-                    amount: import_purchase.price.amount.round() as i64,
-                    currency: import_purchase.price.currency.clone(),
-                }),
-                seller_id: Some(seller_id),
-                sale_date: None,
-                sale_price: None,
-                deposit_amount: None,
-                expected_delivery: None,
+                Some(Purchase {
+                    r#type: PurchaseType::Purchased,
+                    purchase_date: Some(added_date),
+                    price: Some(manifest::Money {
+                        amount: import_purchase.price.amount.round() as i64,
+                        currency: import_purchase.price.currency.clone(),
+                    }),
+                    seller_id: Some(seller_id),
+                    sale_date: None,
+                    sale_price: None,
+                    deposit_amount: None,
+                    expected_delivery: None,
+                })
+            } else {
+                None
+            };
+
+            // Create a generated CollectionItem id and record mapping from the
+            // import model id so explicit ownedRollingStocks can reference it.
+            let generated_collection_item_id =
+                CollectionItemId(format!("trn:collection-item:{}", Uuid::new_v4()));
+
+            collection_items.push(CollectionItem {
+                id: generated_collection_item_id.clone(),
+                railway_model_id: railway_model_id.clone(),
+                added_date,
+                removed_date: None,
+                purchase_condition: None,
+                model_condition: None,
+                box_condition: None,
+                notes: None,
+                image: None,
+                purchase,
             });
-        }
 
-        // Create a generated CollectionItem id and record mapping from the
-        // import model id (and optional source collectionItemId) so explicit
-        // ownedRollingStocks can reference the generated id.
-        let generated_collection_item_id =
-            CollectionItemId(format!("trn:collection-item:{}", Uuid::new_v4()));
-
-        collection_items.push(CollectionItem {
-            id: generated_collection_item_id.clone(),
-            railway_model_id: railway_model_id.clone(),
-            added_date,
-            removed_date: None,
-            purchase_condition: None,
-            model_condition: None,
-            box_condition: None,
-            notes: None,
-            image: None,
-            purchase,
-        });
-
-        // Map import model id -> generated collection item id
-        import_model_to_collection_item
-            .insert(model.id.clone(), generated_collection_item_id.clone());
-        // If the import model provided a source collectionItemId, map that too
-        if let Some(source_cid) = model.collection_item_id.clone() {
-            source_collection_id_to_generated
-                .insert(source_cid, generated_collection_item_id.clone());
+            import_model_to_collection_item
+                .insert(model.id.clone(), generated_collection_item_id.clone());
+            if let Some(source_cid) = model.collection_item_id.clone() {
+                source_collection_id_to_generated
+                    .insert(source_cid, generated_collection_item_id.clone());
+            }
         }
     }
 
@@ -868,6 +1119,7 @@ fn map_rolling_stock(
             .type_name
             .clone()
             .or_else(|| stock.series.clone())
+            .or_else(|| stock.series_code_legacy.clone())
             .unwrap_or_else(|| stock.id.clone()),
         road_number: stock.road_number.clone(),
         livery: stock.livery.clone(),
