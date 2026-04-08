@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "modifiedAt": "2026-04-08T00:00:00Z",
+  "railwayModels": [
+    {
+      "id": "trn:railway-model:acme:p1",
+      "manufacturer": "trn:manufacturer:acme",
+      "productCode": "P1",
+      "description": "Test model",
+      "powerMethod": "DC",
+      "scale": "H0",
+      "epoch": "V",
+      "category": "LOCOMOTIVES",
+      "rollingStocks": [
+        {
+          "id": "rs-1",
+          "railway": "DB",
+          "category": "LOCOMOTIVE",
+          "typeName": "Type A",
+          "seriesCode": "BR 01",
+          "series": "01",
+          "roadNumber": "01 118"
+        }
+      ]
+    }
+  ],
+  "items": [],
+  "ownedRollingStocks": []
+}

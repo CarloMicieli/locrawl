@@ -1116,10 +1116,10 @@ fn map_rolling_stock(
         id: Some(stock.id.clone()),
         railway_company_id,
         series_code: stock
-            .type_name
+            .series_code
             .clone()
+            .or_else(|| stock.type_name.clone())
             .or_else(|| stock.series.clone())
-            .or_else(|| stock.series_code_legacy.clone())
             .unwrap_or_else(|| stock.id.clone()),
         road_number: stock.road_number.clone(),
         livery: stock.livery.clone(),

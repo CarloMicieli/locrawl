@@ -93,9 +93,8 @@ pub struct RollingStock {
     pub livery: Option<String>,
     pub service_level: Option<ServiceLevel>,
     pub series: Option<String>,
-    #[serde(alias = "seriesCode")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub series_code_legacy: Option<String>,
+    pub series_code: Option<String>,
     /// Legacy inline owned-rolling-stock id (snake_case in some exports)
     #[serde(alias = "owned_rolling_stock_id")]
     #[serde(default)]

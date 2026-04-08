@@ -114,6 +114,10 @@
         "series": {
           "type": "string"
         },
+        "seriesCode": {
+          "type": "string",
+          "description": "Short series code or identifier, e.g., 'BR 01'"
+        },
         "isDummy": {
           "type": "boolean"
         }
