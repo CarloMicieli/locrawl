@@ -7,37 +7,40 @@ on:
   workflow_dispatch: # Allow manual trigger
 
 jobs:
-  update-deps:
+  update-dependencies:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: 📂 Checkout
+      uses: actions/checkout@v5
 
-    - name: Install Rust
+    - name: 🦀 Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
 
-    - name: Cache dependencies
-      uses: Swatinem/rust-cache@v2
+    - name: 🦀 Install cargo-edit
+      uses: taiki-e/install-action@v2
+      with:
+        tool: cargo-edit
 
-    - name: Update dependencies
-      run: cargo update
+    - name: 🦀 Upgrade dependencies
+      run: cargo upgrade --pinned # Updates Cargo.toml
+      working-directory: src-tauri
 
-    - name: Check if Cargo.lock changed
-      id: lockfile-changed
-      run: |
-        if git diff --quiet Cargo.lock; then
-          echo "changed=false" >> $GITHUB_OUTPUT
-        else
-          echo "changed=true" >> $GITHUB_OUTPUT
-        fi
+    - name: 🦀 Update Cargo.lock
+      run: cargo update # Ensures lockfile matches new TOML
+      working-directory: src-tauri
 
-    - name: Commit and push changes
-      if: steps.lockfile-changed.outputs.changed == 'true'
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add Cargo.lock
-        git commit -m "chore: update dependencies"
-        git push
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'chore: weekly cargo update'
+        title: 'chore: weekly cargo update'
+        body: |
+          Automated weekly dependency updates.
+          - Updated `Cargo.lock`
+        branch: automated-dep-update
+        delete-branch: true
