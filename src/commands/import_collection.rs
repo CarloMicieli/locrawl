@@ -26,10 +26,10 @@ use crate::import::{
 use crate::manifest::{
     self, Category, CollectionItem, CollectionItemId, Control, DataContainer,
     ElectricMultipleUnitType, FreightCarType, LocalizedText, LocomotiveType, Manifest,
-    ManifestVersion, Manufacturer, ManufacturerId, OwnedRollingStock, PassengerCarType,
-    PowerMethod, Purchase, PurchaseType, RailcarType, RailwayCompany, RailwayCompanyId,
-    RailwayCompanyStatus, RailwayModel, RailwayModelId, RollingStock, Scale, Seller, SellerId,
-    SellerType, ServiceLevel,
+    ManifestVersion, Manufacturer, ManufacturerId, OwnedRollingStock, OwnedRollingStockId,
+    PassengerCarType, PowerMethod, Purchase, PurchaseType, RailcarType, RailwayCompany,
+    RailwayCompanyId, RailwayCompanyStatus, RailwayModel, RailwayModelId, RollingStock, Scale,
+    Seller, SellerId, SellerType, ServiceLevel,
 };
 
 #[derive(Debug, Args, Clone)]
@@ -715,6 +715,13 @@ pub(crate) fn validate_manifest_integrity(manifest: &mut Manifest) -> Result<()>
         .map(|m| m.id.0.clone())
         .collect();
 
+    let valid_owned_rolling_stock_ids: HashSet<String> = manifest
+        .data
+        .owned_rolling_stocks
+        .iter()
+        .map(|o| o.id.0.clone())
+        .collect();
+
     let mut errors: Vec<String> = Vec::new();
 
     // ── Manufacturer integrity ─────────────────────────────────────────────
@@ -763,6 +770,38 @@ pub(crate) fn validate_manifest_integrity(manifest: &mut Manifest) -> Result<()>
             errors.push(format!(
                 "CollectionItem '{}' purchase references Seller '{}', but '{}' was not found in sellers.csv.",
                 item.id.0, seller_id.0, slug
+            ));
+        }
+    }
+
+    // ── Owned rolling stock reference integrity ───────────────────────────
+    for card in &manifest.data.maintenance_cards {
+        if let Some(owned_id) = &card.owned_rolling_stock_id
+            && !valid_owned_rolling_stock_ids.contains(&owned_id.0)
+        {
+            errors.push(format!(
+                "MaintenanceCard '{}' references OwnedRollingStock '{}', but it was not found in ownedRollingStocks.",
+                card.id.0, owned_id.0
+            ));
+        }
+    }
+
+    for formation in &manifest.data.train_formations {
+        for element in &formation.elements {
+            if !valid_owned_rolling_stock_ids.contains(&element.owned_rolling_stock_id.0) {
+                errors.push(format!(
+                    "FormationElement '{}' in TrainFormation '{}' references OwnedRollingStock '{}', but it was not found in ownedRollingStocks.",
+                    element.id, formation.id, element.owned_rolling_stock_id.0
+                ));
+            }
+        }
+    }
+
+    for digital in &manifest.data.digital_rolling_stocks {
+        if !valid_owned_rolling_stock_ids.contains(&digital.owned_rolling_stock_id.0) {
+            errors.push(format!(
+                "DigitalRollingStock '{}' references OwnedRollingStock '{}', but it was not found in ownedRollingStocks.",
+                digital.id, digital.owned_rolling_stock_id.0
             ));
         }
     }
@@ -1004,7 +1043,7 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &Registry) -> R
             }
 
             owned_rolling_stocks.push(OwnedRollingStock {
-                id: input_owned.id.clone(),
+                id: OwnedRollingStockId(input_owned.id.clone()),
                 collection_item_id: collection_item_id.clone(),
                 rolling_stock_id: input_owned.rolling_stock_id.clone(),
                 notes: input_owned.notes.clone(),
@@ -1029,7 +1068,7 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &Registry) -> R
                     continue;
                 }
                 owned_rolling_stocks.push(OwnedRollingStock {
-                    id: format!("trn:owned-rolling-stock:{}", Uuid::new_v4()),
+                    id: OwnedRollingStockId(format!("trn:owned-rolling-stock:{}", Uuid::new_v4())),
                     collection_item_id: gen_cid.clone(),
                     rolling_stock_id: Some(stock.id.clone()),
                     notes: None,

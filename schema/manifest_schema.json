@@ -319,6 +319,11 @@
       "pattern": "^trn:collection-item:[^\\s]+$",
       "description": "Collection item TRN in the form trn:collection-item:{uuid}"
     },
+    "OwnedRollingStockId": {
+      "type": "string",
+      "pattern": "^trn:owned-rolling-stock:[^\\s]+$",
+      "description": "Owned rolling stock TRN in the form trn:owned-rolling-stock:{uuid}"
+    },
     "SellerId": {
       "type": "string",
       "pattern": "^trn:seller:[^\\s]+$",
@@ -769,8 +774,7 @@
           "description": "References collectionItems[].id"
         },
         "ownedRollingStockId": {
-          "type": "string",
-          "minLength": 1,
+          "$ref": "#/$defs/OwnedRollingStockId",
           "description": "References ownedRollingStocks[].id; present in archives produced by current version"
         },
         "lastMaintenanceDate": {
@@ -1103,7 +1107,7 @@
     },
     "FormationElement": {
       "type": "object",
-      "required": ["id", "prototypeId", "positionOrder", "tractionOverride"],
+      "required": ["id", "prototypeId", "ownedRollingStockId", "positionOrder", "tractionOverride"],
       "properties": {
         "id": {
           "type": "string",
@@ -1116,8 +1120,8 @@
           "description": "References prototypes[].id"
         },
         "ownedRollingStockId": {
-          "type": "string",
-          "description": "Informational only; not restored on import"
+          "$ref": "#/$defs/OwnedRollingStockId",
+          "description": "Strict relational reference to ownedRollingStocks[].id; validated by schema and fully restored during import"
         },
         "positionOrder": {
           "type": "integer",
@@ -1264,8 +1268,7 @@
           "description": "Unique identifier for this roster entry"
         },
         "ownedRollingStockId": {
-          "type": "string",
-          "minLength": 1,
+          "$ref": "#/$defs/OwnedRollingStockId",
           "description": "References a collection item in the source database; preserved for informational purposes"
         },
         "dccAddress": {
@@ -1286,8 +1289,7 @@
       "required": ["id", "collectionItemId"],
       "properties": {
         "id": {
-          "type": "string",
-          "minLength": 1,
+          "$ref": "#/$defs/OwnedRollingStockId",
           "description": "Unique identifier for this owned rolling stock entry"
         },
         "collectionItemId": {

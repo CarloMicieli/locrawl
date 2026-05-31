@@ -206,6 +206,10 @@ pub struct RailwayModelId(pub String);
 #[serde(transparent)]
 pub struct CollectionItemId(pub String);
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[serde(transparent)]
+pub struct OwnedRollingStockId(pub String);
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(transparent)]
 pub struct SellerId(pub String);
@@ -516,6 +520,8 @@ pub struct MaintenanceCard {
     pub id: MaintenanceCardId,
     /// Expected format: trn:collection-item:{uuid}
     pub collection_item_id: CollectionItemId,
+    /// Expected format: trn:owned-rolling-stock:{uuid}
+    pub owned_rolling_stock_id: Option<OwnedRollingStockId>,
     pub last_maintenance_date: Option<NaiveDate>,
     pub next_maintenance_date: Option<NaiveDate>,
     #[serde(default)]
@@ -526,7 +532,7 @@ pub struct MaintenanceCard {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct OwnedRollingStock {
     /// Expected format: trn:owned-rolling-stock:{uuid}
-    pub id: String,
+    pub id: OwnedRollingStockId,
     /// Expected format: trn:collection-item:{uuid}
     pub collection_item_id: CollectionItemId,
     /// References the catalogue rolling stock entry; omitted when unknown
@@ -690,7 +696,8 @@ pub struct TrainFormation {
 pub struct FormationElement {
     pub id: String,
     pub prototype_id: String,
-    pub owned_rolling_stock_id: Option<String>,
+    /// Expected format: trn:owned-rolling-stock:{uuid}
+    pub owned_rolling_stock_id: OwnedRollingStockId,
     pub position_order: i64,
     pub traction_override: i8,
 }
@@ -772,7 +779,8 @@ pub enum DecoderProtocol {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct DigitalRollingStock {
     pub id: String,
-    pub owned_rolling_stock_id: String,
+    /// Expected format: trn:owned-rolling-stock:{uuid}
+    pub owned_rolling_stock_id: OwnedRollingStockId,
     pub dcc_address: i64,
     pub decoder_id: Option<String>,
 }
@@ -970,6 +978,42 @@ mod tests {
         assert_eq!(
             serde_json::to_value(Control::NoDcc).unwrap(),
             json!("NO_DCC")
+        );
+    }
+
+    #[test]
+    fn owned_rolling_stock_id_round_trips() {
+        let id = OwnedRollingStockId("trn:owned-rolling-stock:abc".to_string());
+        let value = serde_json::to_value(id).unwrap();
+        assert_eq!(value, json!("trn:owned-rolling-stock:abc"));
+    }
+
+    #[test]
+    fn formation_element_requires_owned_rolling_stock_id() {
+        let value = json!({
+            "id": "elem-1",
+            "prototypeId": "proto-1",
+            "positionOrder": 0,
+            "tractionOverride": 0
+        });
+
+        let result = serde_json::from_value::<FormationElement>(value);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn maintenance_card_accepts_owned_rolling_stock_id() {
+        let value = json!({
+            "id": "trn:maintenance-card:card-1",
+            "collectionItemId": "trn:collection-item:item-1",
+            "ownedRollingStockId": "trn:owned-rolling-stock:ors-1",
+            "events": []
+        });
+
+        let card = serde_json::from_value::<MaintenanceCard>(value).unwrap();
+        assert_eq!(
+            card.owned_rolling_stock_id.unwrap().0,
+            "trn:owned-rolling-stock:ors-1"
         );
     }
 }

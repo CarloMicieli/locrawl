@@ -6,6 +6,7 @@ use anyhow::{Context, Result, bail};
 use clap::Args;
 use log::info;
 use serde_json::Value;
+use uuid::Uuid;
 
 use crate::commands::import_collection::{
     ensure_parent_dir, load_existing_manifest_or_empty, normalize_id_segment, strip_nulls,
@@ -13,7 +14,10 @@ use crate::commands::import_collection::{
 };
 use crate::commands::validation::{manifest_schema_path, validate_value_with_schema};
 use crate::import::DigitalRosterImport;
-use crate::manifest::{Control, DccInterface, DecoderType, DigitalRollingStock, Manifest};
+use crate::manifest::{
+    CollectionItemId, Control, DccInterface, DecoderType, DigitalRollingStock, Manifest,
+    OwnedRollingStock, OwnedRollingStockId,
+};
 
 #[derive(Debug, Args, Clone)]
 pub struct ImportDigitalRosterArgs {
@@ -112,10 +116,15 @@ fn merge_digital_roster(
 
     // Map owned rolling stock ids to their railway model via the collection item
     let mut owned_to_model: BTreeMap<String, String> = BTreeMap::new();
+    let mut owned_ids_by_model: BTreeMap<String, Vec<String>> = BTreeMap::new();
     for ors in &manifest.data.owned_rolling_stocks {
         let cid = &ors.collection_item_id.0;
         if let Some(model_id) = collection_item_to_model.get(cid) {
-            owned_to_model.insert(ors.id.clone(), model_id.clone());
+            owned_to_model.insert(ors.id.0.clone(), model_id.clone());
+            owned_ids_by_model
+                .entry(model_id.clone())
+                .or_default()
+                .push(ors.id.0.clone());
         }
     }
 
@@ -185,11 +194,41 @@ fn merge_digital_roster(
             }
         }
 
-        let owned_rolling_stock_id = collection_items_by_model
+        let mut owned_rolling_stock_id = owned_ids_by_model
             .get(&item.railway_model_id)
             .and_then(|ids| ids.first())
-            .cloned()
-            .unwrap_or_else(|| item.railway_model_id.clone());
+            .cloned();
+
+        if owned_rolling_stock_id.is_none()
+            && let Some(collection_item_id) = collection_items_by_model
+                .get(&item.railway_model_id)
+                .and_then(|ids| ids.first())
+                .cloned()
+        {
+            let generated_id = format!("trn:owned-rolling-stock:{}", Uuid::new_v4());
+            manifest.data.owned_rolling_stocks.push(OwnedRollingStock {
+                id: OwnedRollingStockId(generated_id.clone()),
+                collection_item_id: CollectionItemId(collection_item_id),
+                rolling_stock_id: None,
+                notes: None,
+                dcc_address: None,
+                installed_decoder_id: None,
+                current_coupler_id: None,
+            });
+            owned_to_model.insert(generated_id.clone(), item.railway_model_id.clone());
+            owned_ids_by_model
+                .entry(item.railway_model_id.clone())
+                .or_default()
+                .push(generated_id.clone());
+            owned_rolling_stock_id = Some(generated_id);
+        }
+
+        let owned_rolling_stock_id = owned_rolling_stock_id.with_context(|| {
+            format!(
+                "No ownedRollingStocks found for railwayModelId '{}'; import collection data first.",
+                item.railway_model_id
+            )
+        })?;
 
         let entry_id = format!(
             "trn:digital-rolling-stock:{}",
@@ -198,7 +237,7 @@ fn merge_digital_roster(
 
         let updated_entry = DigitalRollingStock {
             id: entry_id,
-            owned_rolling_stock_id,
+            owned_rolling_stock_id: OwnedRollingStockId(owned_rolling_stock_id),
             dcc_address: item.address,
             decoder_id: Some(item.decoder_id),
         };
@@ -239,7 +278,7 @@ fn existing_digital_model_ids(
         .iter()
         .filter_map(|entry| {
             resolve_model_id_for_digital_entry(
-                &entry.owned_rolling_stock_id,
+                &entry.owned_rolling_stock_id.0,
                 collection_item_to_model,
                 collection_items_by_model,
                 owned_to_model,
@@ -287,7 +326,7 @@ fn digital_entry_matches_model(
     owned_to_model: &BTreeMap<String, String>,
 ) -> bool {
     resolve_model_id_for_digital_entry(
-        &entry.owned_rolling_stock_id,
+        &entry.owned_rolling_stock_id.0,
         collection_item_to_model,
         collection_items_by_model,
         owned_to_model,
