@@ -109,7 +109,7 @@ pub async fn run(args: ImportCollectionArgs) -> Result<()> {
     let existing_manifest = load_existing_manifest_or_empty(&output)?;
     let mut merged_manifest =
         merge_collection_manifests(existing_manifest, incoming_manifest, args.force)?;
-    validate_manifest_integrity(&mut merged_manifest)?;
+    validate_manifest_integrity(&mut merged_manifest, &registry)?;
 
     let mut manifest_value = serde_json::to_value(&merged_manifest)
         .context("Failed to serialize manifest to JSON value")?;
@@ -151,10 +151,35 @@ fn sellers_seed_path() -> PathBuf {
         .join("sellers.csv")
 }
 
+fn decoders_seed_path() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("seed")
+        .join("decoders.csv")
+}
+
+fn couplers_seed_path() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("seed")
+        .join("couplers.csv")
+}
+
+fn prototypes_seed_path() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("seed")
+        .join("prototypes.csv")
+}
+
+fn train_categories_seed_path() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("seed")
+        .join("train_categories.csv")
+}
+
 // ── CSV row types (field names match exact CSV column headers) ─────────────
 
 #[derive(serde::Deserialize)]
 struct ManufacturerRow {
+    id: String,
     name: String,
     registered_company_name: String,
     status: String,
@@ -164,6 +189,7 @@ struct ManufacturerRow {
 
 #[derive(serde::Deserialize)]
 struct RailwayCompanyRow {
+    id: String,
     name: String,
     #[allow(dead_code)]
     registered_company_name: String,
@@ -175,6 +201,7 @@ struct RailwayCompanyRow {
 
 #[derive(serde::Deserialize)]
 struct SellerRow {
+    id: String,
     name: String,
     #[serde(rename = "type")]
     seller_type: String,
@@ -188,34 +215,79 @@ struct SellerRow {
     country_code: String,
 }
 
+#[derive(serde::Deserialize)]
+struct DecoderRow {
+    id: String,
+    manufacturer_id: String,
+    product_code: String,
+    decoder_type: String,
+    protocol: String,
+    decoder_interface: String,
+}
+
+#[derive(serde::Deserialize)]
+struct CouplerRow {
+    id: String,
+    manufacturer: String,
+    name: String,
+    compatible_socket: String,
+}
+
+#[derive(serde::Deserialize)]
+struct PrototypeRow {
+    id: String,
+}
+
+#[derive(serde::Deserialize)]
+struct FormationCategoryRow {
+    id: String,
+    name: String,
+}
+
 // ── Seed data ──────────────────────────────────────────────────────────────
 
 use std::collections::HashMap;
 
 pub(crate) struct Registry {
     pub(crate) manufacturers: HashMap<String, Manufacturer>,
+    pub(crate) manufacturers_by_id: HashMap<String, Manufacturer>,
     pub(crate) railway_companies: HashMap<String, RailwayCompany>,
+    pub(crate) railway_companies_by_id: HashMap<String, RailwayCompany>,
     pub(crate) sellers: HashMap<String, Seller>,
+    pub(crate) sellers_by_id: HashMap<String, Seller>,
+    pub(crate) decoders: HashMap<String, manifest::Decoder>,
+    pub(crate) coupler_ids: HashSet<String>,
+    pub(crate) prototype_ids: HashSet<String>,
+    pub(crate) formation_category_ids: HashSet<String>,
 }
 
 impl Registry {
-    pub(crate) fn manufacturer_id(slug: &str) -> ManufacturerId {
-        ManufacturerId(format!("trn:manufacturer:{}", slug))
-    }
-
-    pub(crate) fn company_id(slug: &str) -> RailwayCompanyId {
-        RailwayCompanyId(format!("trn:railway-company:{}", slug))
-    }
-
-    pub(crate) fn seller_id(slug: &str) -> SellerId {
-        SellerId(format!("trn:seller:{}", slug))
-    }
-
     pub(crate) fn model_id(manufacturer_slug: &str, product_slug: &str) -> RailwayModelId {
         RailwayModelId(format!(
             "trn:railway-model:{}:{}",
             manufacturer_slug, product_slug
         ))
+    }
+
+    pub(crate) fn manufacturer_for_input(&self, value: &str) -> Option<&Manufacturer> {
+        self.manufacturers_by_id.get(value).or_else(|| {
+            let slug = trn_slug(value, "trn:manufacturer:");
+            self.manufacturers.get(&slug)
+        })
+    }
+
+    pub(crate) fn railway_company_for_input(&self, value: &str) -> Option<&RailwayCompany> {
+        self.railway_companies_by_id.get(value).or_else(|| {
+            let slug = trn_slug(value, "trn:railway-company:");
+            self.railway_companies.get(&slug)
+        })
+    }
+
+    pub(crate) fn seller_for_input(&self, value: &str) -> Option<&Seller> {
+        self.sellers_by_id.get(value).or_else(|| {
+            let slug = trn_slug(value, "trn:seller:");
+            self.sellers.get(&slug)
+        })
     }
 }
 
@@ -258,6 +330,37 @@ fn parse_seller_type(raw: &str) -> Result<SellerType> {
     }
 }
 
+fn parse_decoder_type(raw: &str) -> manifest::DecoderType {
+    match raw {
+        "Plain" => manifest::DecoderType::Plain,
+        "Sound" => manifest::DecoderType::Sound,
+        "Function" => manifest::DecoderType::Function,
+        _ => manifest::DecoderType::MultiProtocol,
+    }
+}
+
+fn parse_decoder_protocol(raw: &str) -> manifest::DecoderProtocol {
+    match raw {
+        "Dcc" => manifest::DecoderProtocol::Dcc,
+        "Mfx" => manifest::DecoderProtocol::Mfx,
+        "Selectrix" => manifest::DecoderProtocol::Selectrix,
+        "Motorola" => manifest::DecoderProtocol::Motorola,
+        "Fmz" => manifest::DecoderProtocol::Fmz,
+        _ => {
+            // Multi-value protocols like Dcc/Mm/Sx are treated as DCC-compatible.
+            if raw.contains("Dcc") {
+                manifest::DecoderProtocol::Dcc
+            } else if raw.contains("Mm") {
+                manifest::DecoderProtocol::Motorola
+            } else if raw.contains("Sx") {
+                manifest::DecoderProtocol::Selectrix
+            } else {
+                manifest::DecoderProtocol::Dcc
+            }
+        }
+    }
+}
+
 fn opt_str(s: &str) -> Option<String> {
     if s.is_empty() {
         None
@@ -269,13 +372,14 @@ fn opt_str(s: &str) -> Option<String> {
 pub(crate) fn load_registry() -> Result<Registry> {
     // ── Manufacturers ──────────────────────────────────────────────────────
     let mut manufacturers: HashMap<String, Manufacturer> = HashMap::new();
+    let mut manufacturers_by_id: HashMap<String, Manufacturer> = HashMap::new();
     let mut rdr = csv::Reader::from_path(manufacturers_seed_path())
         .context("Failed to open seed/manufacturers.csv")?;
     for result in rdr.deserialize::<ManufacturerRow>() {
         let row = result.context("Failed to parse row in seed/manufacturers.csv")?;
         let slug = slugify_name(&row.name);
         let manufacturer = Manufacturer {
-            id: Registry::manufacturer_id(&slug),
+            id: ManufacturerId(row.id.clone()),
             name: row.name.clone(),
             registered_company_name: opt_str(&row.registered_company_name),
             country_code: opt_str(&row.country_code),
@@ -287,11 +391,13 @@ pub(crate) fn load_registry() -> Result<Registry> {
             state_region: None,
             postal_code: None,
         };
-        manufacturers.insert(slug, manufacturer);
+        manufacturers.insert(slug, manufacturer.clone());
+        manufacturers_by_id.insert(manufacturer.id.0.clone(), manufacturer);
     }
 
     // ── Railway companies ──────────────────────────────────────────────────
     let mut railway_companies: HashMap<String, RailwayCompany> = HashMap::new();
+    let mut railway_companies_by_id: HashMap<String, RailwayCompany> = HashMap::new();
     let mut rdr = csv::Reader::from_path(railway_companies_seed_path())
         .context("Failed to open seed/railway_companies.csv")?;
     for result in rdr.deserialize::<RailwayCompanyRow>() {
@@ -308,18 +414,20 @@ pub(crate) fn load_registry() -> Result<Registry> {
             Some(parse_date(&row.operating_until, "operating_until")?)
         };
         let company = RailwayCompany {
-            id: Registry::company_id(&slug),
+            id: RailwayCompanyId(row.id.clone()),
             name: row.name.clone(),
             country_code: opt_str(&row.country_code),
             status: parse_railway_company_status(&row.status),
             operating_since,
             operating_until,
         };
-        railway_companies.insert(slug, company);
+        railway_companies.insert(slug, company.clone());
+        railway_companies_by_id.insert(company.id.0.clone(), company);
     }
 
     // ── Sellers ────────────────────────────────────────────────────────────
     let mut sellers: HashMap<String, Seller> = HashMap::new();
+    let mut sellers_by_id: HashMap<String, Seller> = HashMap::new();
     let mut rdr =
         csv::Reader::from_path(sellers_seed_path()).context("Failed to open seed/sellers.csv")?;
     for result in rdr.deserialize::<SellerRow>() {
@@ -342,7 +450,7 @@ pub(crate) fn load_registry() -> Result<Registry> {
             None
         };
         let seller = Seller {
-            id: Registry::seller_id(&slug),
+            id: SellerId(row.id.clone()),
             name: row.name.clone(),
             seller_type: parse_seller_type(&row.seller_type)?,
             email: opt_str(&row.email),
@@ -350,13 +458,72 @@ pub(crate) fn load_registry() -> Result<Registry> {
             website_url: opt_str(&row.website_url),
             address,
         };
-        sellers.insert(slug, seller);
+        sellers.insert(slug, seller.clone());
+        sellers_by_id.insert(seller.id.0.clone(), seller);
+    }
+
+    // ── Decoders ───────────────────────────────────────────────────────────
+    let mut decoders: HashMap<String, manifest::Decoder> = HashMap::new();
+    let mut rdr =
+        csv::Reader::from_path(decoders_seed_path()).context("Failed to open seed/decoders.csv")?;
+    for result in rdr.deserialize::<DecoderRow>() {
+        let row = result.context("Failed to parse row in seed/decoders.csv")?;
+        let manufacturer_id = if row.manufacturer_id.starts_with("trn:manufacturer:") {
+            ManufacturerId(row.manufacturer_id.clone())
+        } else {
+            ManufacturerId(format!("trn:manufacturer:{}", row.manufacturer_id))
+        };
+        let decoder = manifest::Decoder {
+            id: row.id.clone(),
+            manufacturer_id,
+            product_code: row.product_code.clone(),
+            decoder_type: parse_decoder_type(&row.decoder_type),
+            protocol: parse_decoder_protocol(&row.protocol),
+            decoder_interface: row.decoder_interface.clone(),
+        };
+        decoders.insert(row.id, decoder);
+    }
+
+    // ── Couplers ───────────────────────────────────────────────────────────
+    let mut coupler_ids: HashSet<String> = HashSet::new();
+    let mut rdr =
+        csv::Reader::from_path(couplers_seed_path()).context("Failed to open seed/couplers.csv")?;
+    for result in rdr.deserialize::<CouplerRow>() {
+        let row = result.context("Failed to parse row in seed/couplers.csv")?;
+        let _ = (&row.manufacturer, &row.name, &row.compatible_socket);
+        coupler_ids.insert(row.id);
+    }
+
+    // ── Prototypes ─────────────────────────────────────────────────────────
+    let mut prototype_ids: HashSet<String> = HashSet::new();
+    let mut rdr = csv::Reader::from_path(prototypes_seed_path())
+        .context("Failed to open seed/prototypes.csv")?;
+    for result in rdr.deserialize::<PrototypeRow>() {
+        let row = result.context("Failed to parse row in seed/prototypes.csv")?;
+        prototype_ids.insert(row.id);
+    }
+
+    // ── Formation categories ───────────────────────────────────────────────
+    let mut formation_category_ids: HashSet<String> = HashSet::new();
+    let mut rdr = csv::Reader::from_path(train_categories_seed_path())
+        .context("Failed to open seed/train_categories.csv")?;
+    for result in rdr.deserialize::<FormationCategoryRow>() {
+        let row = result.context("Failed to parse row in seed/train_categories.csv")?;
+        let _ = row.name;
+        formation_category_ids.insert(row.id);
     }
 
     Ok(Registry {
         manufacturers,
+        manufacturers_by_id,
         railway_companies,
+        railway_companies_by_id,
         sellers,
+        sellers_by_id,
+        decoders,
+        coupler_ids,
+        prototype_ids,
+        formation_category_ids,
     })
 }
 
@@ -686,7 +853,10 @@ pub(crate) fn load_existing_manifest_or_empty(output: &Path) -> Result<Manifest>
     })
 }
 
-pub(crate) fn validate_manifest_integrity(manifest: &mut Manifest) -> Result<()> {
+pub(crate) fn validate_manifest_integrity(
+    manifest: &mut Manifest,
+    registry: &Registry,
+) -> Result<()> {
     let valid_manufacturer_ids: HashSet<String> = manifest
         .data
         .manufacturers
@@ -720,6 +890,30 @@ pub(crate) fn validate_manifest_integrity(manifest: &mut Manifest) -> Result<()>
         .owned_rolling_stocks
         .iter()
         .map(|o| o.id.0.clone())
+        .collect();
+
+    let mut valid_decoder_ids: HashSet<String> = manifest
+        .data
+        .decoders
+        .iter()
+        .map(|d| d.id.clone())
+        .collect();
+    valid_decoder_ids.extend(registry.decoders.keys().cloned());
+
+    let valid_prototype_ids: HashSet<String> = manifest
+        .data
+        .prototypes
+        .iter()
+        .map(|p| p.id.clone())
+        .chain(registry.prototype_ids.iter().cloned())
+        .collect();
+
+    let valid_formation_category_ids: HashSet<String> = manifest
+        .data
+        .formation_categories
+        .iter()
+        .map(|c| c.id.clone())
+        .chain(registry.formation_category_ids.iter().cloned())
         .collect();
 
     let mut errors: Vec<String> = Vec::new();
@@ -786,12 +980,48 @@ pub(crate) fn validate_manifest_integrity(manifest: &mut Manifest) -> Result<()>
         }
     }
 
+    for stock in &manifest.data.owned_rolling_stocks {
+        if let Some(decoder_id) = &stock.installed_decoder_id
+            && !valid_decoder_ids.contains(decoder_id)
+        {
+            errors.push(format!(
+                "OwnedRollingStock '{}' references installedDecoderId '{}', but it was not found in decoders seed/manifest data.",
+                stock.id.0, decoder_id
+            ));
+        }
+
+        if let Some(coupler_id) = &stock.current_coupler_id
+            && !registry.coupler_ids.contains(coupler_id)
+        {
+            errors.push(format!(
+                "OwnedRollingStock '{}' references currentCouplerId '{}', but it was not found in seed/couplers.csv.",
+                stock.id.0, coupler_id
+            ));
+        }
+    }
+
     for formation in &manifest.data.train_formations {
+        if let Some(category_id) = &formation.category_id
+            && !valid_formation_category_ids.contains(category_id)
+        {
+            errors.push(format!(
+                "TrainFormation '{}' references categoryId '{}', but it was not found in formation categories seed/manifest data.",
+                formation.id, category_id
+            ));
+        }
+
         for element in &formation.elements {
             if !valid_owned_rolling_stock_ids.contains(&element.owned_rolling_stock_id.0) {
                 errors.push(format!(
                     "FormationElement '{}' in TrainFormation '{}' references OwnedRollingStock '{}', but it was not found in ownedRollingStocks.",
                     element.id, formation.id, element.owned_rolling_stock_id.0
+                ));
+            }
+
+            if !valid_prototype_ids.contains(&element.prototype_id) {
+                errors.push(format!(
+                    "FormationElement '{}' in TrainFormation '{}' references prototypeId '{}', but it was not found in prototypes seed/manifest data.",
+                    element.id, formation.id, element.prototype_id
                 ));
             }
         }
@@ -867,13 +1097,19 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &Registry) -> R
         let added_date = parse_date(&input_item.purchase_info.purchase_date, "purchaseDate")?;
 
         // Map seller
-        let seller_slug = trn_slug(&input_item.purchase_info.seller, "trn:seller:");
-        let seller_id = Registry::seller_id(&seller_slug);
-        if let Some(seed_seller) = seeds.sellers.get(&seller_slug).cloned() {
-            sellers
-                .entry(seller_id.0.clone())
-                .or_insert_with(|| seed_seller.clone());
-        }
+        let seed_seller = seeds
+            .seller_for_input(&input_item.purchase_info.seller)
+            .cloned()
+            .with_context(|| {
+                format!(
+                    "Seller '{}' not found in seed/sellers.csv",
+                    input_item.purchase_info.seller
+                )
+            })?;
+        let seller_id = seed_seller.id.clone();
+        sellers
+            .entry(seller_id.0.clone())
+            .or_insert_with(|| seed_seller.clone());
 
         let purchase = Some(Purchase {
             r#type: PurchaseType::Purchased,
@@ -919,17 +1155,16 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &Registry) -> R
     for model in &import.railway_models {
         let manufacturer_slug = trn_slug(&model.manufacturer, "trn:manufacturer:");
         let product_slug = normalize_id_segment(&model.product_code);
-        let manufacturer_id = Registry::manufacturer_id(&manufacturer_slug);
-
         let seed_manufacturer = seeds
-            .manufacturers
-            .get(&manufacturer_slug)
+            .manufacturer_for_input(&model.manufacturer)
+            .cloned()
             .with_context(|| {
                 format!(
                     "Manufacturer '{}' (slug: '{}') not found in seed/manufacturers.csv",
                     model.manufacturer, manufacturer_slug
                 )
             })?;
+        let manufacturer_id = seed_manufacturer.id.clone();
         manufacturers
             .entry(manufacturer_id.0.clone())
             .or_insert_with(|| seed_manufacturer.clone());
@@ -952,15 +1187,15 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &Registry) -> R
             let purchase = if let Some(import_purchase) = &model.purchase_info {
                 added_date = parse_date(&import_purchase.purchase_date, "purchaseDate")?;
 
-                let seller_slug = trn_slug(&import_purchase.seller, "trn:seller:");
-                let seller_id = Registry::seller_id(&seller_slug);
-
-                let seed_seller = seeds.sellers.get(&seller_slug).with_context(|| {
-                    format!(
-                        "Seller '{}' (slug: '{}') not found in seed/sellers.csv",
-                        import_purchase.seller, seller_slug
-                    )
-                })?;
+                let seed_seller = seeds
+                    .seller_for_input(&import_purchase.seller)
+                    .with_context(|| {
+                        format!(
+                            "Seller '{}' not found in seed/sellers.csv",
+                            import_purchase.seller
+                        )
+                    })?;
+                let seller_id = seed_seller.id.clone();
                 sellers
                     .entry(seller_id.0.clone())
                     .or_insert_with(|| seed_seller.clone());
@@ -1104,11 +1339,16 @@ pub(crate) fn map_import_to_manifest(import: &Collection, seeds: &Registry) -> R
     })
 }
 
-pub(crate) fn make_model_id(manufacturer: &str, product_code: &str) -> RailwayModelId {
-    Registry::model_id(
-        &trn_slug(manufacturer, "trn:manufacturer:"),
-        &normalize_id_segment(product_code),
-    )
+pub(crate) fn make_model_id(
+    manufacturer: &str,
+    product_code: &str,
+    seeds: &Registry,
+) -> RailwayModelId {
+    let manufacturer_slug = seeds
+        .manufacturer_for_input(manufacturer)
+        .map(|m| trn_slug(&m.id.0, "trn:manufacturer:"))
+        .unwrap_or_else(|| trn_slug(manufacturer, "trn:manufacturer:"));
+    Registry::model_id(&manufacturer_slug, &normalize_id_segment(product_code))
 }
 
 pub(crate) fn map_railway_model(
@@ -1117,7 +1357,7 @@ pub(crate) fn map_railway_model(
     railway_companies: &mut BTreeMap<String, RailwayCompany>,
     seeds: &Registry,
 ) -> Result<RailwayModel> {
-    let manufacturer_slug = trn_slug(&model.manufacturer, "trn:manufacturer:");
+    let manufacturer_slug = trn_slug(&manufacturer_id.0, "trn:manufacturer:");
     let product_slug = normalize_id_segment(&model.product_code);
 
     Ok(RailwayModel {
@@ -1198,18 +1438,17 @@ pub(crate) fn railway_company_id_for(
     seeds: &Registry,
 ) -> Result<RailwayCompanyId> {
     let railway_slug = trn_slug(railway_name, "trn:railway-company:");
-    let company_id = Registry::company_id(&railway_slug);
+    let seed_company = seeds
+        .railway_company_for_input(railway_name)
+        .with_context(|| {
+            format!(
+                "Railway company '{}' (slug: '{}') not found in seed/railway_companies.csv",
+                railway_name, railway_slug
+            )
+        })?;
+    let company_id = seed_company.id.clone();
 
     if !railway_companies.contains_key(&company_id.0) {
-        let seed_company = seeds
-            .railway_companies
-            .get(&railway_slug)
-            .with_context(|| {
-                format!(
-                    "Railway company '{}' (slug: '{}') not found in seed/railway_companies.csv",
-                    railway_name, railway_slug
-                )
-            })?;
         railway_companies.insert(company_id.0.clone(), seed_company.clone());
     }
 

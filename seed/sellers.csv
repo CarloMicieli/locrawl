@@ -1,54 +1,50 @@
-name,type,email,phone,website_url,street_address,city,region,postal_code,country_code
-"2T Modellismo","SHOP","","+39 074 221118","","Via Vasari, 13 padiglione D","Foligno","PG","06034","IT"
-"A. Rigon Modellismo","SHOP","","+39 0444 543315","","Corso Padova 36","Vicenza","VI","36100","IT"
-"AGO Model","SHOP","","+39 051 467627","https://www.agomodel.it","Via Roma, 16/18","S. Lazzaro di Savena","","40068","IT"
-"Action Models","SHOP","","+39 0321 391367","https://www.actionshop.it","Via Marsala 13/a","Novara","NO","28100","IT"
-"Aimx-hkcom","SHOP","","","https://aimx-hk.com","Online Store","Online","","","IT"
-"Arte del Treno","SHOP","","+39 377 2372821","https://www.artedeltreno.com","Via Sicilia, 2","Isernia","","86170","IT"
-"Big Models","SHOP","","+39 06 72673332","https://www.ingrossomodellismo.it","Via P. V. Aldini, 41","Roma","","00178","IT"
-"Big Shop Modelltreno","SHOP","","+39 045 591834","","Piazza San Zeno, 8","Verona","","37123","IT"
-"BitModel","SHOP","","+39 348 3846701","https://www.bitmodel.it","Via Luigi Settembrini, 32b","Marigliano","NA","80034","IT"
-"Bonsaglio","SHOP","","+39 0362 221081","https://www.bonsaglionline.it","Viale della Repubblica 200","Seregno","MB","20831","IT"
-"Buchhandlung und Antiquariat DerMauritz","SHOP","","+43 (1) 212 14 32","https://www.dermauritz.at","Novaragasse, 44/Lokal 1","Wien","","A-1020","AT"
-"Dreoni","SHOP","","+39 055 216611","https://www.dreoni.it","Via Cavour, 31/r","Firenze","","50129","IT"
-"Duegi Editrice","SHOP","duegi@duegieditrice.it","+39 049 711363","https://www.duegieditrice.it","Via Stazione 10","Abano Terme","PD","35031","IT"
-"Effe Model","SHOP","","+39 091 225963","https://www.effemodel.it","Via Zandonai, 58","Palermo","","90143","IT"
-"Essemme","SHOP","","+39 02 7384151","https://www.essemmemodel.com","Via Fiuggi, 2","Milano","MI","20159","IT"
-"FachBuchZentrum & Antiquariat Stiletto","SHOP","","+49 (0) 89 16783432","https://www.bahnbuch.de","Berlinerstrasse, 7","Schrobenhausen","","D-86529","DE"
-"Fermodellismo Gilli","SHOP","","+39 030 5234889","https://www.fermodellismogilli.it","Via Andrea Trebeschi, 24","Brescia","BS","25124","IT"
-"Fora Train","SHOP","","+39 328 1165158","https://www.modellismoferroviario-ecommerce.com","Via Vittorio Veneto, 35","Borgomanero","NO","28021","IT"
-"happyzoo","SHOP","","","","","","","",""
-"Hattons Model Railways","SHOP","","+44 151 733 3655","https://www.hattons.co.uk","Unit 17, Montague Road","Widnes","","WA8 8FZ","GB"
-"Hobbitalia 2","SHOP","","+39 055 5535499","https://www.hobbitalia2.it","Via degli Artisti, 11/D","Firenze","","50132","IT"
-"Hobby Center (Parma)","SHOP","","+39 0521 206933","","Strada Torelli, 1","Parma","","43100","IT"
-"Hobby Centro","SHOP","","+39 0173 284105","https://www.giocajoue.com","Via Ognissanti, 26","Alba","CN","12051","IT"
-"Il Cucciolo","SHOP","","+39 02 315667","","Via Solari, 19","Milano","MI","20149","IT"
-"Il Modellismo VR","SHOP","","+39 045 8003505","","Stradone Scipione Maffei 11","Verona","VR","37121","IT"
-"Il Trenaio","SHOP","","+39 055 486121","","Via de' Ginori 34/r","Firenze","FI","50123","IT"
-"Isacco SAS","SHOP","","+39 011 8178485","","C.so V. Emanuele, 36","Torino","","10123","IT"
-"La Borsa del Treno","SHOP","","+39 02 6688331","https://www.laborsadeltreno.com","Via Taormina 30","Milano","MI","20159","IT"
-"La Littorina","SHOP","","+39 329 6268039","https://www.littorina.it","Via della Sortita, 9","Marghera","VE","30175","IT"
-"Minimondo","SHOP","","+39 0424 848246","https://www.minimondo2002.com","Via Salute 141","Rossano Veneto","VI","36028","IT"
-"Model Center","SHOP","","+39 089 2852156","http://www.model-center.net","Via Trinità 55-57","Baronissi","SA","84081","IT"
-"Modellbahnshop-Lippe","SHOP","","+49 5231 980330","https://www.modellbahnshop-lippe.com","Leonardo-da-Vinci-Weg 6-8","Detmold","","32760","DE"
-"Modellismo ULIANO","SHOP","","+39 081 470016","https://www.modellismouliano.com","Viale delle Magnolie, 6","Portici","NA","80055","IT"
-"Modelsales","SHOP","","","","Corso Libertà 78/A","Cesano Maderno","","20811","IT"
-"NVBS Winkel","SHOP","","+31 (0) 33 4621890","","Stationsplein, 45-47","Amersfoort","","NL-3818 LE","NL"
-"Navitren","SHOP","","+39 02 70126436","https://www.navitren.it","Via Giovanni da Milano 2","Milano","MI","20133","IT"
-"Paradiso dei Bimbi","SHOP","","+39 0165 262460","https://www.paradisodeibimbiaosta.com","Via Croix de Ville, 55","Aosta","","11100","IT"
-"Passaggi a livello","SHOP","","+39 388 3883257","https://www.passaggialivello.it","Via Martin Luther King, 35","Fermignano","PU","61033","IT"
-"Pirata Models","SHOP","","+39 351 9494922","https://www.piratamodels.it","Via Monico, 9 - Palazzina 2","Lonato del Garda","BS","25017","IT"
-"Private Seller","PRIVATE","","","","","","","",""
-"Borsa Carnate","MARKETPLACE","","","","","Carnate","MB","","IT"
-"Borsa Genova","MARKETPLACE","","","","","Genova","","","IT"
-"Borsa Novegro","MARKETPLACE","","","","","Novegro di Segrate","MI","","IT"
-"Rail Ship","SHOP","","+39 02 48703179","https://www.railship.it","Via Vodice, 9","Milano","MI","20148","IT"
-"SalentoRailroad","SHOP","","+39 327 0440319","https://www.salentorailroad.it","Via Piave, 8","Parabita","LE","73053","IT"
-"Sinwel Buchhandlung","SHOP","","+41 31 332 52 05","https://www.sinwel.ch","Lorrainestrasse, 10","Bern","","CH-3013","CH"
-"Stenvalls","SHOP","","+46 (0) 40 127703","https://www.stenvalls.com","Föreningsgatan, 12","Malmö","","S-21144","SE"
-"Tecnomodel","SHOP","","+39 0586 407 558","https://www.tecnomodel-treni.it","Via Pian di Rota, 25/1","Livorno","","57121","IT"
-"Tecnomodel Treni","SHOP","","+39 0586 407 558","https://www.tecnomodel-treni.it","Via Pian di Rota, 25/1","Livorno","","57121","IT"
-"Treni & Treni","SHOP","","+39 0584 963119","https://www.trenietreni.it","Via Antonio Fratti 618","Viareggio","LU","55049","IT"
-"Trenidea","SHOP","","+39 010 2512988","","Via Vallechiara, 15/r","Genova","","16125","IT"
-"Trenogheno","SHOP","","+39 348 4431933","https://www.trenogheno.com","V.le Pordenone, 6","Portogruaro","VE","30025","IT"
-"Verona Train","SHOP","","+39 333 2678739","https://www.veronatrain.it","Via San Francesco, 9","Lugagnano di Sona","","37060","IT"
+id,name,type,email,phone,website_url,street_address,city,region,postal_code,country_code
+trn:seller:2t-modellismo,2T Modellismo,SHOP,,+39 074 221118,,"Via Vasari, 13 padiglione D",Foligno,PG,06034,IT
+trn:seller:a-rigon-modellismo,A. Rigon Modellismo,SHOP,,+39 0444 543315,,Corso Padova 36,Vicenza,VI,36100,IT
+trn:seller:action-models,Action Models,SHOP,,+39 0321 391367,https://www.actionshop.it,Via Marsala 13/a,Novara,NO,28100,IT
+trn:seller:ago-model,AGO Model,SHOP,,+39 051 467627,https://www.agomodel.it,"Via Roma, 16/18",S. Lazzaro di Savena,,40068,IT
+trn:seller:aimx-hkcom,Aimx-hkcom,SHOP,,,https://aimx-hk.com,Online Store,Online,,,IT
+trn:seller:arte-del-treno,Arte del Treno,SHOP,,+39 377 2372821,https://www.artedeltreno.com,"Via Sicilia, 2",Isernia,,86170,IT
+trn:seller:big-models,Big Models,SHOP,,+39 06 72673332,https://www.ingrossomodellismo.it,"Via P. V. Aldini, 41",Roma,,00178,IT
+trn:seller:big-shop-modelltreno,Big Shop Modelltreno,SHOP,,+39 045 591834,,"Piazza San Zeno, 8",Verona,,37123,IT
+trn:seller:bitmodel,BitModel,SHOP,,+39 348 3846701,https://www.bitmodel.it,"Via Luigi Settembrini, 32b",Marigliano,NA,80034,IT
+trn:seller:bonsaglio,Bonsaglio,SHOP,,+39 0362 221081,https://www.bonsaglionline.it,Viale della Repubblica 200,Seregno,MB,20831,IT
+trn:seller:buchhandlung-und-antiquariat-dermauritz,Buchhandlung und Antiquariat DerMauritz,SHOP,,+43 (1) 212 14 32,https://www.dermauritz.at,"Novaragasse, 44/Lokal 1",Wien,,A-1020,AT
+trn:seller:dreoni,Dreoni,SHOP,,+39 055 216611,https://www.dreoni.it,"Via Cavour, 31/r",Firenze,,50129,IT
+trn:seller:duegi-editrice,Duegi Editrice,SHOP,duegi@duegieditrice.it,+39 049 711363,https://www.duegieditrice.it,Via Stazione 10,Abano Terme,PD,35031,IT
+trn:seller:effe-model,Effe Model,SHOP,,+39 091 225963,https://www.effemodel.it,"Via Zandonai, 58",Palermo,,90143,IT
+trn:seller:essemme,Essemme,SHOP,,+39 02 7384151,https://www.essemmemodel.com,"Via Fiuggi, 2",Milano,MI,20159,IT
+trn:seller:fachbuchzentrum-antiquariat-stiletto,FachBuchZentrum & Antiquariat Stiletto,SHOP,,+49 (0) 89 16783432,https://www.bahnbuch.de,"Berlinerstrasse, 7",Schrobenhausen,,D-86529,DE
+trn:seller:fermodellismo-gilli,Fermodellismo Gilli,SHOP,,+39 030 5234889,https://www.fermodellismogilli.it,"Via Andrea Trebeschi, 24",Brescia,BS,25124,IT
+trn:seller:fora-train,Fora Train,SHOP,,+39 328 1165158,https://www.modellismoferroviario-ecommerce.com,"Via Vittorio Veneto, 35",Borgomanero,NO,28021,IT
+trn:seller:happyzoo,happyzoo,SHOP,,,,,,,,
+trn:seller:hattons-model-railways,Hattons Model Railways,SHOP,,+44 151 733 3655,https://www.hattons.co.uk,"Unit 17, Montague Road",Widnes,,WA8 8FZ,GB
+trn:seller:hobbitalia-2,Hobbitalia 2,SHOP,,+39 055 5535499,https://www.hobbitalia2.it,"Via degli Artisti, 11/D",Firenze,,50132,IT
+trn:seller:hobby-center-parma,Hobby Center (Parma),SHOP,,+39 0521 206933,,"Strada Torelli, 1",Parma,,43100,IT
+trn:seller:hobby-centro,Hobby Centro,SHOP,,+39 0173 284105,https://www.giocajoue.com,"Via Ognissanti, 26",Alba,CN,12051,IT
+trn:seller:il-cucciolo,Il Cucciolo,SHOP,,+39 02 315667,,"Via Solari, 19",Milano,MI,20149,IT
+trn:seller:il-modellismo,Il Modellismo,SHOP,,+39 045 8003505,,Stradone Scipione Maffei 11,Verona,VR,37121,IT
+trn:seller:il-trenaio,Il Trenaio,SHOP,,+39 055 486121,,Via de' Ginori 34/r,Firenze,FI,50123,IT
+trn:seller:isacco-sas,Isacco SAS,SHOP,,+39 011 8178485,,"C.so V. Emanuele, 36",Torino,,10123,IT
+trn:seller:la-borsa-del-treno,La Borsa del Treno,SHOP,,+39 02 6688331,https://www.laborsadeltreno.com,Via Taormina 30,Milano,MI,20159,IT
+trn:seller:la-littorina,La Littorina,SHOP,,+39 329 6268039,https://www.littorina.it,"Via della Sortita, 9",Marghera,VE,30175,IT
+trn:seller:minimondo,Minimondo,SHOP,,+39 0424 848246,https://www.minimondo2002.com,Via Salute 141,Rossano Veneto,VI,36028,IT
+trn:seller:model-center,Model Center,SHOP,,+39 089 2852156,http://www.model-center.net,Via Trinità 55-57,Baronissi,SA,84081,IT
+trn:seller:modellbahnshop-lippe,Modellbahnshop-Lippe,SHOP,,+49 5231 980330,https://www.modellbahnshop-lippe.com,Leonardo-da-Vinci-Weg 6-8,Detmold,,32760,DE
+trn:seller:modellismo-uliano,Modellismo ULIANO,SHOP,,+39 081 470016,https://www.modellismouliano.com,"Viale delle Magnolie, 6",Portici,NA,80055,IT
+trn:seller:modelsales,Modelsales,SHOP,,,,Corso Libertà 78/A,Cesano Maderno,,20811,IT
+trn:seller:navitren,Navitren,SHOP,,+39 02 70126436,https://www.navitren.it,Via Giovanni da Milano 2,Milano,MI,20133,IT
+trn:seller:nvbs-winkel,NVBS Winkel,SHOP,,+31 (0) 33 4621890,,"Stationsplein, 45-47",Amersfoort,,NL-3818 LE,NL
+trn:seller:paradiso-dei-bimbi,Paradiso dei Bimbi,SHOP,,+39 0165 262460,https://www.paradisodeibimbiaosta.com,"Via Croix de Ville, 55",Aosta,,11100,IT
+trn:seller:passaggi-a-livello,Passaggi a livello,SHOP,,+39 388 3883257,https://www.passaggialivello.it,"Via Martin Luther King, 35",Fermignano,PU,61033,IT
+trn:seller:pirata-models,Pirata Models,SHOP,,+39 351 9494922,https://www.piratamodels.it,"Via Monico, 9 - Palazzina 2",Lonato del Garda,BS,25017,IT
+trn:seller:private-seller,Private Seller,PRIVATE,,,,,,,,
+trn:seller:rail-ship,Rail Ship,SHOP,,+39 02 48703179,https://www.railship.it,"Via Vodice, 9",Milano,MI,20148,IT
+trn:seller:salentorailroad,SalentoRailroad,SHOP,,+39 327 0440319,https://www.salentorailroad.it,"Via Piave, 8",Parabita,LE,73053,IT
+trn:seller:sinwel-buchhandlung,Sinwel Buchhandlung,SHOP,,+41 31 332 52 05,https://www.sinwel.ch,"Lorrainestrasse, 10",Bern,,CH-3013,CH
+trn:seller:stenvalls,Stenvalls,SHOP,,+46 (0) 40 127703,https://www.stenvalls.com,"Föreningsgatan, 12",Malmö,,S-21144,SE
+trn:seller:tecnomodel,Tecnomodel,SHOP,,+39 0586 407 558,https://www.tecnomodel-treni.it,"Via Pian di Rota, 25/1",Livorno,,57121,IT
+trn:seller:treni-treni,Treni & Treni,SHOP,,+39 0584 963119,https://www.trenietreni.it,Via Antonio Fratti 618,Viareggio,LU,55049,IT
+trn:seller:trenidea,Trenidea,SHOP,,+39 010 2512988,,"Via Vallechiara, 15/r",Genova,,16125,IT
+trn:seller:treno-gheno,Treno Gheno,SHOP,,+39 348 4431933,https://www.trenogheno.com,"V.le Pordenone, 6",Portogruaro,VE,30025,IT
+trn:seller:verona-train,Verona Train,SHOP,,+39 333 2678739,https://www.veronatrain.it,"Via San Francesco, 9",Lugagnano di Sona,,37060,IT

@@ -1,8 +1,14 @@
-manufacturer,name,compatible_socket
-Roco,Roco Universal (40397),NEM_362
-Roco,Roco Close Coupler (40270),NEM_362
-Roco,Roco Standard Hook,NEM_360
-Märklin,Short Coupler (7203),NEM_362
-Märklin,Standard Hook (72020),NEM_360
-Kadee,Kadee #148 (H0),NEM_362
-Bemo,Standard Bemo Hook,NEM_355
+id,manufacturer,name,compatible_socket
+trn:coupler:bemo:standard-bemo-hook,Bemo,Standard Bemo Hook,NEM_355
+trn:coupler:fleischmann:profi-6515,Fleischmann,Profi Coupler (6515),NEM_362
+trn:coupler:fleischmann:standard-hook-6511,Fleischmann,Standard Hook (6511),NEM_362
+trn:coupler:hornby:standard-tension-lock,Hornby,Standard Tension Lock,NEM_362
+trn:coupler:kadee:kadee-148-h0,Kadee,Kadee #148 (H0),NEM_362
+trn:coupler:marklin:current-conducting-72021,Märklin,Current-Conducting Short Coupler (72021),NEM_362
+trn:coupler:marklin:short-coupler-7203,Märklin,Short Coupler (7203),NEM_362
+trn:coupler:marklin:standard-hook-72020,Märklin,Standard Hook (72020),NEM_360
+trn:coupler:roco:current-conducting-40345,Roco,Current-Conducting Coupler (40345),NEM_362
+trn:coupler:roco:roco-close-coupler-40270,Roco,Roco Close Coupler (40270),NEM_362
+trn:coupler:roco:roco-standard-hook,Roco,Roco Standard Hook,NEM_360
+trn:coupler:roco:roco-universal-40397,Roco,Roco Universal (40397),NEM_362
+trn:coupler:trix:close-coupler-e32376000,Trix,Express Close Coupler,NEM_362

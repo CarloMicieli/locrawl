@@ -1,65 +1,60 @@
-name,registered_company_name,status,country_code,website_url
-A.C.M.E.,Anonima Costruzioni Modellistiche Esatte S.r.l.,ACTIVE,IT,https://www.acmetreni.com
-ATM,Antonini Modellismo S.r.l.,ACTIVE,IT,http://www.atmonline.it
-Accurascale,Accurascale Ltd,ACTIVE,IE,https://www.accurascale.com
-AiMX,AIMX Company Limited,ACTIVE,IT,https://aimx-hk.com
-Albert Model,Albert Modell Kft.,ACTIVE,HU,https://albertmodell.com
-Amintiri Feroviare,Amintiri Feroviare S.R.L.,ACTIVE,RO,https://www.amintiriferoviare.com
-Arnold,Hornby Hobbies Ltd,ACTIVE,GB,https://uk.arnoldmodel.com
-Athearn,Athearn Trains,ACTIVE,US,https://www.athearn.com
-Atlas Model Railroad Co.,Atlas Model Railroad Co. Inc.,ACTIVE,US,https://shop.atlasrr.com
-B-Models,Van Biervliet NV,ACTIVE,BE,https://www.vanbiervliet.com
-Bachmann Europe,Bachmann Europe Plc,ACTIVE,GB,https://www.bachmann.co.uk
-Bachmann Industries,Bachmann Industries Inc.,ACTIVE,US,https://www.bachmanntrains.com
-Bemo,Bemo Modelleisenbahnen GmbH u. Co. KG,ACTIVE,DE,https://www.bemo-modellbahn.de
-Brawa,Brawa Artur Braun Modellspielwarenfabrik GmbH & Co. KG,ACTIVE,DE,https://www.brawa.de
-Broadway Limited Imports,Broadway Limited Imports LLC,ACTIVE,US,https://www.broadway-limited.com
-Dapol,Dapol Ltd,ACTIVE,GB,https://www.dapol.co.uk
-Dekas,Dekas ApS,ACTIVE,DK,https://dekas.dk
-ESU,ESU electronic solutions ulm GmbH & Co. KG,ACTIVE,DE,https://www.esu.eu
-BigModels,Big Models S.r.l.,ACTIVE,IT,
-Duegi,Duegi Editrice S.r.l.,ACTIVE,IT,https://www.duegieditrice.it
-Electrotren,Electrotren S.A.,ACTIVE,ES,https://www.electrotren.com
-Exact Train,Exact-train B.V.,ACTIVE,NL,https://www.exact-train.com
-Fleischmann,Modelleisenbahn München GmbH,ACTIVE,DE,https://www.fleischmann.de
-Heljan,Heljan A/S,ACTIVE,DK,https://www.heljan.dk
-Hornby Railways,Hornby Hobbies Ltd,ACTIVE,GB,https://www.hornby.com
-InterMountain Railway Co.,InterMountain Railway Company,ACTIVE,US,https://www.intermountain-railway.com
-Jaegerndorfer,Jägerndorfer Ges.m.b.H.,ACTIVE,AT,https://www.jaegerndorfer.at
-Jouef,Jouef SAS,ACTIVE,FR,https://www.jouef.com
-Kadee Quality Products,Kadee Quality Products Co.,ACTIVE,US,https://www.kadee.com
-Kato Precision Railroad Models,Seki-Sui Kinzoku Co. Ltd,ACTIVE,JP,https://www.katomodels.com
-LGB,Gebr. Märklin & Cie. GmbH,ACTIVE,DE,https://www.lgb.de
-LS Models,LS Models Sprl,ACTIVE,BE,http://www.lsmodels.com
-Lematec,Lematec Prestige Models SA,ACTIVE,CH,https://www.lematec.ch
-Lenz,Lenz Elektronik GmbH,ACTIVE,DE,https://www.lenz-elektronik.de
-Level,Level Models S.r.l.,ACTIVE,IT,
-Liliput,Bachmann Europe Plc,ACTIVE,DE,https://www.liliput.de
-Lima Expert,Lima S.p.A.,OUT_OF_BUSINESS,IT,
-Lionel,Lionel LLC,ACTIVE,US,https://www.lionel.com
-MTH Electric Trains,MTH Electric Trains,ACTIVE,US,https://www.mthtrains.com
-MGM,MGM Models S.r.l.,ACTIVE,IT,
-Micro Ace,Micro Ace Co. Ltd,ACTIVE,JP,http://www.microace-arii.co.jp
-Märklin,Gebr. Märklin & Cie. GmbH,ACTIVE,DE,https://www.maerklin.de
-Os.Kar,Os.kar S.r.l.,ACTIVE,IT,https://www.oskartrains.eu
-Peco,Pritchard Patent Product Co. Ltd,ACTIVE,GB,https://peco-uk.com
-Piko,PIKO Spielwaren GmbH,ACTIVE,DE,https://www.piko.de
-Pirata,I.M.F. S.r.l.,ACTIVE,IT,
-REE Modeles,Rails Europ Express,ACTIVE,FR,https://www.ree-modeles.com
-Rapido Trains,Rapido Trains Inc.,ACTIVE,CA,https://rapidotrains.com
-Revolution Trains,Revolution Trains Ltd,ACTIVE,GB,https://www.revolutiontrains.com
-Rivarossi,Rivarossi S.p.A.,ACTIVE,IT,https://www.rivarossi.com
-Roco,Modelleisenbahn München GmbH,ACTIVE,AT,https://www.roco.cc
-Rokuhan,Toytec Co. Ltd,ACTIVE,JP,https://www.rokuhan.com
-ScaleTrains,ScaleTrains.com Inc.,ACTIVE,US,https://www.scaletrains.com
-Sudexpress,Ginger SAS,ACTIVE,FR,https://www.sudexpress.com
-Tillig,TILLIG Modellbahnen GmbH & Co. KG,ACTIVE,DE,https://www.tillig.com
-Tomix,Tomytec Co. Ltd,ACTIVE,JP,https://www.tomytec.co.jp
-Trix,Gebr. Märklin & Cie. GmbH,ACTIVE,DE,https://www.trix.de
-ViTrains,ViTrains S.r.l.,ACTIVE,IT,https://www.vitrains.it
-Viessmann,Viessmann Modelltechnik GmbH,ACTIVE,DE,https://viessmann-modell.com
-Walthers,Wm. K. Walthers Inc.,ACTIVE,US,https://www.walthers.com
-hag,HAG Modelleisenbahnen GmbH,ACTIVE,CH,https://www.hag.ch
-igra models,Igra Model s.r.o.,ACTIVE,CZ,https://igramodel.cz
-mtb,mtb-model s.r.o.,ACTIVE,CZ,https://mtb-model.com
-nme,NME Nürnberger Modell-Eisenbahnen GmbH,ACTIVE,DE,https://www.nme-online.de
+id,name,registered_company_name,status,country_code,website_url
+trn:manufacturer:acme,A.C.M.E.,Anonima Costruzioni Modellistiche Esatte S.r.l.,ACTIVE,IT,https://www.acmetreni.com
+trn:manufacturer:accurascale,Accurascale,Accurascale Ltd,ACTIVE,IE,https://www.accurascale.com
+trn:manufacturer:aimx-models,AiMX Models,AIMX Company Limited,ACTIVE,IT,https://aimx-hk.com
+trn:manufacturer:albert-model,Albert Model,Albert Modell Kft.,ACTIVE,HU,https://albertmodell.com
+trn:manufacturer:amintiri-feroviare,Amintiri Feroviare,Amintiri Feroviare S.R.L.,ACTIVE,RO,https://www.amintiriferoviare.com
+trn:manufacturer:arnold,Arnold,Hornby Hobbies Ltd,ACTIVE,GB,https://uk.arnoldmodel.com
+trn:manufacturer:athearn,Athearn,Athearn Trains,ACTIVE,US,https://www.athearn.com
+trn:manufacturer:atlas-model-railroad-co,Atlas Model Railroad Co.,Atlas Model Railroad Co. Inc.,ACTIVE,US,https://shop.atlasrr.com
+trn:manufacturer:atm-antonini,ATM Antonini,Antonini Modellismo S.r.l.,ACTIVE,IT,https://www.atmonline.it
+trn:manufacturer:b-models,B-Models,Van Biervliet NV,ACTIVE,BE,https://www.vanbiervliet.com
+trn:manufacturer:bachmann-europe,Bachmann Europe,Bachmann Europe Plc,ACTIVE,GB,https://www.bachmann.co.uk
+trn:manufacturer:bachmann-industries,Bachmann Industries,Bachmann Industries Inc.,ACTIVE,US,https://www.bachmanntrains.com
+trn:manufacturer:bemo,Bemo,Bemo Modelleisenbahnen GmbH u. Co. KG,ACTIVE,DE,https://www.bemo-modellbahn.de
+trn:manufacturer:black-star,Black Star,Black Star S.r.l.,ACTIVE,IT,https://www.blackstardistribution.it
+trn:manufacturer:brawa,Brawa,Brawa Artur Braun Modellspielwarenfabrik GmbH & Co. KG,ACTIVE,DE,https://www.brawa.de
+trn:manufacturer:broadway-limited-imports,Broadway Limited Imports,Broadway Limited Imports LLC,ACTIVE,US,https://www.broadway-limited.com
+trn:manufacturer:dapol,Dapol,Dapol Ltd,ACTIVE,GB,https://www.dapol.co.uk
+trn:manufacturer:dekas,Dekas,Dekas ApS,ACTIVE,DK,https://dekas.dk
+trn:manufacturer:electrotren,Electrotren,Electrotren S.A.,ACTIVE,ES,https://www.electrotren.com
+trn:manufacturer:esu,ESU,ESU electronic solutions ulm GmbH & Co. KG,ACTIVE,DE,https://www.esu.eu
+trn:manufacturer:exact-trains,Exact Trains,Exact-train B.V.,ACTIVE,NL,https://www.exact-train.com
+trn:manufacturer:fleischmann,Fleischmann,Modelleisenbahn München GmbH,ACTIVE,DE,https://www.fleischmann.de
+trn:manufacturer:hag,hag,HAG Modelleisenbahnen GmbH,ACTIVE,CH,https://www.hag.ch
+trn:manufacturer:heljan,Heljan,Heljan A/S,ACTIVE,DK,https://www.heljan.dk
+trn:manufacturer:hornby-railways,Hornby Railways,Hornby Hobbies Ltd,ACTIVE,GB,https://www.hornby.com
+trn:manufacturer:igra-models,igra models,Igra Model s.r.o.,ACTIVE,CZ,https://igramodel.cz
+trn:manufacturer:intermountain-railway-co,InterMountain Railway Co.,InterMountain Railway Company,ACTIVE,US,https://www.intermountain-railway.com
+trn:manufacturer:jaegerndorfer,Jaegerndorfer,Jägerndorfer Ges.m.b.H.,ACTIVE,AT,https://www.jaegerndorfer.at
+trn:manufacturer:jouef,Jouef,Jouef SAS,ACTIVE,FR,https://www.jouef.com
+trn:manufacturer:kadee-quality-products,Kadee Quality Products,Kadee Quality Products Co.,ACTIVE,US,https://www.kadee.com
+trn:manufacturer:kato-precision-railroad-models,Kato Precision Railroad Models,Seki-Sui Kinzoku Co. Ltd,ACTIVE,JP,https://www.katomodels.com
+trn:manufacturer:lematec,Lematec,Lematec Prestige Models SA,ACTIVE,CH,https://www.lematec.ch
+trn:manufacturer:lenz,Lenz,Lenz Elektronik GmbH,ACTIVE,DE,https://www.lenz-elektronik.de
+trn:manufacturer:lgb,LGB,Gebr. Märklin & Cie. GmbH,ACTIVE,DE,https://www.lgb.de
+trn:manufacturer:liliput,Liliput,Bachmann Europe Plc,ACTIVE,DE,https://www.liliput.de
+trn:manufacturer:lionel,Lionel,Lionel LLC,ACTIVE,US,https://www.lionel.com
+trn:manufacturer:ls-models,LS Models,LS Models Sprl,ACTIVE,BE,https://www.lsmodels.com
+trn:manufacturer:marklin,Märklin,Gebr. Märklin & Cie. GmbH,ACTIVE,DE,https://www.maerklin.de
+trn:manufacturer:micro-ace,Micro Ace,Micro Ace Co. Ltd,ACTIVE,JP,https://www.microace-arii.co.jp
+trn:manufacturer:mtb,mtb,mtb-model s.r.o.,ACTIVE,CZ,https://mtb-model.com
+trn:manufacturer:mth-electric-trains,MTH Electric Trains,MTH Electric Trains,ACTIVE,US,https://www.mthtrains.com
+trn:manufacturer:nme,nme,NME Nürnberger Modell-Eisenbahnen GmbH,ACTIVE,DE,https://www.nme-online.de
+trn:manufacturer:oskar,Os.Kar,Os.kar S.r.l.,ACTIVE,IT,https://www.oskartrains.eu
+trn:manufacturer:peco,Peco,Pritchard Patent Product Co. Ltd,ACTIVE,GB,https://peco-uk.com
+trn:manufacturer:piko,Piko,PIKO Spielwaren GmbH,ACTIVE,DE,https://www.piko.de
+trn:manufacturer:rapido-trains,Rapido Trains,Rapido Trains Inc.,ACTIVE,CA,https://rapidotrains.com
+trn:manufacturer:ree-modeles,REE Modeles,Rails Europ Express,ACTIVE,FR,https://www.ree-modeles.com
+trn:manufacturer:revolution-trains,Revolution Trains,Revolution Trains Ltd,ACTIVE,GB,https://www.revolutiontrains.com
+trn:manufacturer:rivarossi,Rivarossi,Rivarossi S.p.A.,ACTIVE,IT,https://www.rivarossi.com
+trn:manufacturer:roco,Roco,Modelleisenbahn München GmbH,ACTIVE,AT,https://www.roco.cc
+trn:manufacturer:rokuhan,Rokuhan,Toytec Co. Ltd,ACTIVE,JP,https://www.rokuhan.com
+trn:manufacturer:scaletrains,ScaleTrains,ScaleTrains.com Inc.,ACTIVE,US,https://www.scaletrains.com
+trn:manufacturer:sudexpress,Sudexpress,Ginger SAS,ACTIVE,FR,https://www.sudexpress.com
+trn:manufacturer:tillig,Tillig,TILLIG Modellbahnen GmbH & Co. KG,ACTIVE,DE,https://www.tillig.com
+trn:manufacturer:tomix,Tomix,Tomytec Co. Ltd,ACTIVE,JP,https://www.tomytec.co.jp
+trn:manufacturer:trix,Trix,Gebr. Märklin & Cie. GmbH,ACTIVE,DE,https://www.trix.de
+trn:manufacturer:viessmann,Viessmann,Viessmann Modelltechnik GmbH,ACTIVE,DE,https://viessmann-modell.com
+trn:manufacturer:vitrains,ViTrains,ViTrains S.r.l.,ACTIVE,IT,https://www.vitrains.it
+trn:manufacturer:walthers,Walthers,Wm. K. Walthers Inc.,ACTIVE,US,https://www.walthers.com

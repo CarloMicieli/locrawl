@@ -59,7 +59,7 @@ pub async fn run(args: ImportWishlistArgs) -> Result<()> {
     let existing_manifest = load_existing_manifest_or_empty(&args.output)?;
     let mut merged_manifest =
         merge_wishlist_manifests(existing_manifest, incoming_manifest, args.force)?;
-    validate_manifest_integrity(&mut merged_manifest)?;
+    validate_manifest_integrity(&mut merged_manifest, &registry)?;
 
     let mut manifest_value = serde_json::to_value(&merged_manifest)
         .context("Failed to serialize manifest to JSON value")?;
@@ -94,17 +94,15 @@ fn map_wishlist_to_manifest(import: &ImportWishlist, seeds: &Registry) -> Result
 
     for model in &import.railway_models {
         let manufacturer_slug = trn_slug(&model.manufacturer, "trn:manufacturer:");
-        let manufacturer_id = Registry::manufacturer_id(&manufacturer_slug);
-
         let seed_manufacturer = seeds
-            .manufacturers
-            .get(&manufacturer_slug)
+            .manufacturer_for_input(&model.manufacturer)
             .with_context(|| {
                 format!(
                     "Manufacturer '{}' (slug: '{}') not found in seed/manufacturers.csv",
                     model.manufacturer, manufacturer_slug
                 )
             })?;
+        let manufacturer_id = seed_manufacturer.id.clone();
         manufacturers
             .entry(manufacturer_id.0.clone())
             .or_insert_with(|| seed_manufacturer.clone());
@@ -116,7 +114,7 @@ fn map_wishlist_to_manifest(import: &ImportWishlist, seeds: &Registry) -> Result
             seeds,
         )?);
 
-        let railway_model_id = make_model_id(&model.manufacturer, &model.product_code);
+        let railway_model_id = make_model_id(&model.manufacturer, &model.product_code, seeds);
         let wishlist_slug = normalize_id_segment(&import.name);
         let item_id = format!(
             "trn:wishlist-item:{}:{}:{}",

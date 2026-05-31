@@ -9,8 +9,8 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::commands::import_collection::{
-    ensure_parent_dir, load_existing_manifest_or_empty, normalize_id_segment, strip_nulls,
-    write_zip,
+    ensure_parent_dir, load_existing_manifest_or_empty, load_registry, normalize_id_segment,
+    strip_nulls, write_zip,
 };
 use crate::commands::validation::{manifest_schema_path, validate_value_with_schema};
 use crate::import::DigitalRosterImport;
@@ -112,6 +112,16 @@ fn merge_digital_roster(
                 decoder.decoder_interface.clone(),
             ),
         );
+    }
+
+    let registry = load_registry()?;
+    for decoder in registry.decoders.values() {
+        decoder_by_id.entry(decoder.id.clone()).or_insert_with(|| {
+            (
+                decoder.decoder_type.clone(),
+                decoder.decoder_interface.clone(),
+            )
+        });
     }
 
     // Map owned rolling stock ids to their railway model via the collection item
