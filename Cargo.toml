@@ -1,10 +1,11 @@
 [package]
-name = "locrawl"
-version = "0.1.0"
-edition = "2024"
-description = "A CLI tool for retrieving railway model data from manufacturer websites and webshops"
-authors = ["Carlo Micieli <piovarolo@gmail.com>"]
-license = "Apache-2.0"
+name         = "locrawl"
+version      = "0.1.0"
+edition      = "2024"
+description  = "A CLI tool for retrieving railway model data from manufacturer websites and webshops"
+authors      = ["Carlo Micieli <piovarolo@gmail.com>"]
+license      = "Apache-2.0"
+rust-version = "1.96.0"
 
 [dependencies]
 anyhow      = "1.0.102"
